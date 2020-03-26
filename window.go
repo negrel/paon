@@ -1,0 +1,5 @@
+package gom
+
+func init() {
+
+}
