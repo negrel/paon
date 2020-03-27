@@ -1,4 +1,4 @@
-package gom
+package tree
 
 import "golang.org/x/text/encoding"
 
@@ -53,7 +53,6 @@ type Document struct {
 	*Node
 	Body            *Element
 	characterSet    encoding.Encoding
-	docType         DocumentType
 	documentElement *Element
 	head            *Element
 	hidden          bool
@@ -69,7 +68,6 @@ func NewDocument(name string) *Document {
 			nodeName: "#document",
 		},
 		Body:            createElement("body"),
-		docType:         newDocumentType(name),
 		documentElement: nil,
 		head:            nil,
 		hidden:          false,
@@ -105,13 +103,6 @@ func (d *Document) NodeType() NodeType {
 // https://developer.mozilla.org/en-US/docs/Web/API/Document/characterSet
 func (d *Document) CharacterSet() encoding.Encoding {
 	return d.characterSet
-}
-
-// DocType returns the Document Type Declaration (DTD)
-// associated with current document.
-// https://developer.mozilla.org/en-US/docs/Web/API/Document/doctype
-func (d *Document) DocType() DocumentType {
-	return d.docType
 }
 
 // DocumentElement returns the Element that is the root
@@ -180,8 +171,9 @@ func (d *Document) CreateAttribute(name string) *Attr {
 // CreateComment creates a new comment node, and
 // returns it.
 // https://developer.mozilla.org/en-US/docs/Web/API/Document/createComment
-func (d *Document) CreateComment() Node {
+func (d *Document) CreateComment(data string) *Comment {
 	// TODO func (d *Document) CreateComment() Node
+	return createComment(data)
 }
 
 // CreateElement creates a new comment node, and
@@ -202,7 +194,7 @@ func (d *Document) CreateTextNode(content string) *Text {
 // returns an array-like object of all child elements
 // which have all of the given class names.
 // https://developer.mozilla.org/en-US/docs/Web/API/Document/getElementsByClassName
-func (d *Document) GetElementsByClassName(className string) Element {
+func (d *Document) GetElementsByClassName(className string) *Element {
 	// TODO func (d *Document) GetElementsByClassName(className string) Element
 	return createElement("")
 }
@@ -220,30 +212,30 @@ func (d *Document) GetElementsByTagName(tagName string) *Element {
 // DocumentFragment from another document, to be
 // inserted into the current document later.
 // https://developer.mozilla.org/en-US/docs/Web/API/Document/importNode
-func (d *Document) ImportNode(node Node, deep bool) *Node {
+func (d *Document) ImportNode(node *Node, deep bool) *Node {
 	// TODO func (d *Document) ImportNode(node Node, deep bool) Node
-	return newNode()
+	return node
 }
 
-// GetElementById returns an Element object representing
-// the element whose id property matches the specified string
-// https://developer.mozilla.org/en-US/docs/Web/API/Document/getElementById
-func (d *Document) GetElementById(id string) *Element {
-	// TODO func (d *Document) GetElementById(id string) Element
-	return createElement("")
-}
+// // GetElementById returns an Element object representing
+// // the element whose id property matches the specified string
+// // https://developer.mozilla.org/en-US/docs/Web/API/Document/getElementById
+// func (d *Document) GetElementById(id string) *Element {
+// 	// TODO func (d *Document) GetElementById(id string) Element
+// 	return createElement("")
+// }
 
-// QuerySelector returns the first Element within the document
-// that matches the specified selector, or group of selectors.
-// https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector
-func (d *Document) QuerySelector(selector string) Element {
-	// TODO func (d *Document) QuerySelector(selector string) Element
-}
+// // QuerySelector returns the first Element within the document
+// // that matches the specified selector, or group of selectors.
+// // https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector
+// func (d *Document) QuerySelector(selector string) Element {
+// 	// TODO func (d *Document) QuerySelector(selector string) Element
+// }
 
-// QuerySelectorAll returns a static (not live) NodeList
-// representing a list of the document's elements that match
-// the specified group of selectors.
-// https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelectorAll
-func (d *Document) QuerySelectorAll(selector string) NodeList {
-	// TODO func (d *Document) QuerySelectorAll(selector string) NodeList
-}
+// // QuerySelectorAll returns a static (not live) NodeList
+// // representing a list of the document's elements that match
+// // the specified group of selectors.
+// // https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelectorAll
+// func (d *Document) QuerySelectorAll(selector string) NodeList {
+// 	// TODO func (d *Document) QuerySelectorAll(selector string) NodeList
+// }

@@ -1,4 +1,4 @@
-package gom
+package tree
 
 // Attr represents one of a DOM element's attributes
 // as an object.

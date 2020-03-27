@@ -1,16 +1,16 @@
-package gom
+package tree
 
 // ParentNode mixin contains methods and properties
 // that are common to all types of Node objects that can have children
 // https://developer.mozilla.org/en-US/docs/Web/API/ParentNode
 // https://dom.spec.whatwg.org/#parentnode
 type ParentNode struct {
-	children GOMLCollection
+	children *ElementCollection
 }
 
 func newParentNode() *ParentNode {
 	return &ParentNode{
-		children: newGOMLCollection(),
+		children: newElementCollection(),
 	}
 }
 
@@ -22,14 +22,14 @@ func newParentNode() *ParentNode {
 // FirstElementChild returns the object's first child
 // Element, or null if there are no child elements.
 // https://developer.mozilla.org/en-US/docs/Web/API/ParentNode/firstElementChild
-func (pn *ParentNode) FirstElementChild() Element {
+func (pn *ParentNode) FirstElementChild() *Element {
 	return pn.children.Item(0)
 }
 
 // LastElementChild returns the object's last child
 // Element, or null if there are no child elements.
 // https://developer.mozilla.org/en-US/docs/Web/API/ParentNode/lastElementChild
-func (pn *ParentNode) LastElementChild() Element {
+func (pn *ParentNode) LastElementChild() *Element {
 	var lastIndex = pn.children.Length() - 1
 
 	return pn.children.Item(lastIndex)

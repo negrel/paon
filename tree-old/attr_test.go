@@ -1,4 +1,4 @@
-package gom
+package tree
 
 import (
 	"testing"

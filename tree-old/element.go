@@ -1,4 +1,4 @@
-package gom
+package tree
 
 import (
 	"strings"
@@ -274,37 +274,21 @@ func (e *Element) GetAttributeNames() []string {
 	return attrNames
 }
 
-// GetBoundingClientRect method returns the size of an
-// element and its position relative to the viewport.
-// https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
-func (e *Element) GetBoundingClientRect() GOMRect {
-	// TODO (e *element) GetBoundingClientRect() GOMRect
-	return &gomRect{}
-}
-
-// GetClientRect method returns the size of an
-// element and its position relative to the viewport.
-// https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
-func (e *Element) GetClientRects() []GOMRect {
-	// TODO (e *element) GetClientRects() []GOMRect
-	return make([]GOMRect, 0)
-}
-
 // GetElementsByClassName returns a live GOMLCollection which
 // contains every descendant element which has
 // the specified class name or names.
 // https://developer.mozilla.org/en-US/docs/Web/API/Element/getElementsByClassName
-func (e *Element) GetElementsByClassName(className string) GOMLCollection {
+func (e *Element) GetElementsByClassName(className string) ElementCollection {
 	// TODO func (e *Element) GetElementsByClassName() GOMLCollection
-	return newGOMLCollection()
+	return *newElementCollection()
 }
 
 // GetElementsByTagName method returns a live GOMLCollection
 // of elements with the given tag name.
 // https://developer.mozilla.org/en-US/docs/Web/API/Element/getElementsByTagName
-func (e *Element) GetElementsByTagName(tagName string) GOMLCollection {
+func (e *Element) GetElementsByTagName(tagName string) ElementCollection {
 	// TODO func (e *Element) GetElementsByTagName() GOMLCollection
-	return newGOMLCollection()
+	return *newElementCollection()
 }
 
 // HasAttribute method returns a Boolean value indicating
@@ -316,21 +300,21 @@ func (e *Element) HasAttribute(name string) bool {
 	return has
 }
 
-// QuerySelector method returns the first element that is
-// a descendant of the element on which it is invoked that
-// matches the specified group of selectors.
-// https://developer.mozilla.org/en-US/docs/Web/API/Element/querySelector
-func (e *Element) QuerySelector(selector string) Node {
-	// TODO func (e *Element) QuerySelector(selector string) Node
-	return newNode()
-}
+// // QuerySelector method returns the first element that is
+// // a descendant of the element on which it is invoked that
+// // matches the specified group of selectors.
+// // https://developer.mozilla.org/en-US/docs/Web/API/Element/querySelector
+// func (e *Element) QuerySelector(selector string) *Node {
+// 	// TODO func (e *Element) QuerySelector(selector string) Node
+// 	return newNode()
+// }
 
 // QuerySelectorAll returns a static (not live) NodeList
 // representing a list of elements matching the specified
 // group of selectors which are descendants of the element
 // on which the method was called.
 // https://developer.mozilla.org/en-US/docs/Web/API/Element/querySelectorAll
-func (e *Element) QuerySelectorAll(selector string) NodeList {
+func (e *Element) QuerySelectorAll(selector string) *NodeList {
 	// TODO func (e *Element) QuerySelectorAll(selector string) Node
 	return newNodeList()
 }

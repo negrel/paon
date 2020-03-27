@@ -1,4 +1,4 @@
-package gom
+package tree
 
 import (
 	e "github.com/negrel/gom/exception"
@@ -25,7 +25,7 @@ type Text struct {
 func createTextNode(content string) *Text {
 	return &Text{
 		&CharacterData{
-			data: content,
+			data: []rune(content),
 		},
 	}
 }
@@ -50,8 +50,9 @@ func (t *Text) WholeText() string {
 // tree as siblings.
 // https://developer.mozilla.org/en-US/docs/Web/API/Text/splitText
 // https://dom.spec.whatwg.org/#dom-text-splittext
-func (t *Text) SplitText(offset uint) (*Text, e.Exception) {
-	var count uint = uint(t.Length()) - offset
+func (t *Text) SplitText(offset int) (*Text, e.Exception) {
+	var length int = t.Length()
+	var count int = length - offset
 
 	// If offset is greater than length
 	if count < 0 {
@@ -59,7 +60,12 @@ func (t *Text) SplitText(offset uint) (*Text, e.Exception) {
 	}
 
 	// Substring is data of the new node
-	newTextData := t.SubstringData(offset, count)
+	newTextData, err := t.SubstringData(offset, count)
+
+	if err != nil {
+		return nil, err
+	}
+
 	// Creating new node
 	newText := createTextNode(newTextData)
 	newText.setOwnerDocument(t.OwnerDocument())

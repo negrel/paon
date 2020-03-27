@@ -1,4 +1,4 @@
-package gom
+package tree
 
 import (
 	e "github.com/negrel/gom/exception"
@@ -54,7 +54,6 @@ const (
 	TextNode
 	CommentNode
 	DocumentNode
-	DocumentTypeNode
 )
 
 func newNode(nt NodeType, nn string) *Node {
@@ -107,54 +106,22 @@ func (n *Node) preInsertionValidity(other *Node, before *Node) e.Exception {
 		return e.New(e.NotFoundError, "", "")
 	}
 
-	// If other is not DocumentType, Element, Text or Comment
-	if oNT != DocumentTypeNode || oNT != ElementNode ||
-		oNT != TextNode || oNT != CommentNode {
+	// If other is not Element, Text or Comment
+	if oNT != ElementNode || oNT != TextNode || oNT != CommentNode {
 
 		return e.New(e.NotFoundError, "", "")
 	}
 
-	// If other is Text & n is a document OR other is a
-	// doctype & n is not a document
-	if (oNT == TextNode && nt == DocumentNode) ||
-		(oNT == DocumentTypeNode && nt != DocumentNode) {
-
+	// If other is Text & n is a document
+	if oNT == TextNode && nt == DocumentNode {
 		return e.New(e.HierarchyRequestError, "", "")
 	}
 
 	// If parent is a document, and any of the statements
 	// below, switched on node, are true.
-	if nt == DocumentNode {
-		switch oNT {
-		case ElementNode:
-			bNS := before.NextSibling()
-
-			if n.HasChildNodes() ||
-				before.nodeType == DocumentTypeNode ||
-				(before != nil && bNS != nil && bNS.nodeType == DocumentTypeNode) {
-				return e.New(e.HierarchyRequestError, "", "")
-			}
-
-		case DocumentTypeNode:
-			// Check if there is a doctype child
-			var doctypeChild bool
-			var elementChild bool
-			n.childNodes.ForEach(func(_ int, c *Node) {
-				if c.nodeType == DocumentTypeNode {
-					doctypeChild = true
-				} else if c.nodeType == ElementNode {
-					elementChild = true
-				}
-			})
-
-			bPS := before.PreviousSibling()
-
-			if doctypeChild ||
-				(before != nil && bPS != nil && bPS.nodeType == ElementNode) ||
-				(before == nil && elementChild) {
-
-				return e.New(e.HierarchyRequestError, "", "")
-			}
+	if nt == DocumentNode && oNT == ElementNode {
+		if n.HasChildNodes() {
+			return e.New(e.HierarchyRequestError, "", "")
 		}
 	}
 

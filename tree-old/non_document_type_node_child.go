@@ -1,4 +1,4 @@
-package gom
+package tree
 
 // NonDocumentTypeChildNode interface contains
 // methods that are particular to Node objects

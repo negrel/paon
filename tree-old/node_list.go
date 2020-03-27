@@ -1,4 +1,4 @@
-package gom
+package tree
 
 // NodeList objects are collections of nodes (live)
 // https://developer.mozilla.org/en-US/docs/Web/API/NodeList
