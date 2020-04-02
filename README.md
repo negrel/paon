@@ -11,6 +11,7 @@
 </p>
 
 # Ginger-go
+***Ginger** is a framework for building terminal application.*
 
 ### Contributing
 If you want to contribute to GOM to add a feature or improve the code contact me at [alexnegrel13@gmail.com](mailto:negrel.dev@protonmail.com), open an [issue](https://github.com/negrel/gom/issues) or make a [pull request](https://github.com/negrel/gom/pulls).
