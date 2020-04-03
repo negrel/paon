@@ -14,7 +14,7 @@
 ***Ginger** is a framework for building terminal application.*
 
 ### Contributing
-If you want to contribute to GOM to add a feature or improve the code contact me at [alexnegrel13@gmail.com](mailto:negrel.dev@protonmail.com), open an [issue](https://github.com/negrel/gom/issues) or make a [pull request](https://github.com/negrel/gom/pulls).
+If you want to contribute to Ginger to add a feature or improve the code contact me at [negrel.dev@protonmail.com](mailto:negrel.dev@protonmail.com), open an [issue](https://github.com/negrel/ginger-go/issues) or make a [pull request](https://github.com/negrel/ginger-go/pulls).
 
 ## :stars: Show your support
 Please give a :star: if this project helped you!
