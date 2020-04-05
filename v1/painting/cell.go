@@ -1,21 +1,30 @@
 package painting
 
 import (
-	"github.com/gdamore/tcell"
+	"github.com/negrel/ginger/v1/color"
 )
 
 // CellDefault is the default cell used for
 // Matrix constructor.
 var CellDefault = Cell{
-	Foreground: tcell.ColorDefault,
-	Background: tcell.ColorDefault,
+	Style: color.StyleDefault,
+	Char:  0,
+}
+
+// CellOverflow is used when a component is too large
+// to fit the constraint.
+var CellOverflow = Cell{
+	Style: color.Style{
+		Foreground: 0xFFFFFF,
+		Background: 0xFF0000,
+	},
+	Char: '!',
 }
 
 // Cell is an element in the terminal screen matrix.
 type Cell struct {
-	Char       rune
-	Foreground tcell.Color
-	Background tcell.Color
+	color.Style
+	Char rune
 }
 
 /*****************************************************
@@ -25,10 +34,11 @@ type Cell struct {
 
 // Compute return the raw cell for the painter.
 func (c *Cell) Compute(p Position) RawCell {
+
 	return RawCell{
 		Position: p,
 		Mainc:    c.Char,
-		Style:    tcell.StyleDefault.Background(c.Background).Foreground(c.Foreground),
+		Style:    c.Style.Compute(),
 	}
 }
 

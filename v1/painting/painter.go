@@ -7,7 +7,7 @@ import (
 
 // Painter paint layer to the screen.
 type Painter struct {
-	Channel <-chan *Frame
+	Channel chan *Frame
 	Paint   func(RawCell)
 	Refresh func()
 }

@@ -3,7 +3,7 @@ package painting
 import (
 	"testing"
 
-	"github.com/gdamore/tcell"
+	"github.com/negrel/ginger/v1/color"
 )
 
 type size struct {
@@ -186,14 +186,14 @@ var IsEqualTests []IsEqualTest = []IsEqualTest{
 			M: [][]*Cell{
 				[]*Cell{
 					&Cell{
-						Foreground: tcell.ColorDefault,
-						Background: tcell.ColorDefault,
+						Style: color.StyleDefault,
+						Char:  0,
 					},
 				},
 				[]*Cell{
 					&Cell{
-						Foreground: tcell.ColorDefault,
-						Background: tcell.ColorDefault,
+						Style: color.StyleDefault,
+						Char:  0,
 					},
 				},
 			},
@@ -215,14 +215,20 @@ var IsEqualTests []IsEqualTest = []IsEqualTest{
 			M: [][]*Cell{
 				[]*Cell{
 					&Cell{
-						Foreground: 0x000000,
-						Background: tcell.ColorDefault,
+						Style: color.Style{
+							Foreground: 0x000000,
+							Background: color.Default,
+						},
+						Char: '0',
 					},
 				},
 				[]*Cell{
 					&Cell{
-						Foreground: tcell.ColorDefault,
-						Background: 0x000000,
+						Style: color.Style{
+							Foreground: color.Default,
+							Background: 0x000000,
+						},
+						Char: '0',
 					},
 				},
 			},
