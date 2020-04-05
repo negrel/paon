@@ -33,6 +33,20 @@ func NewFrame(p Position, width, height int) *Frame {
  *****************************************************/
 // ANCHOR Getters & setter
 
+// Bounds getter return the bounds of the frame.
+func (f *Frame) Bounds() *image.Rectangle {
+	return &image.Rectangle{
+		Min: image.Point{
+			X: f.Position.X,
+			Y: f.Position.Y,
+		},
+		Max: image.Point{
+			X: (f.Position.X + f.Patch.Width()),
+			Y: (f.Position.Y + f.Patch.Height()),
+		},
+	}
+}
+
 // MaxHeightIndex return the max height index used by frame.
 // (height + y position)
 func (f *Frame) maxHeightIndex() uint {
