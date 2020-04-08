@@ -11,7 +11,7 @@ import (
 type Row struct {
 	*Base
 
-	Childrens []Widget
+	Children []Widget
 }
 
 /*****************************************************
@@ -22,12 +22,12 @@ type Row struct {
 // Widget interface
 
 func (r *Row) drawChilds(bounds image.Rectangle) ([]*painting.Frame, image.Point) {
-	childCount := len(r.Childrens)
+	childCount := len(r.Children)
 	cFrames := make([]*painting.Frame, childCount)
 	size := image.Pt(0, 0)
 
 	for i := 0; i < childCount; i++ {
-		cFrame := r.Childrens[i].Draw(bounds)
+		cFrame := r.Children[i].Draw(bounds)
 		cFrames[i] = cFrame
 
 		if cHeight := cFrame.Patch.Height(); cHeight > size.Y {
@@ -52,13 +52,9 @@ func (r *Row) Draw(bounds image.Rectangle) *painting.Frame {
 	}
 	cFrames, size := r.drawChilds(cBounds)
 
-	log.Println("ROW SIZE :", bounds.Min, image.Pt(size.X, size.Y))
-	log.Println("ROW BOUNDS:", bounds)
-
 	frame := painting.NewFrame(bounds.Min, size.X, size.Y)
 
 	for i := 0; i < len(cFrames); i++ {
-		log.Println("-------- ROW --------")
 		err := frame.Add(cFrames[i])
 
 		if err != nil {

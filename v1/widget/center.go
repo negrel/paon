@@ -2,6 +2,7 @@ package widget
 
 import (
 	"image"
+	"log"
 
 	"github.com/negrel/ginger/v1/painting"
 )
@@ -11,7 +12,7 @@ import (
 type Center struct {
 	*Base
 
-	Children Widget
+	Child Widget
 
 	// If non-null, sets its width to the child's width multiplied by this factor.
 	WidthFactor int
@@ -36,7 +37,7 @@ func (c *Center) Draw(bounds image.Rectangle) *painting.Frame {
 	}
 
 	// Drawing child
-	cFrame := c.Children.Draw(cBounds)
+	cFrame := c.Child.Draw(cBounds)
 	cWidth := cFrame.Patch.Width()
 	cHeight := cFrame.Patch.Height()
 
@@ -65,7 +66,12 @@ func (c *Center) Draw(bounds image.Rectangle) *painting.Frame {
 	cFrame.Position = cPosition
 
 	// Adding centered child frame
-	frame.Add(cFrame)
+	err := frame.Add(cFrame)
+	if err != nil {
+		log.Print("CENTER: ", err)
+		log.Printf("CENTER FRAME: %+v %+v %+v", frame.Position, frame.Patch.Width(), frame.Patch.Height())
+		log.Fatalf("CHILD FRAME: %+v %+v %+v", cFrame.Position, cFrame.Patch.Width(), cFrame.Patch.Height())
+	}
 
 	return frame
 }

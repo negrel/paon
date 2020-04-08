@@ -13,7 +13,7 @@ var _ Widget = &Column{}
 type Column struct {
 	*Base
 
-	Childrens []Widget
+	Children []Widget
 }
 
 /*****************************************************
@@ -24,12 +24,12 @@ type Column struct {
 // Widget interface
 
 func (c *Column) drawChilds(bounds image.Rectangle) ([]*painting.Frame, image.Point) {
-	childCount := len(c.Childrens)
+	childCount := len(c.Children)
 	cFrames := make([]*painting.Frame, childCount)
 	size := image.Pt(0, 0)
 
 	for i := 0; i < childCount; i++ {
-		cFrame := c.Childrens[i].Draw(bounds)
+		cFrame := c.Children[i].Draw(bounds)
 		cFrames[i] = cFrame
 
 		if cWidth := cFrame.Patch.Width(); cWidth > size.X {
@@ -58,7 +58,6 @@ func (c *Column) Draw(bounds image.Rectangle) *painting.Frame {
 	frame := painting.NewFrame(bounds.Min, size.X, size.Y)
 
 	for i := 0; i < len(cFrames); i++ {
-		log.Println("-------- COLUM --------")
 		err := frame.Add(cFrames[i])
 
 		if err != nil {
@@ -66,8 +65,6 @@ func (c *Column) Draw(bounds image.Rectangle) *painting.Frame {
 			log.Printf("COLUMN FRAME: %+v %+v %+v", frame.Position, frame.Patch.Width(), frame.Patch.Height())
 			log.Fatalf("CHILD n°%v FRAME: %+v %+v %+v", i, cFrames[i], cFrames[i].Patch.Width(), cFrames[i].Patch.Height())
 		}
-
-		log.Println("ROW ADDED")
 	}
 
 	return frame

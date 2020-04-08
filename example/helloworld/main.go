@@ -30,11 +30,11 @@ func main() {
 		// Center the children widget
 		Root: &widget.Center{
 			// Column that contain the multiple row
-			Children: &widget.Column{
+			Child: &widget.Column{
 				// First row of hello world text
-				Childrens: []widget.Widget{
+				Children: []widget.Widget{
 					&widget.Row{
-						Childrens: []widget.Widget{
+						Children: []widget.Widget{
 							&widget.Text{
 								Content:    "Hello world",
 								Background: 0xFFFFFF,
@@ -54,7 +54,7 @@ func main() {
 					},
 					// Second row of hello world text
 					&widget.Row{
-						Childrens: []widget.Widget{
+						Children: []widget.Widget{
 
 							&widget.Text{
 								Content:    "Hello world",
@@ -75,7 +75,7 @@ func main() {
 					},
 					// Third row of hello world text
 					&widget.Row{
-						Childrens: []widget.Widget{
+						Children: []widget.Widget{
 							&widget.Text{
 								Content:    "Hello world",
 								Background: 0xFFFFFF,

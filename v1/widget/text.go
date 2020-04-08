@@ -24,8 +24,6 @@ func (t *Text) Draw(bounds image.Rectangle) *painting.Frame {
 	r := []rune(t.Content)
 	width := len(r)
 
-	log.Println("TEXT BOUNDS : ", bounds)
-
 	// If text overflow bounds
 	if cWidth := bounds.Dx(); cWidth < width {
 		width = cWidth
