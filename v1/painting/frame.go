@@ -3,6 +3,7 @@ package painting
 import (
 	"errors"
 	"image"
+	"log"
 )
 
 // Position is X, Y coordinate pair. The axes increase
@@ -50,14 +51,12 @@ func (f *Frame) Bounds() *image.Rectangle {
 // MaxHeightIndex return the max height index used by frame.
 // (height + y position)
 func (f *Frame) maxHeightIndex() uint {
-	// Avoid -1 on with position and height = 0
 	return uint(f.Position.Y + f.Patch.Height() - 1)
 }
 
 // MaxWidthIndex return the max width index used by frame.
 // (Width + x position)
 func (f *Frame) maxWidthIndex() uint {
-	// Avoid -1 on with position and width = 0
 	return uint(f.Position.X + f.Patch.Width() - 1)
 }
 
@@ -69,6 +68,9 @@ func (f *Frame) maxWidthIndex() uint {
 // Add method add the given frame patch into the frame itself
 // using the patch relative position.
 func (f *Frame) Add(o *Frame) error {
+	log.Printf("ADDING %v, %v", o.Position, image.Pt(int(o.maxWidthIndex()), int(o.maxHeightIndex())))
+	log.Printf("TO %v, %v", f.Position, image.Pt(int(f.maxWidthIndex()), int(f.maxHeightIndex())))
+
 	if can := f.CanContain(o); !can {
 		return errors.New("the given frame can't be added or contained")
 	}
@@ -78,7 +80,6 @@ func (f *Frame) Add(o *Frame) error {
 
 		for j := 0; j < o.Patch.Width(); j++ {
 			xOffset := o.Position.X + j
-
 			f.Patch.M[yOffset][xOffset] = o.Patch.M[i][j]
 		}
 	}
@@ -91,16 +92,25 @@ func (f *Frame) Add(o *Frame) error {
 func (f *Frame) CanContain(o *Frame) bool {
 
 	if !o.Patch.isValid() {
+		log.Println("Can't contain because the frame is invalid.")
 		return false
 	}
 
-	if o.Position.Y < 0 ||
-		o.maxHeightIndex() >= uint(f.Patch.Height()) {
+	if o.maxHeightIndex() >= uint(f.Patch.Height()) {
+		log.Println(o.maxHeightIndex() >= uint(f.Patch.Height()))
+
+		log.Println("Can't contain because of the height.")
+		log.Printf("Container height: %v", f.Patch.Height())
+		log.Printf("Frame height: %v", o.maxHeightIndex())
 		return false
 	}
 
-	if o.Position.X < 0 ||
-		o.maxWidthIndex() >= uint(f.Patch.Width()) {
+	if o.maxWidthIndex() >= uint(f.Patch.Width()) {
+		log.Println(o.maxWidthIndex() >= uint(f.Patch.Width()))
+
+		log.Println("Can't contain because of the width.")
+		log.Printf("Container width:  %v", f.Patch.Width())
+		log.Printf("Frame width: %v", o.maxWidthIndex())
 		return false
 	}
 
@@ -108,12 +118,6 @@ func (f *Frame) CanContain(o *Frame) bool {
 }
 
 func (f *Frame) isEqual(other *Frame) bool {
-
-	if f.maxWidthIndex() != other.maxWidthIndex() ||
-		f.maxHeightIndex() != other.maxHeightIndex() {
-		return false
-	}
-
 	if !f.Patch.isEqual(other.Patch) {
 		return false
 	}

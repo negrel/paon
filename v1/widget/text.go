@@ -2,54 +2,49 @@ package widget
 
 import (
 	"image"
+	"log"
 
-	"github.com/negrel/ginger/v1/style"
+	"github.com/negrel/ginger/v1/color"
+	"github.com/negrel/ginger/v1/painting"
 )
+
+var _ Widget = &Text{}
 
 // Text is a basic widget to display text.
 type Text struct {
 	*Base
 
-	f       *style.Frame
-	Content string
-	Colors  style.Colors
+	Content    string
+	Foreground int32
+	Background int32
 }
 
-/*****************************************************
- ********************* INTERFACE *********************
- *****************************************************/
-// ANCHOR Getters & setter
-
-// Widget
-
 // Draw implements Widget interface.
-func (t *Text) Draw(c Constraint) *style.Frame {
+func (t *Text) Draw(bounds image.Rectangle) *painting.Frame {
 	r := []rune(t.Content)
 	width := len(r)
 
-	// Respect width constraint
-	if width > c.R.Dx() {
-		width = c.R.Dx()
+	log.Println("TEXT BOUNDS : ", bounds)
+
+	// If text overflow bounds
+	if cWidth := bounds.Dx(); cWidth < width {
+		width = cWidth
 	}
 
-	row := make(style.Row, len(r))
+	// Frame to return
+	frame := painting.NewFrame(bounds.Min, width, 1)
 
 	for i := 0; i < width; i++ {
-		row[i] = &style.Cell{
-			Char:   r[i],
-			Colors: t.Colors,
+		frame.Patch.M[0][i] = &painting.Cell{
+			Char: r[i],
+			Style: color.Style{
+				Foreground: t.Foreground,
+				Background: t.Background,
+			},
 		}
 	}
 
-	t.f = &style.Frame{
-		R: image.Rectangle{
-			Min: c.R.Min,
-			Max: c.R.Min.Add(image.Pt(width, 1)),
-		},
-		G: style.Grid{
-			row,
-		},
-	}
+	log.Println("TEXT POSITION:", frame.Position)
 
-	return t.f
+	return frame
 }

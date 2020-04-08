@@ -1,26 +1,18 @@
 package ginger
 
 import (
-	"io"
+	"io/ioutil"
 	"log"
-	"os"
 	"time"
 
 	"github.com/gdamore/tcell"
-	"github.com/negrel/ginger/v1/paint"
-	"github.com/negrel/ginger/v1/style"
+	"github.com/negrel/ginger/v1/painting"
 )
 
-var logF io.Writer
-
 func init() {
-	logf, err := os.OpenFile("debug.log", os.O_RDWR|os.O_CREATE, 0755)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.SetOutput(logf)
+	// By default no log
+	// If user want to debug he must set log output
+	log.SetOutput(ioutil.Discard)
 }
 
 // Screen represent the terminal screen.
@@ -51,12 +43,6 @@ func New() (*Application, error) {
  *****************************************************/
 // ANCHOR Methods
 
-// AddActivities add activities
-// func (a *Application) AddActivities(ac ...*Activity) {
-// 	log.Println("Adding activity...")
-// 	a.activity = append(a.activity, ac...)
-// }
-
 // Start the application.
 func (a *Application) Start(ac *Activity) error {
 	log.Println("Starting the application.")
@@ -67,11 +53,11 @@ func (a *Application) Start(ac *Activity) error {
 	}
 
 	// PAINTER
-	paintChannel := make(chan style.Frame)
+	paintChannel := make(chan *painting.Frame)
 
-	painter := paint.Painter{
+	painter := painting.Painter{
 		Channel: paintChannel,
-		Paint:   a.screen.SetContent,
+		Paint:   a.paint,
 		Refresh: a.screen.Show,
 	}
 
@@ -89,6 +75,10 @@ func (a *Application) Start(ac *Activity) error {
 	go a.listen()
 
 	return nil
+}
+
+func (a *Application) paint(rc painting.RawCell) {
+	a.screen.SetContent(rc.X, rc.Y, rc.Mainc, rc.Combc, rc.Style)
 }
 
 // Stop the application

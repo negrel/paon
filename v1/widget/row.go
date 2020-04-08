@@ -4,12 +4,10 @@ import (
 	"image"
 	"log"
 
-	"github.com/negrel/ginger/v1/style"
+	"github.com/negrel/ginger/v1/painting"
 )
 
-var _ Widget = &Row{}
-
-// Row is a layout that arrange widget horizontaly.
+// Row is a layout that arrange widget horizontally.
 type Row struct {
 	*Base
 
@@ -23,47 +21,54 @@ type Row struct {
 
 // Widget interface
 
-// drawChild return the childrens frame with the total width
-// and the max height.
-func (r *Row) drawChild(c Constraint) (childsFrames []*style.Frame, totalW, maxH int) {
+func (r *Row) drawChilds(bounds image.Rectangle) ([]*painting.Frame, image.Point) {
 	childCount := len(r.Childrens)
-	childsFrames = make([]*style.Frame, childCount)
+	cFrames := make([]*painting.Frame, childCount)
+	size := image.Pt(0, 0)
 
-	// Computing child frame
 	for i := 0; i < childCount; i++ {
-		child := r.Childrens[i]
+		cFrame := r.Childrens[i].Draw(bounds)
+		cFrames[i] = cFrame
 
-		// Child frame
-		cFrame := child.Draw(c)
-		cWidth := cFrame.R.Dx() // Child Width
-		childsFrames[i] = cFrame
+		if cHeight := cFrame.Patch.Height(); cHeight > size.Y {
+			size.Y = cHeight
+		}
 
-		// Reducing constraint freespace
-		c.R.Min = c.R.Min.Add(image.Point{cWidth, 0})
+		// updating bounds for next children
+		bounds.Min.X += cFrame.Patch.Width()
+		// updating total width
+		size.X += cFrame.Patch.Width()
+	}
 
-		// Updating total & max
-		totalW += cWidth
-		if cHeight := cFrame.R.Dy(); cHeight > maxH {
-			maxH = cHeight
+	return cFrames, size
+}
+
+// Draw implements Widget interface.
+func (r *Row) Draw(bounds image.Rectangle) *painting.Frame {
+	// child bounds are relative
+	cBounds := image.Rectangle{
+		Min: image.Point{},
+		Max: bounds.Max.Sub(bounds.Min),
+	}
+	cFrames, size := r.drawChilds(cBounds)
+
+	log.Println("ROW SIZE :", bounds.Min, image.Pt(size.X, size.Y))
+	log.Println("ROW BOUNDS:", bounds)
+
+	frame := painting.NewFrame(bounds.Min, size.X, size.Y)
+
+	for i := 0; i < len(cFrames); i++ {
+		log.Println("-------- ROW --------")
+		err := frame.Add(cFrames[i])
+
+		if err != nil {
+			log.Print("ROW:", err)
+			log.Printf("ROW FRAME: %+v %+v %+v", frame.Position, frame.Patch.Width(), frame.Patch.Height())
+			log.Fatalf("CHILD n°%v FRAME: %+v %+v %+v", i, cFrames[i], cFrames[i].Patch.Width(), cFrames[i].Patch.Height())
 		}
 	}
 
-	return
-}
-
-// Draw implements the widget interface
-func (r *Row) Draw(c Constraint) *style.Frame {
-	childsFrames, _, rHeight := r.drawChild(c)
-
-	frame := style.NewFrame(0, rHeight)
-
-	log.Printf("%+v", frame)
-
-	// Format frame for the same width
-	for i := 0; i < len(childsFrames); i++ {
-		childsFrames[i].SetHeight(rHeight, c.c)
-		frame.AppendRight(childsFrames[i].G)
-	}
+	log.Println("ROW FINISHED")
 
 	return frame
 }

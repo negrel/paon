@@ -2,8 +2,9 @@ package widget
 
 import (
 	"image"
+	"log"
 
-	"github.com/negrel/ginger/v1/style"
+	"github.com/negrel/ginger/v1/painting"
 )
 
 var _ Widget = &Column{}
@@ -22,43 +23,51 @@ type Column struct {
 
 // Widget interface
 
-// drawChild return the childrens frame with the total width
-// and the max height.
-func (col *Column) drawChild(c Constraint) (childsFrames []*style.Frame, totalH, maxW int) {
-	childCount := len(col.Childrens)
-	childsFrames = make([]*style.Frame, childCount, childCount)
-	// Computing child frame
+func (c *Column) drawChilds(bounds image.Rectangle) ([]*painting.Frame, image.Point) {
+	childCount := len(c.Childrens)
+	cFrames := make([]*painting.Frame, childCount)
+	size := image.Pt(0, 0)
+
 	for i := 0; i < childCount; i++ {
-		child := col.Childrens[i]
+		cFrame := c.Childrens[i].Draw(bounds)
+		cFrames[i] = cFrame
 
-		// Child frame
-		cFrame := child.Draw(c)
-		cHeight := cFrame.R.Dy() // Child height
-		childsFrames[i] = cFrame
-
-		// Reducing constraint freespace for next child
-		c.R.Min = c.R.Min.Add(image.Pt(0, cHeight))
-
-		// Updating total & max
-		totalH += cHeight
-		if cWidth := cFrame.R.Dx(); cWidth > maxW {
-			maxW = cWidth
+		if cWidth := cFrame.Patch.Width(); cWidth > size.X {
+			size.X = cWidth
 		}
+
+		// updating bounds for next children
+		bounds.Min.Y += cFrame.Patch.Height()
+		// updating total size.Y
+		size.Y += cFrame.Patch.Height()
 	}
 
-	return
+	return cFrames, size
 }
 
-// Draw implements the widget interface
-func (col *Column) Draw(c Constraint) *style.Frame {
-	childsFrames, _, colWidth := col.drawChild(c)
+// Draw implements Widget interface.
+func (c *Column) Draw(bounds image.Rectangle) *painting.Frame {
+	// child bounds are relative
+	cBounds := image.Rectangle{
+		Min: image.Point{},
+		Max: bounds.Max.Sub(bounds.Min),
+	}
 
-	frame := style.NewFrame(colWidth, 0)
+	cFrames, size := c.drawChilds(cBounds)
 
-	// Format frame for the same width
-	for i := 0; i < len(childsFrames); i++ {
-		childsFrames[i].SetWidth(colWidth, c.c)
-		frame.AppendBelow(childsFrames[i].G)
+	frame := painting.NewFrame(bounds.Min, size.X, size.Y)
+
+	for i := 0; i < len(cFrames); i++ {
+		log.Println("-------- COLUM --------")
+		err := frame.Add(cFrames[i])
+
+		if err != nil {
+			log.Print("COLUMN: ", err)
+			log.Printf("COLUMN FRAME: %+v %+v %+v", frame.Position, frame.Patch.Width(), frame.Patch.Height())
+			log.Fatalf("CHILD n°%v FRAME: %+v %+v %+v", i, cFrames[i], cFrames[i].Patch.Width(), cFrames[i].Patch.Height())
+		}
+
+		log.Println("ROW ADDED")
 	}
 
 	return frame

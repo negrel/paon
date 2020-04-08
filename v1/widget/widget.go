@@ -3,23 +3,24 @@ package widget
 import (
 	"image"
 
-	"github.com/negrel/ginger/v1/style"
+	"github.com/negrel/ginger/v1/color"
+	"github.com/negrel/ginger/v1/painting"
 )
 
-// Constraint represent the size & position constrait
-// for children widget frames.
+// Constraint give the grid/matrix on which the
+// children must draw.
 type Constraint struct {
-	// Space that child can use to draw itself
-	R image.Rectangle
+	Frame *painting.Frame
 	// Default colors for unused space
-	c style.Colors
+	C color.Style
 }
 
 // Widget are node in the render tree that have a style
 // and some state.
 type Widget interface {
-	// Draw is use to paint the widget
-	Draw(c Constraint) *style.Frame
+	// Draw is use to paint the widget in the given frame
+	// and return a rectangle defining the frame it used.
+	Draw(image.Rectangle) *painting.Frame
 
 	// AdoptedBy set the parent widget.
 	AdoptedBy(Widget)
@@ -31,5 +32,5 @@ type Widget interface {
 	reflow()
 
 	// Repaint method send to the parent an update frame to paint.
-	repaint(style.Frame)
+	repaint(painting.Frame)
 }

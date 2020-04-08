@@ -3,31 +3,23 @@ package ginger
 import (
 	"image"
 
-	"github.com/negrel/ginger/v1/style"
+	"github.com/negrel/ginger/v1/painting"
 	"github.com/negrel/ginger/v1/widget"
 )
 
 // Activity is a screen of the application
 type Activity struct {
 	screen       *Screen
-	paintChannel chan style.Frame
+	paintChannel chan *painting.Frame
 	Root         widget.Widget
 }
 
 // Start the activity
 func (ac *Activity) Start() {
 	scr := *ac.screen
-	x, y := scr.Size()
+	w, h := scr.Size()
+	bounds := image.Rect(0, 0, w, h)
+	frame := ac.Root.Draw(bounds)
 
-	f := ac.Root.Draw(widget.Constraint{
-		R: image.Rectangle{
-			Min: image.Point{},
-			Max: image.Point{
-				X: x,
-				Y: y,
-			},
-		},
-	})
-
-	ac.paintChannel <- *f
+	ac.paintChannel <- frame
 }

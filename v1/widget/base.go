@@ -1,12 +1,18 @@
 package widget
 
-import "github.com/negrel/ginger/v1/style"
+import (
+	"image"
+
+	"github.com/negrel/ginger/v1/painting"
+)
 
 var _ Widget = &Base{}
 
 // Base is use as base for every widget
 type Base struct {
+	active bool
 	parent Widget
+	cache  painting.Frame
 }
 
 // AdoptedBy set the widget parent
@@ -15,8 +21,8 @@ func (b *Base) AdoptedBy(w Widget) {
 }
 
 // Draw the widget
-func (b *Base) Draw(c Constraint) *style.Frame {
-	return &style.Frame{}
+func (b *Base) Draw(image.Rectangle) *painting.Frame {
+	return nil
 }
 
 // repaint trigger a repaint of this component
@@ -24,7 +30,7 @@ func (b *Base) reflow() {
 }
 
 // repaint trigger a repaint of this component
-func (b *Base) repaint(f style.Frame) {
+func (b *Base) repaint(f painting.Frame) {
 	b.parent.repaint(f)
 }
 
