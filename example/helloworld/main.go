@@ -27,63 +27,70 @@ func main() {
 	}
 
 	app.Start(&ginger.Activity{
-		Root: &widget.Column{
-			Childrens: []widget.Widget{
-				&widget.Row{
-					Childrens: []widget.Widget{
-						&widget.Text{
-							Content:    "Hello world",
-							Background: 0xFFFFFF,
-							Foreground: 0x0,
-						},
-						&widget.Text{
-							Content:    "Hello world",
-							Background: 0x0,
-							Foreground: 0xFFFFFF,
-						},
-						&widget.Text{
-							Content:    "Hello world",
-							Background: 0xFFFFFF,
-							Foreground: 0x0,
+		// Center the children widget
+		Root: &widget.Center{
+			// Column that contain the multiple row
+			Children: &widget.Column{
+				// First row of hello world text
+				Childrens: []widget.Widget{
+					&widget.Row{
+						Childrens: []widget.Widget{
+							&widget.Text{
+								Content:    "Hello world",
+								Background: 0xFFFFFF,
+								Foreground: 0x0,
+							},
+							&widget.Text{
+								Content:    "Hello world",
+								Background: 0x0,
+								Foreground: 0xFFFFFF,
+							},
+							&widget.Text{
+								Content:    "Hello world",
+								Background: 0xFFFFFF,
+								Foreground: 0x0,
+							},
 						},
 					},
-				},
-				&widget.Row{
-					Childrens: []widget.Widget{
+					// Second row of hello world text
+					&widget.Row{
+						Childrens: []widget.Widget{
 
-						&widget.Text{
-							Content:    "Hello world",
-							Background: 0x0,
-							Foreground: 0xFFFFFF,
-						},
-						&widget.Text{
-							Content:    "Hello world",
-							Background: 0xFFFFFF,
-							Foreground: 0x0,
-						},
-						&widget.Text{
-							Content:    "Hello world",
-							Background: 0x0,
-							Foreground: 0xFFFFFF,
+							&widget.Text{
+								Content:    "Hello world",
+								Background: 0x0,
+								Foreground: 0xFFFFFF,
+							},
+							&widget.Text{
+								Content:    "Hello world",
+								Background: 0xFFFFFF,
+								Foreground: 0x0,
+							},
+							&widget.Text{
+								Content:    "Hello world",
+								Background: 0x0,
+								Foreground: 0xFFFFFF,
+							},
 						},
 					},
-				},
-				&widget.Row{
-					Childrens: []widget.Widget{
-						&widget.Text{
-							Content:    "Hello world",
-							Background: 0xFFFFFF,
-							Foreground: 0x0,
-						},
-						&widget.Text{
-							Content:    "Hello world",
-							Background: 0x0,
-							Foreground: 0xFFFFFF,
-						},
-						&widget.Text{
-							Content:    "Hello world",
-							Background: 0xFFFFFF,
-							Foreground: 0x0,
+					// Third row of hello world text
+					&widget.Row{
+						Childrens: []widget.Widget{
+							&widget.Text{
+								Content:    "Hello world",
+								Background: 0xFFFFFF,
+								Foreground: 0x0,
+							},
+							&widget.Text{
+								Content:    "Hello world",
+								Background: 0x0,
+								Foreground: 0xFFFFFF,
+							},
+							&widget.Text{
+								Content:    "Hello world",
+								Background: 0xFFFFFF,
+								Foreground: 0x0,
+							},
 						},
 					},
 				},
@@ -93,5 +100,6 @@ func main() {
 
 	time.Sleep(time.Second * 5)
 
+	// Stop the app
 	app.Stop()
 }
