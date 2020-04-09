@@ -68,9 +68,6 @@ func (f *Frame) maxWidthIndex() uint {
 // Add method add the given frame patch into the frame itself
 // using the patch relative position.
 func (f *Frame) Add(o *Frame) error {
-	log.Printf("ADDING %v, %v", o.Position, image.Pt(int(o.maxWidthIndex()), int(o.maxHeightIndex())))
-	log.Printf("TO %v, %v", f.Position, image.Pt(int(f.maxWidthIndex()), int(f.maxHeightIndex())))
-
 	if can := f.CanContain(o); !can {
 		return errors.New("the given frame can't be added or contained")
 	}

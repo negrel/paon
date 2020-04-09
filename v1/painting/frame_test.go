@@ -18,7 +18,7 @@ type NewFrameTest struct {
 }
 
 var NewFrameTests []NewFrameTest = []NewFrameTest{
-	NewFrameTest{
+	{
 		input: NewFrameOptions{
 			p:      image.Pt(0, 0),
 			width:  0,
@@ -32,7 +32,7 @@ var NewFrameTests []NewFrameTest = []NewFrameTest{
 			Patch: NewMatrix(0, 0),
 		},
 	},
-	NewFrameTest{
+	{
 		input: NewFrameOptions{
 			p:      image.Pt(1, 0),
 			width:  0,
@@ -46,7 +46,7 @@ var NewFrameTests []NewFrameTest = []NewFrameTest{
 			Patch: NewMatrix(0, 0),
 		},
 	},
-	NewFrameTest{
+	{
 		input: NewFrameOptions{
 			p:      image.Pt(0, 1),
 			width:  0,
@@ -60,7 +60,7 @@ var NewFrameTests []NewFrameTest = []NewFrameTest{
 			Patch: NewMatrix(0, 0),
 		},
 	},
-	NewFrameTest{
+	{
 		input: NewFrameOptions{
 			p:      image.Pt(0, 0),
 			width:  1,
@@ -74,7 +74,7 @@ var NewFrameTests []NewFrameTest = []NewFrameTest{
 			Patch: NewMatrix(1, 0),
 		},
 	},
-	NewFrameTest{
+	{
 		input: NewFrameOptions{
 			p:      image.Pt(0, 0),
 			width:  0,
@@ -88,7 +88,7 @@ var NewFrameTests []NewFrameTest = []NewFrameTest{
 			Patch: NewMatrix(0, 1),
 		},
 	},
-	NewFrameTest{
+	{
 		input: NewFrameOptions{
 			p:      image.Pt(12, 5),
 			width:  67,
@@ -125,7 +125,7 @@ type CanContainTest struct {
 }
 
 var CanContainTests []CanContainTest = []CanContainTest{
-	CanContainTest{
+	{
 		input: NewFrame(
 			image.Pt(0, 0),
 			10, 10,
@@ -136,7 +136,7 @@ var CanContainTests []CanContainTest = []CanContainTest{
 		),
 		output: true,
 	},
-	CanContainTest{
+	{
 		input: NewFrame(
 			image.Pt(0, 0),
 			10, 10,
@@ -147,7 +147,7 @@ var CanContainTests []CanContainTest = []CanContainTest{
 		),
 		output: false,
 	},
-	CanContainTest{
+	{
 		input: NewFrame(
 			image.Pt(0, 0),
 			10, 10,
@@ -158,7 +158,7 @@ var CanContainTests []CanContainTest = []CanContainTest{
 		),
 		output: true,
 	},
-	CanContainTest{
+	{
 		input: NewFrame(
 			image.Pt(0, 0),
 			10, 10,
@@ -169,7 +169,7 @@ var CanContainTests []CanContainTest = []CanContainTest{
 		),
 		output: false,
 	},
-	CanContainTest{
+	{
 		input: NewFrame(
 			image.Pt(0, 0),
 			10, 10,
@@ -180,7 +180,7 @@ var CanContainTests []CanContainTest = []CanContainTest{
 		),
 		output: false,
 	},
-	CanContainTest{
+	{
 		input: NewFrame(
 			image.Pt(0, 0),
 			10, 10,
@@ -191,7 +191,7 @@ var CanContainTests []CanContainTest = []CanContainTest{
 		),
 		output: false,
 	},
-	CanContainTest{
+	{
 		input: NewFrame(
 			image.Pt(0, 0),
 			10, 10,
@@ -227,7 +227,7 @@ type AddTest struct {
 }
 
 var AddTests []AddTest = []AddTest{
-	AddTest{
+	{
 		input: NewFrame(
 			image.Pt(0, 0),
 			2,
@@ -237,7 +237,7 @@ var AddTests []AddTest = []AddTest{
 			Position: image.Pt(0, 0),
 			Patch: &Matrix{
 				M: [][]*Cell{
-					[]*Cell{
+					{
 						&Cell{
 							Char: 'a',
 						},
@@ -245,7 +245,7 @@ var AddTests []AddTest = []AddTest{
 							Char: 'b',
 						},
 					},
-					[]*Cell{
+					{
 						&CellDefault,
 						&CellDefault,
 					},
@@ -256,7 +256,7 @@ var AddTests []AddTest = []AddTest{
 			Position: image.Pt(0, 0),
 			Patch: &Matrix{
 				M: [][]*Cell{
-					[]*Cell{
+					{
 						&Cell{
 							Char: 'a',
 						},
@@ -264,11 +264,11 @@ var AddTests []AddTest = []AddTest{
 							Char: 'b',
 						},
 					},
-					[]*Cell{
+					{
 						&CellDefault,
 						&CellDefault,
 					},
-					[]*Cell{
+					{
 						&CellDefault,
 						&CellDefault,
 					},
@@ -276,7 +276,7 @@ var AddTests []AddTest = []AddTest{
 			},
 		},
 	},
-	AddTest{
+	{
 		input: NewFrame(
 			image.Pt(0, 0),
 			2,
@@ -286,12 +286,12 @@ var AddTests []AddTest = []AddTest{
 			Position: image.Pt(1, 2),
 			Patch: &Matrix{
 				M: [][]*Cell{
-					[]*Cell{
+					{
 						&Cell{
 							Char: 'a',
 						},
 					},
-					[]*Cell{
+					{
 						&Cell{
 							Char: 'b',
 						},
@@ -303,21 +303,21 @@ var AddTests []AddTest = []AddTest{
 			Position: image.Pt(0, 0),
 			Patch: &Matrix{
 				M: [][]*Cell{
-					[]*Cell{
+					{
 						&CellDefault,
 						&CellDefault,
 					},
-					[]*Cell{
+					{
 						&CellDefault,
 						&CellDefault,
 					},
-					[]*Cell{
+					{
 						&CellDefault,
 						&Cell{
 							Char: 'a',
 						},
 					},
-					[]*Cell{
+					{
 						&CellDefault,
 						&Cell{
 							Char: 'b',
@@ -327,7 +327,7 @@ var AddTests []AddTest = []AddTest{
 			},
 		},
 	},
-	AddTest{
+	{
 		input: NewFrame(
 			image.Pt(0, 0),
 			0,

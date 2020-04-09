@@ -19,7 +19,7 @@ type NewMatrixTest struct {
 }
 
 var NewMatrixTests []NewMatrixTest = []NewMatrixTest{
-	NewMatrixTest{
+	{
 		input: size{
 			width:  0,
 			height: 0,
@@ -29,17 +29,17 @@ var NewMatrixTests []NewMatrixTest = []NewMatrixTest{
 		},
 	},
 
-	NewMatrixTest{
+	{
 		input: size{
 			width:  1,
 			height: 2,
 		},
 		output: &Matrix{
 			M: [][]*Cell{
-				[]*Cell{
+				{
 					&CellDefault,
 				},
-				[]*Cell{
+				{
 					&CellDefault,
 				},
 			},
@@ -66,7 +66,7 @@ type WidthAndHeightTest struct {
 }
 
 var WidthAndHeightTests []WidthAndHeightTest = []WidthAndHeightTest{
-	WidthAndHeightTest{
+	{
 		input: NewMatrix(0, 0),
 		output: size{
 			width:  0,
@@ -74,21 +74,21 @@ var WidthAndHeightTests []WidthAndHeightTest = []WidthAndHeightTest{
 		},
 	},
 	// NOTE Width can't be equal to one if height is 0
-	WidthAndHeightTest{
+	{
 		input: NewMatrix(1, 0),
 		output: size{
 			width:  0,
 			height: 0,
 		},
 	},
-	WidthAndHeightTest{
+	{
 		input: NewMatrix(0, 1),
 		output: size{
 			width:  0,
 			height: 1,
 		},
 	},
-	WidthAndHeightTest{
+	{
 		input: NewMatrix(7894, 2136),
 		output: size{
 			width:  7894,
@@ -125,11 +125,11 @@ type IsEmptyTest struct {
 }
 
 var IsEmptyTests []IsEmptyTest = []IsEmptyTest{
-	IsEmptyTest{
+	{
 		input:  NewMatrix(0, 0),
 		output: true,
 	},
-	IsEmptyTest{
+	{
 		input:  NewMatrix(7657, 1000),
 		output: false,
 	},
@@ -156,41 +156,41 @@ type IsEqualTest struct {
 }
 
 var IsEqualTests []IsEqualTest = []IsEqualTest{
-	IsEqualTest{
+	{
 		input:  NewMatrix(0, 0),
 		other:  NewMatrix(0, 0),
 		output: true,
 	},
-	IsEqualTest{
+	{
 		input:  NewMatrix(7657, 1000),
 		other:  NewMatrix(7657, 1000),
 		output: true,
 	},
-	IsEqualTest{
+	{
 		input:  NewMatrix(7657, 1000),
 		other:  NewMatrix(7656, 1001),
 		output: false,
 	},
-	IsEqualTest{
+	{
 		input: &Matrix{
 			M: [][]*Cell{
-				[]*Cell{
+				{
 					&CellDefault,
 				},
-				[]*Cell{
+				{
 					&CellDefault,
 				},
 			},
 		},
 		other: &Matrix{
 			M: [][]*Cell{
-				[]*Cell{
+				{
 					&Cell{
 						Style: color.StyleDefault,
 						Char:  0,
 					},
 				},
-				[]*Cell{
+				{
 					&Cell{
 						Style: color.StyleDefault,
 						Char:  0,
@@ -200,20 +200,20 @@ var IsEqualTests []IsEqualTest = []IsEqualTest{
 		},
 		output: true,
 	},
-	IsEqualTest{
+	{
 		input: &Matrix{
 			M: [][]*Cell{
-				[]*Cell{
+				{
 					&CellDefault,
 				},
-				[]*Cell{
+				{
 					&CellDefault,
 				},
 			},
 		},
 		other: &Matrix{
 			M: [][]*Cell{
-				[]*Cell{
+				{
 					&Cell{
 						Style: color.Style{
 							Foreground: 0x000000,
@@ -222,7 +222,7 @@ var IsEqualTests []IsEqualTest = []IsEqualTest{
 						Char: '0',
 					},
 				},
-				[]*Cell{
+				{
 					&Cell{
 						Style: color.Style{
 							Foreground: color.Default,
@@ -235,15 +235,15 @@ var IsEqualTests []IsEqualTest = []IsEqualTest{
 		},
 		output: false,
 	},
-	IsEqualTest{
+	{
 		input: &Matrix{
 			M: [][]*Cell{
-				[]*Cell{
+				{
 					&Cell{
 						Char: 'a',
 					},
 				},
-				[]*Cell{
+				{
 					&Cell{
 						Char: 'b',
 					},
@@ -252,12 +252,12 @@ var IsEqualTests []IsEqualTest = []IsEqualTest{
 		},
 		other: &Matrix{
 			M: [][]*Cell{
-				[]*Cell{
+				{
 					&Cell{
 						Char: 'a',
 					},
 				},
-				[]*Cell{
+				{
 					&Cell{
 						Char: 'b',
 					},
@@ -266,15 +266,15 @@ var IsEqualTests []IsEqualTest = []IsEqualTest{
 		},
 		output: true,
 	},
-	IsEqualTest{
+	{
 		input: &Matrix{
 			M: [][]*Cell{
-				[]*Cell{
+				{
 					&Cell{
 						Char: 'a',
 					},
 				},
-				[]*Cell{
+				{
 					&Cell{
 						Char: 'b',
 					},
@@ -283,12 +283,12 @@ var IsEqualTests []IsEqualTest = []IsEqualTest{
 		},
 		other: &Matrix{
 			M: [][]*Cell{
-				[]*Cell{
+				{
 					&Cell{
 						Char: 'c',
 					},
 				},
-				[]*Cell{
+				{
 					&Cell{
 						Char: 'd',
 					},
