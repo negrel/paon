@@ -1,6 +1,8 @@
 package color
 
-import "github.com/gdamore/tcell"
+import (
+	"github.com/gdamore/tcell"
+)
 
 // Style define the color style of a cell.
 type Style struct {
@@ -22,11 +24,11 @@ func (s *Style) Compute() tcell.Style {
 	st := tcell.StyleDefault
 
 	if s.Foreground != Default {
-		st = st.Background(tcell.NewHexColor(s.Background))
+		st = st.Foreground(tcell.NewHexColor(s.Foreground))
 	}
 
 	if s.Background != Default {
-		st = st.Foreground(tcell.NewHexColor(s.Foreground))
+		st = st.Background(tcell.NewHexColor(s.Background))
 	}
 
 	return st
