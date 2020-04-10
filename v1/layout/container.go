@@ -7,14 +7,13 @@ import (
 	"github.com/negrel/ginger/v1/widget"
 )
 
+var _ Layout = &Container{}
 var _ widget.Widget = &Container{}
 
 // Container is a convenient widget that combines common
 // painting, positioning, and sizing widgets.
 type Container struct {
-	*widget.Base
-
-	Child widget.Widget
+	*BaseSingleChild
 
 	// Background define the background color of the container
 	Background int32

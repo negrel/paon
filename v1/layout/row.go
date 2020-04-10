@@ -8,11 +8,12 @@ import (
 	"github.com/negrel/ginger/v1/widget"
 )
 
+var _ Layout = &Row{}
 var _ widget.Widget = &Row{}
 
 // Row is a layout that arrange widget horizontally.
 type Row struct {
-	*widget.Base
+	*BaseMultipleChild
 
 	Children []widget.Widget
 }

@@ -8,14 +8,13 @@ import (
 	"github.com/negrel/ginger/v1/widget"
 )
 
+var _ Layout = &Center{}
 var _ widget.Widget = &Center{}
 
 // Center is a widget that center its child within
 // itself.
 type Center struct {
-	*widget.Base
-
-	Child widget.Widget
+	*BaseSingleChild
 
 	// If non-null, sets its width to the child's width multiplied by this factor.
 	WidthFactor int

@@ -8,11 +8,12 @@ import (
 	"github.com/negrel/ginger/v1/widget"
 )
 
+var _ Layout = &Column{}
 var _ widget.Widget = &Column{}
 
 // Column is a layout that arrange widget vertically.
 type Column struct {
-	*widget.Base
+	*BaseMultipleChild
 
 	Children []widget.Widget
 }
