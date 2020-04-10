@@ -1,17 +1,20 @@
-package widget
+package layout
 
 import (
 	"image"
 	"log"
 
 	"github.com/negrel/ginger/v1/painting"
+	"github.com/negrel/ginger/v1/widget"
 )
+
+var _ widget.Widget = &Row{}
 
 // Row is a layout that arrange widget horizontally.
 type Row struct {
-	*Base
+	*widget.Base
 
-	Children []Widget
+	Children []widget.Widget
 }
 
 /*****************************************************
@@ -63,8 +66,6 @@ func (r *Row) Draw(bounds image.Rectangle) *painting.Frame {
 			log.Fatalf("CHILD n°%v FRAME: %+v %+v %+v", i, cFrames[i], cFrames[i].Patch.Width(), cFrames[i].Patch.Height())
 		}
 	}
-
-	log.Println("ROW FINISHED")
 
 	return frame
 }

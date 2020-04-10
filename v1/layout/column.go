@@ -1,19 +1,20 @@
-package widget
+package layout
 
 import (
 	"image"
 	"log"
 
 	"github.com/negrel/ginger/v1/painting"
+	"github.com/negrel/ginger/v1/widget"
 )
 
-var _ Widget = &Column{}
+var _ widget.Widget = &Column{}
 
 // Column is a layout that arrange widget vertically.
 type Column struct {
-	*Base
+	*widget.Base
 
-	Children []Widget
+	Children []widget.Widget
 }
 
 /*****************************************************

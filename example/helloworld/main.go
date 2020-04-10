@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/negrel/ginger/v1"
+	"github.com/negrel/ginger/v1/layout"
 	"github.com/negrel/ginger/v1/widget"
 )
 
@@ -28,12 +29,12 @@ func main() {
 
 	app.Start(&ginger.Activity{
 		// Center the children widget
-		Root: &widget.Center{
+		Root: &layout.Center{
 			// Column that contain the multiple row
-			Child: &widget.Column{
+			Child: &layout.Column{
 				// First row of hello world text
 				Children: []widget.Widget{
-					&widget.Row{
+					&layout.Row{
 						Children: []widget.Widget{
 							&widget.Text{
 								Content:    "Hello world",
@@ -53,7 +54,7 @@ func main() {
 						},
 					},
 					// Second row of hello world text
-					&widget.Row{
+					&layout.Row{
 						Children: []widget.Widget{
 
 							&widget.Text{
@@ -74,7 +75,7 @@ func main() {
 						},
 					},
 					// Third row of hello world text
-					&widget.Row{
+					&layout.Row{
 						Children: []widget.Widget{
 							&widget.Text{
 								Content:    "Hello world",
