@@ -2,7 +2,6 @@ package widget
 
 import (
 	"image"
-	"log"
 
 	"github.com/negrel/ginger/v1/color"
 	"github.com/negrel/ginger/v1/painting"
@@ -12,7 +11,7 @@ var _ Widget = &Text{}
 
 // Text is a basic widget to display text.
 type Text struct {
-	*Base
+	*Core
 
 	Content    string
 	Foreground int32
@@ -42,7 +41,10 @@ func (t *Text) Draw(bounds image.Rectangle) *painting.Frame {
 		}
 	}
 
-	log.Println("TEXT POSITION:", frame.Position)
+	// Not enough space
+	if width := frame.Patch.Width(); width < len(r) {
+		frame.Patch.M[0][width-1] = &painting.CellOverflow
+	}
 
 	return frame
 }

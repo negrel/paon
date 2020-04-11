@@ -1,19 +1,18 @@
-package layout
+package widget
 
 import (
 	"image"
 
 	"github.com/negrel/ginger/v1/painting"
-	"github.com/negrel/ginger/v1/widget"
 )
 
 var _ Layout = &Container{}
-var _ widget.Widget = &Container{}
+var _ Widget = &Container{}
 
 // Container is a convenient widget that combines common
 // painting, positioning, and sizing widgets.
 type Container struct {
-	*BaseSingleChild
+	*LayoutSingleChild
 
 	// Background define the background color of the container
 	Background int32

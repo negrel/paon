@@ -1,21 +1,34 @@
-package layout
+package widget
 
 import (
 	"image"
 	"log"
 
 	"github.com/negrel/ginger/v1/painting"
-	"github.com/negrel/ginger/v1/widget"
 )
 
-var _ Layout = &Column{}
-var _ widget.Widget = &Column{}
+var _ Layout = &_column{}
+var _ Widget = &_column{}
 
-// Column is a layout that arrange widget vertically.
-type Column struct {
-	*BaseMultipleChild
+// _column is a layout that arrange widget vertically.
+type _column struct {
+	*LayoutMultipleChild
+}
 
-	Children []widget.Widget
+// Column return a layout that arrange widget vertically.
+func Column(Children []Widget) Layout {
+	col := &_column{
+		&LayoutMultipleChild{
+			Core:     &Core{},
+			Children: Children,
+		},
+	}
+
+	col.ForEach(func(_ int, child Widget) {
+		child.AdoptedBy(col)
+	})
+
+	return col
 }
 
 /*****************************************************
@@ -25,7 +38,7 @@ type Column struct {
 
 // Widget interface
 
-func (c *Column) drawChilds(bounds image.Rectangle) ([]*painting.Frame, image.Point) {
+func (c *_column) drawChilds(bounds image.Rectangle) ([]*painting.Frame, image.Point) {
 	childCount := len(c.Children)
 	cFrames := make([]*painting.Frame, childCount)
 	size := image.Pt(0, 0)
@@ -48,7 +61,7 @@ func (c *Column) drawChilds(bounds image.Rectangle) ([]*painting.Frame, image.Po
 }
 
 // Draw implements Widget interface.
-func (c *Column) Draw(bounds image.Rectangle) *painting.Frame {
+func (c *_column) Draw(bounds image.Rectangle) *painting.Frame {
 	// child bounds are relative
 	cBounds := image.Rectangle{
 		Min: image.Point{},

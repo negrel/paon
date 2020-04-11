@@ -1,21 +1,34 @@
-package layout
+package widget
 
 import (
 	"image"
 	"log"
 
 	"github.com/negrel/ginger/v1/painting"
-	"github.com/negrel/ginger/v1/widget"
 )
 
-var _ Layout = &Row{}
-var _ widget.Widget = &Row{}
+var _ Layout = &_row{}
+var _ Widget = &_row{}
 
-// Row is a layout that arrange widget horizontally.
-type Row struct {
-	*BaseMultipleChild
+// _row is a layout that arrange widget horizontally.
+type _row struct {
+	*LayoutMultipleChild
+}
 
-	Children []widget.Widget
+// Row return a layout that arrange widget horizontally.
+func Row(Children []Widget) Layout {
+	row := &_row{
+		&LayoutMultipleChild{
+			Core:     &Core{},
+			Children: Children,
+		},
+	}
+
+	row.ForEach(func(_ int, child Widget) {
+		child.AdoptedBy(row)
+	})
+
+	return row
 }
 
 /*****************************************************
@@ -25,7 +38,7 @@ type Row struct {
 
 // Widget interface
 
-func (r *Row) drawChilds(bounds image.Rectangle) ([]*painting.Frame, image.Point) {
+func (r *_row) drawChilds(bounds image.Rectangle) ([]*painting.Frame, image.Point) {
 	childCount := len(r.Children)
 	cFrames := make([]*painting.Frame, childCount)
 	size := image.Pt(0, 0)
@@ -48,7 +61,7 @@ func (r *Row) drawChilds(bounds image.Rectangle) ([]*painting.Frame, image.Point
 }
 
 // Draw implements Widget interface.
-func (r *Row) Draw(bounds image.Rectangle) *painting.Frame {
+func (r *_row) Draw(bounds image.Rectangle) *painting.Frame {
 	// child bounds are relative
 	cBounds := image.Rectangle{
 		Min: image.Point{},

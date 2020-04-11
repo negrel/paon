@@ -10,7 +10,8 @@ import (
 // Constraint give the grid/matrix on which the
 // children must draw.
 type Constraint struct {
-	Frame *painting.Frame
+	bounds image.Rectangle
+
 	// Default colors for unused space
 	C color.Style
 }
@@ -23,14 +24,12 @@ type Widget interface {
 	Draw(image.Rectangle) *painting.Frame
 
 	// AdoptedBy set the parent widget.
-	AdoptedBy(Widget)
+	AdoptedBy(Layout)
+
+	// Abandonned method remove the widget parent and make it
+	// inactive.
+	Abandonned()
 
 	// Parent return the widget parent.
-	Parent() Widget
-
-	// Reflow method redraw entirely the component.
-	reflow()
-
-	// Repaint method send to the parent an update frame to paint.
-	repaint(painting.Frame)
+	Parent() Layout
 }

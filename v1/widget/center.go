@@ -7,18 +7,39 @@ import (
 	"github.com/negrel/ginger/v1/painting"
 )
 
-// Center is a widget that center its child within
-// itself.
-type Center struct {
-	*Base
-
-	Child Widget
+// SizeFactor are used by layout to have multiple
+type SizeFactor struct {
 
 	// If non-null, sets its width to the child's width multiplied by this factor.
 	WidthFactor int
 
 	// If non-null, sets its height to the child's height multiplied by this factor.
 	HeightFactor int
+}
+
+var _ Layout = &_center{}
+var _ Widget = &_center{}
+
+// _center is a widget that center its child within
+// itself.
+type _center struct {
+	*LayoutSingleChild
+	*SizeFactor
+}
+
+// Center return a layout that center its child within
+// itself.
+func Center(factor *SizeFactor, child Widget) Layout {
+	cen := &_center{
+		LayoutSingleChild: &LayoutSingleChild{
+			Child: child,
+		},
+		SizeFactor: factor,
+	}
+
+	child.AdoptedBy(cen)
+
+	return cen
 }
 
 /*****************************************************
@@ -29,7 +50,7 @@ type Center struct {
 // Widget interface
 
 // Draw implements Widget interface.
-func (c *Center) Draw(bounds image.Rectangle) *painting.Frame {
+func (c *_center) Draw(bounds image.Rectangle) *painting.Frame {
 	// Child bounds are relative
 	cBounds := image.Rectangle{
 		Min: image.Point{},
