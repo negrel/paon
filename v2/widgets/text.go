@@ -20,12 +20,17 @@ func Text(content string) Widget {
 		Core:    CORE(),
 		content: []rune(content),
 	}
-	t.Render = t.render
+	t.Draw = t.draw
 
 	return t
 }
 
-func (t *_text) render(c Constraint) *render.Frame {
+/*****************************************************
+ ********************* Methods ***********************
+ *****************************************************/
+// ANCHOR Methods
+
+func (t *_text) draw(c Constraint) *render.Frame {
 	len := len(t.content)
 	width := len
 
@@ -40,7 +45,7 @@ func (t *_text) render(c Constraint) *render.Frame {
 	for i := 0; i < width; i++ {
 		frame.Patch.M[0][i] = &render.Cell{
 			Char:  t.content[i],
-			Theme: t.Theme,
+			Theme: &t.Theme,
 		}
 	}
 

@@ -1,7 +1,7 @@
 package widgets
 
 import (
-	"github.com/negrel/ginger/v2/rendering"
+	"github.com/negrel/ginger/v2/render"
 	"github.com/negrel/ginger/v2/widgets/node"
 )
 
@@ -13,8 +13,8 @@ var _ Widget = &Core{}
 type Core struct {
 	node.Leaf
 
-	cache  Cache
-	Render func(Constraint) *rendering.Frame
+	cache Cache
+	Draw  func(Constraint) *render.Frame
 }
 
 // CORE return a new widget core.
@@ -24,9 +24,13 @@ func CORE() *Core {
 	}
 }
 
-// Draw implements Drawable interface.
-func (c *Core) Draw() *rendering.Frame {
-	return c.cache.F
+// Render implements Rendable interface.
+func (c *Core) Render(co Constraint) *render.Frame {
+	if co == c.cache.C {
+		return c.cache.F
+	}
+
+	return c.Render(co)
 }
 
 var _ Widget = &CoreLayout{}
@@ -40,5 +44,14 @@ type CoreLayout struct {
 
 	Children []Widget
 	cache    Cache
-	Render   func(Constraint) *rendering.Frame
+	Draw     func(Constraint) *render.Frame
+}
+
+// Render implements Rendable interface.
+func (cl *CoreLayout) Render(co Constraint) *render.Frame {
+	if co == cl.cache.C {
+		return cl.cache.F
+	}
+
+	return cl.Render(co)
 }
