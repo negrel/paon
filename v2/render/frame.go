@@ -4,15 +4,10 @@ import (
 	"errors"
 	"image"
 	"log"
-
-	"github.com/negrel/ginger/v2/paint"
 )
-
-var _ paint.Paintable = &Frame{}
 
 // Frame are rectangular update screen patch
 type Frame struct {
-	paint.Paintable
 
 	// Position is the relative position where the
 	// frame painting must start (from top left corner).
@@ -37,13 +32,13 @@ func NewFrame(p Position, width, height int) *Frame {
 // ANCHOR Interface
 
 // Paint implements Paintable interface.
-func (f *Frame) Paint() [][]*paint.RawCell {
+func (f *Frame) Paint() [][]*RawCell {
 	height := f.Patch.Height()
 	width := f.Patch.Width()
-	final := make([][]*paint.RawCell, height)
+	final := make([][]*RawCell, height)
 
 	for i := 0; i < height; i++ {
-		row := make([]*paint.RawCell, width)
+		row := make([]*RawCell, width)
 
 		yOffset := f.Position.Y + i
 

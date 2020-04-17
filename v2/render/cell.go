@@ -1,7 +1,6 @@
 package render
 
 import (
-	"github.com/negrel/ginger/v2/paint"
 	"github.com/negrel/ginger/v2/style"
 )
 
@@ -33,8 +32,8 @@ type Cell struct {
 // ANCHOR Methods
 
 // Compute return the raw cell for the painter.
-func (c *Cell) Compute(p Position) *paint.RawCell {
-	return &paint.RawCell{
+func (c *Cell) Compute(p Position) *RawCell {
+	return &RawCell{
 		X:     p.X,
 		Y:     p.Y,
 		Mainc: c.Char,
