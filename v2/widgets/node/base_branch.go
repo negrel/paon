@@ -28,11 +28,11 @@ func (b *BaseBranch) AdoptChild(child Leaf) {
 	// Checking that child is not parent this node.
 	var node Leaf = b
 	for node.Parent() != nil {
-		node = node.Parent()
-
 		if node == child {
 			log.Fatal("can't adopt child, child is an ancestor of node")
 		}
+
+		node = node.Parent()
 	}
 
 	// Adopting the child
