@@ -7,16 +7,6 @@ import (
 	"github.com/negrel/ginger/v2/render"
 )
 
-// SizeFactor are used by layout to have multiple
-type SizeFactor struct {
-
-	// If non-null, sets its width to the child's width multiplied by this factor.
-	WidthFactor int
-
-	// If non-null, sets its height to the child's height multiplied by this factor.
-	HeightFactor int
-}
-
 var _ Widget = &_center{}
 var _ Layout = &_center{}
 
@@ -24,15 +14,13 @@ var _ Layout = &_center{}
 // itself.
 type _center struct {
 	*CoreLayout
-	*SizeFactor
 }
 
 // Center return a layout that center its child within
 // itself.
-func Center(factor *SizeFactor, child Widget) Layout {
+func Center(child Widget) Layout {
 	cen := &_center{
 		CoreLayout: NewCoreLayout([]Widget{child}),
-		SizeFactor: factor,
 	}
 
 	cen.AdoptChild(child)
@@ -77,17 +65,6 @@ func (c *_center) draw(co Constraint) *render.Frame {
 	childFrame := c.Child().Render(childConstraint)
 	childWidth := childFrame.Patch.Width()
 	childHeight := childFrame.Patch.Height()
-
-	// Computing height & width factor
-	if c.WidthFactor != 0 &&
-		(childWidth*c.WidthFactor) < width {
-		width = childWidth
-	}
-
-	if c.HeightFactor != 0 &&
-		(childHeight*c.HeightFactor) < height {
-		height = childHeight
-	}
 
 	// The final frame
 	frame := render.NewFrame(co.Bounds.Min, width, height)

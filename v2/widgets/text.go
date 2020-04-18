@@ -1,8 +1,6 @@
 package widgets
 
 import (
-	"log"
-
 	"github.com/negrel/ginger/v2/render"
 	"github.com/negrel/ginger/v2/style"
 )
@@ -23,8 +21,6 @@ func Text(content string, theme style.Theme) Widget {
 		content: []rune(content),
 		Theme:   theme,
 	}
-
-	log.Println("Text theme", theme)
 
 	t.Draw = t.draw
 

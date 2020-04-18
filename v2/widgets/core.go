@@ -67,7 +67,10 @@ func (c *Core) setParent(parent Layout) {
 
 // Render implements Rendable interface.
 func (c *Core) Render(co Constraint) *render.Frame {
-	if co == c.cache.C {
+	if c.cache.F != nil &&
+		co.Bounds.Dx() >= c.cache.F.Patch.Width() &&
+		co.Bounds.Dy() >= c.cache.F.Patch.Height() {
+
 		return c.cache.F
 	}
 
