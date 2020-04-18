@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/negrel/ginger/v2/render"
-	"github.com/negrel/ginger/v2/widgets/node"
 )
 
 // SizeFactor are used by layout to have multiple
@@ -32,12 +31,11 @@ type _center struct {
 // itself.
 func Center(factor *SizeFactor, child Widget) Layout {
 	cen := &_center{
-		CoreLayout: &CoreLayout{
-			Branch:   &node.BaseBranch{},
-			Children: []Widget{child},
-		},
+		CoreLayout: NewCoreLayout([]Widget{child}),
 		SizeFactor: factor,
 	}
+
+	cen.AdoptChild(child)
 
 	cen.Draw = cen.draw
 

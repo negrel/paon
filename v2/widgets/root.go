@@ -4,31 +4,25 @@ import (
 	"image"
 
 	"github.com/negrel/ginger/v2/render"
-	"github.com/negrel/ginger/v2/widgets/node"
 )
 
 var _ Layout = &Root{}
 
 // Root is the root of the widgets tree.
 type Root struct {
-	*node.Root
-
-	cache Cache
+	*CoreLayout
 	Child Widget
-	Draw  func(Constraint) *render.Frame
 }
 
 // ROOT return a new Root object that you can use as
 // your widget root tree.
 func ROOT(child Widget) *Root {
 	r := &Root{
-		Root: &node.Root{
-			BaseBranch: &node.BaseBranch{
-				BaseLeaf: &node.BaseLeaf{},
-			},
-		},
-		Child: child,
+		CoreLayout: NewCoreLayout([]Widget{child}),
+		Child:      child,
 	}
+
+	r.AdoptChild(child)
 
 	r.Draw = r.draw
 
@@ -36,9 +30,18 @@ func ROOT(child Widget) *Root {
 }
 
 /*****************************************************
- ********************* Interface  ********************
+ ********************* Interface *********************
  *****************************************************/
 // ANCHOR Interface
+
+// Widgets
+
+// Attached implements Widget interface.
+func (r *Root) Attached() bool {
+	return true
+}
+
+// Rendable
 
 // Render implements Rendable interface.
 func (r *Root) Render(co Constraint) *render.Frame {

@@ -1,9 +1,16 @@
 package widgets
 
-import "github.com/negrel/ginger/v2/widgets/node"
-
 // Layout are widgets that lay out is children.
 type Layout interface {
 	Widget
-	node.Branch
+
+	// ----------- METHODS -----------
+
+	// AdoptChild method mark the given node as child of
+	// this node.
+	AdoptChild(Widget)
+
+	// DropChild method disconnect the given child from
+	// this node.
+	DropChild(Widget)
 }

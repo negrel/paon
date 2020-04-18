@@ -1,9 +1,10 @@
 package widgets
 
 import (
+	"log"
+
 	"github.com/negrel/ginger/v2/render"
 	"github.com/negrel/ginger/v2/style"
-	"github.com/negrel/ginger/v2/widgets/node"
 )
 
 var _ Widget = &_text{}
@@ -18,12 +19,12 @@ type _text struct {
 // Text return a static text widget.
 func Text(content string, theme style.Theme) Widget {
 	t := &_text{
-		Core: &Core{
-			Leaf: &node.BaseLeaf{},
-		},
+		Core:    NewCore(),
 		content: []rune(content),
 		Theme:   theme,
 	}
+
+	log.Println("Text theme", theme)
 
 	t.Draw = t.draw
 
