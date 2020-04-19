@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img height="250" src="https://github.com/negrel/ginger-go/raw/master/.github/ginger-man.png">
+  <img height="250" src="https://github.com/negrel/ginger-go/raw/master/.github/ginger-man.svg?sanitize=true">
 </h1>
 <p align="center">
 	<a href="https://goreportcard.com/badge/github.com/negrel/atomic-ring">
