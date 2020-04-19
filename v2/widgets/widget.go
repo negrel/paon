@@ -6,6 +6,9 @@ type Widget interface {
 
 	// ----------- GETTERS & SETTERS -----------
 
+	// Name return the name of the widget.
+	Name() string
+
 	// Attached return wether or not this node is in a tree
 	// whose root is attached to something
 	Attached() bool
