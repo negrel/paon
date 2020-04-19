@@ -6,6 +6,7 @@ import "github.com/negrel/ginger/v2/render"
 // the widget and improve performance. The cache
 // is returned when the components is drawn.
 type Cache struct {
-	C Constraint
-	F *render.Frame
+	valid bool
+	C     Constraint
+	F     *render.Frame
 }
