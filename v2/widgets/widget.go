@@ -1,8 +1,10 @@
 package widgets
 
+import "github.com/negrel/ginger/v2/render"
+
 // Widget is an element in the node tree that can be paint.
 type Widget interface {
-	Rendable
+	render.Rendable
 
 	// ----------- GETTERS & SETTERS -----------
 

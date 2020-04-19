@@ -9,15 +9,18 @@ import (
 var _ Widget = &Core{}
 
 // Core is the core element of all widgets.
-// Core is intended to be embed in more advanced
+// Core is intended to be embedded in more advanced
 // widget.
+//
+// Core focus on the widget tree structure
+// and optimization.
 type Core struct {
 	name   string
 	parent Layout
 	owner  Layout
 	cache  *Cache
 
-	Rendering func(Constraint) *render.Frame
+	Rendering render.Func
 }
 
 // NewCore return a new core layout.
@@ -26,9 +29,7 @@ func NewCore(name string) *Core {
 		name: name,
 		cache: &Cache{
 			valid: false,
-			C: Constraint{
-				Bounds: image.Rect(0, 0, 0, 0),
-			},
+			B:     image.Rect(0, 0, 0, 0),
 		},
 	}
 }
@@ -78,19 +79,19 @@ func (c *Core) setParent(parent Layout) {
 // ANCHOR Methods
 
 // Render implements Rendable interface.
-func (c *Core) Render(co Constraint) *render.Frame {
+func (c *Core) Render(bounds image.Rectangle) *render.Frame {
 	if c.Attached() {
 		// Pull cached frame.
-		cachedFrame := c.cache.Pull(co)
+		cachedFrame := c.cache.Pull(bounds)
 
 		if cachedFrame != nil {
 			return cachedFrame
 		}
 
-		frame := c.Rendering(co)
+		frame := c.Rendering(bounds)
 
 		c.cache.F = frame
-		c.cache.C = co
+		c.cache.B = bounds
 		c.cache.valid = true
 
 		return frame
