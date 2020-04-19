@@ -15,7 +15,7 @@ type Core struct {
 	name   string
 	parent Layout
 	owner  Layout
-	cache  Cache
+	cache  *Cache
 
 	Rendering func(Constraint) *render.Frame
 }
@@ -24,7 +24,7 @@ type Core struct {
 func NewCore(name string) *Core {
 	return &Core{
 		name: name,
-		cache: Cache{
+		cache: &Cache{
 			valid: false,
 			C: Constraint{
 				Bounds: image.Rect(0, 0, 0, 0),
@@ -80,11 +80,11 @@ func (c *Core) setParent(parent Layout) {
 // Render implements Rendable interface.
 func (c *Core) Render(co Constraint) *render.Frame {
 	if c.Attached() {
-		if c.cache.F != nil && c.cache.valid &&
-			co.Bounds.Dx() >= c.cache.F.Patch.Width() &&
-			co.Bounds.Dy() >= c.cache.F.Patch.Height() {
+		// Pull cached frame.
+		cachedFrame := c.cache.Pull(co)
 
-			return c.cache.F
+		if cachedFrame != nil {
+			return cachedFrame
 		}
 
 		frame := c.Rendering(co)
