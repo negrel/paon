@@ -33,13 +33,13 @@ func Row(children []Widget) Layout {
 
 // Widget interface
 
-func (r *_row) renderChilds(co Constraint) ([]*render.Frame, image.Point) {
+func (r *_row) renderChilds(bounds image.Rectangle) ([]*render.Frame, image.Point) {
 	childCount := len(r.Children)
 	childrenFrames := make([]*render.Frame, childCount)
 	size := image.Pt(0, 0)
 
 	for i := 0; i < childCount; i++ {
-		childFrame := r.Children[i].Render(co)
+		childFrame := r.Children[i].Render(bounds)
 		childrenFrames[i] = childFrame
 
 		if cHeight := childFrame.Patch.Height(); cHeight > size.Y {
@@ -47,7 +47,7 @@ func (r *_row) renderChilds(co Constraint) ([]*render.Frame, image.Point) {
 		}
 
 		// updating co.Bounds for next children
-		co.Bounds.Min.X += childFrame.Patch.Width()
+		bounds.Min.X += childFrame.Patch.Width()
 		// updating total width
 		size.X += childFrame.Patch.Width()
 	}
@@ -56,17 +56,15 @@ func (r *_row) renderChilds(co Constraint) ([]*render.Frame, image.Point) {
 }
 
 // Rendering implements Widget interface.
-func (r *_row) rendering(co Constraint) *render.Frame {
+func (r *_row) rendering(bounds image.Rectangle) *render.Frame {
 	// children constraint are relative
-	childConstraint := Constraint{
-		image.Rectangle{
-			Min: image.Pt(0, 0),
-			Max: co.Bounds.Max.Sub(co.Bounds.Min),
-		},
+	childBounds := image.Rectangle{
+		Min: image.Pt(0, 0),
+		Max: bounds.Max.Sub(bounds.Min),
 	}
-	childrenFrames, size := r.renderChilds(childConstraint)
+	childrenFrames, size := r.renderChilds(childBounds)
 
-	frame := render.NewFrame(co.Bounds.Min, size.X, size.Y)
+	frame := render.NewFrame(bounds.Min, size.X, size.Y)
 
 	for i, childFrame := range childrenFrames {
 		err := frame.Add(childFrame)

@@ -1,6 +1,8 @@
 package widgets
 
 import (
+	"image"
+
 	"github.com/negrel/ginger/v2/render"
 	"github.com/negrel/ginger/v2/style"
 )
@@ -33,17 +35,17 @@ func Text(content string, theme style.Theme) Widget {
 // ANCHOR Methods
 
 // Rendering implements Widget interface.
-func (t *_text) rendering(c Constraint) *render.Frame {
+func (t *_text) rendering(bounds image.Rectangle) *render.Frame {
 	len := len(t.content)
 	width := len
 
 	// If text overflow bounds
-	if maxWidth := c.Bounds.Dx(); maxWidth < width {
+	if maxWidth := bounds.Dx(); maxWidth < width {
 		width = maxWidth
 	}
 
 	// Frame to return
-	frame := render.NewFrame(c.Bounds.Min, width, 1)
+	frame := render.NewFrame(bounds.Min, width, 1)
 
 	for i := 0; i < width; i++ {
 		frame.Patch.M[0][i] = &render.Cell{

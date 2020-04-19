@@ -1,21 +1,25 @@
 package widgets
 
-import "github.com/negrel/ginger/v2/render"
+import (
+	"image"
+
+	"github.com/negrel/ginger/v2/render"
+)
 
 // Cache is used to cache the rendered frame of
 // the widget and improve performance. The cache
 // is returned when the components is drawn.
 type Cache struct {
 	valid bool
-	C     Constraint
+	B     image.Rectangle
 	F     *render.Frame
 }
 
 // NewCache return a new widgets cache instance.
-func NewCache(co Constraint) *Cache {
+func NewCache(bounds image.Rectangle) *Cache {
 	return &Cache{
 		valid: false,
-		C:     co,
+		B:     bounds,
 		F:     nil,
 	}
 }
@@ -41,10 +45,10 @@ func (c *Cache) Invalid() {
 // ANCHOR Methods
 
 // Pull the cached rendered frame.
-func (c *Cache) Pull(co Constraint) *render.Frame {
+func (c *Cache) Pull(bounds image.Rectangle) *render.Frame {
 	if c.valid && c.F != nil &&
-		co.Bounds.Dx() >= c.F.Patch.Width() &&
-		co.Bounds.Dy() >= c.F.Patch.Height() {
+		bounds.Dx() >= c.F.Patch.Width() &&
+		bounds.Dy() >= c.F.Patch.Height() {
 
 		return c.F
 	}
@@ -53,8 +57,8 @@ func (c *Cache) Pull(co Constraint) *render.Frame {
 }
 
 // Update the cache.
-func (c *Cache) Update(co Constraint, fr *render.Frame) {
-	c.C = co
+func (c *Cache) Update(bounds image.Rectangle, fr *render.Frame) {
+	c.B = bounds
 	c.F = fr
 	c.valid = true
 }

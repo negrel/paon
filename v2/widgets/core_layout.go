@@ -8,8 +8,11 @@ var _ Widget = &CoreLayout{}
 var _ Layout = &CoreLayout{}
 
 // CoreLayout is the core element of layout
-// widgets. CoreLayout is intended to be embed in
+// widgets. CoreLayout is intended to be embedded in
 // more advanced layout.
+//
+// CoreLayout focus on the widget tree structure
+// and optimization.
 type CoreLayout struct {
 	*Core
 

@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/negrel/ginger/v2/render"
+	"github.com/negrel/ginger/v2/widgets/events"
 )
 
 var _ Widget = &_center{}
@@ -14,13 +15,19 @@ var _ Layout = &_center{}
 // itself.
 type _center struct {
 	*CoreLayout
+	*events.ResizeListener
 }
 
 // Center return a layout that center its child within
 // itself.
 func Center(child Widget) Layout {
 	cen := &_center{
-		CoreLayout: NewCoreLayout("center", []Widget{child}),
+		CoreLayout:     NewCoreLayout("center", []Widget{child}),
+		ResizeListener: &events.ResizeListener{},
+	}
+
+	cen.OnResize = func(_ events.ResizeEvent) {
+		cen.cache.Invalid()
 	}
 
 	cen.Rendering = cen.rendering
@@ -47,25 +54,23 @@ func (c *_center) Child() Widget {
 // Widget interface
 
 // rendering implements Widget interface.
-func (c *_center) rendering(co Constraint) *render.Frame {
+func (c *_center) rendering(bounds image.Rectangle) *render.Frame {
 	// Child bounds are relative
-	childConstraint := Constraint{
-		image.Rectangle{
-			Min: image.Pt(0, 0),
-			Max: co.Bounds.Max.Sub(co.Bounds.Min),
-		},
+	childBounds := image.Rectangle{
+		Min: image.Pt(0, 0),
+		Max: bounds.Max.Sub(bounds.Min),
 	}
 
-	width := co.Bounds.Dx()
-	height := co.Bounds.Dy()
+	width := bounds.Dx()
+	height := bounds.Dy()
 
 	// Drawing child
-	childFrame := c.Child().Render(childConstraint)
+	childFrame := c.Child().Render(childBounds)
 	childWidth := childFrame.Patch.Width()
 	childHeight := childFrame.Patch.Height()
 
 	// The final frame
-	frame := render.NewFrame(co.Bounds.Min, width, height)
+	frame := render.NewFrame(bounds.Min, width, height)
 
 	// Centering position
 	cPosition := image.Point{
