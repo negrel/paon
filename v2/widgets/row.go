@@ -18,14 +18,10 @@ type _row struct {
 // Row return a layout that arrange widget horizontally.
 func Row(children []Widget) Layout {
 	row := &_row{
-		CoreLayout: NewCoreLayout(children),
+		CoreLayout: NewCoreLayout("row", children),
 	}
 
-	row.Draw = row.draw
-
-	for _, child := range row.Children {
-		row.AdoptChild(child)
-	}
+	row.Rendering = row.rendering
 
 	return row
 }
@@ -37,7 +33,7 @@ func Row(children []Widget) Layout {
 
 // Widget interface
 
-func (r *_row) drawChilds(co Constraint) ([]*render.Frame, image.Point) {
+func (r *_row) renderChilds(co Constraint) ([]*render.Frame, image.Point) {
 	childCount := len(r.Children)
 	childrenFrames := make([]*render.Frame, childCount)
 	size := image.Pt(0, 0)
@@ -59,8 +55,8 @@ func (r *_row) drawChilds(co Constraint) ([]*render.Frame, image.Point) {
 	return childrenFrames, size
 }
 
-// Draw implements Widget interface.
-func (r *_row) draw(co Constraint) *render.Frame {
+// Rendering implements Widget interface.
+func (r *_row) rendering(co Constraint) *render.Frame {
 	// children constraint are relative
 	childConstraint := Constraint{
 		image.Rectangle{
@@ -68,7 +64,7 @@ func (r *_row) draw(co Constraint) *render.Frame {
 			Max: co.Bounds.Max.Sub(co.Bounds.Min),
 		},
 	}
-	childrenFrames, size := r.drawChilds(childConstraint)
+	childrenFrames, size := r.renderChilds(childConstraint)
 
 	frame := render.NewFrame(co.Bounds.Min, size.X, size.Y)
 

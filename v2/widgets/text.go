@@ -17,12 +17,12 @@ type _text struct {
 // Text return a static text widget.
 func Text(content string, theme style.Theme) Widget {
 	t := &_text{
-		Core:    NewCore(),
+		Core:    NewCore("text"),
 		content: []rune(content),
 		Theme:   theme,
 	}
 
-	t.Draw = t.draw
+	t.Rendering = t.rendering
 
 	return t
 }
@@ -32,7 +32,8 @@ func Text(content string, theme style.Theme) Widget {
  *****************************************************/
 // ANCHOR Methods
 
-func (t *_text) draw(c Constraint) *render.Frame {
+// Rendering implements Widget interface.
+func (t *_text) rendering(c Constraint) *render.Frame {
 	len := len(t.content)
 	width := len
 
@@ -47,7 +48,7 @@ func (t *_text) draw(c Constraint) *render.Frame {
 	for i := 0; i < width; i++ {
 		frame.Patch.M[0][i] = &render.Cell{
 			Char:  t.content[i],
-			Theme: &t.Theme,
+			Theme: t.Theme,
 		}
 	}
 

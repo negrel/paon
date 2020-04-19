@@ -18,14 +18,10 @@ type _column struct {
 // Column return a layout that arrange widget vertically.
 func Column(children []Widget) Layout {
 	col := &_column{
-		CoreLayout: NewCoreLayout(children),
+		CoreLayout: NewCoreLayout("column", children),
 	}
 
-	col.Draw = col.draw
-
-	for _, child := range col.Children {
-		col.AdoptChild(child)
-	}
+	col.Rendering = col.rendering
 
 	return col
 }
@@ -37,7 +33,7 @@ func Column(children []Widget) Layout {
 
 // Widget interface
 
-func (c *_column) drawChilds(co Constraint) ([]*render.Frame, image.Point) {
+func (c *_column) renderChilds(co Constraint) ([]*render.Frame, image.Point) {
 	childCount := len(c.Children)
 	childrenFrames := make([]*render.Frame, childCount)
 	size := image.Pt(0, 0)
@@ -59,8 +55,8 @@ func (c *_column) drawChilds(co Constraint) ([]*render.Frame, image.Point) {
 	return childrenFrames, size
 }
 
-// Draw implements Widget interface.
-func (c *_column) draw(co Constraint) *render.Frame {
+// Rendering implements Widget interface.
+func (c *_column) rendering(co Constraint) *render.Frame {
 	// children bounds are relative
 	childConstraint := Constraint{
 		image.Rectangle{
@@ -69,7 +65,7 @@ func (c *_column) draw(co Constraint) *render.Frame {
 		},
 	}
 
-	childrenFrames, size := c.drawChilds(childConstraint)
+	childrenFrames, size := c.renderChilds(childConstraint)
 
 	frame := render.NewFrame(co.Bounds.Min, size.X, size.Y)
 

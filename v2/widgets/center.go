@@ -20,12 +20,10 @@ type _center struct {
 // itself.
 func Center(child Widget) Layout {
 	cen := &_center{
-		CoreLayout: NewCoreLayout([]Widget{child}),
+		CoreLayout: NewCoreLayout("center", []Widget{child}),
 	}
 
-	cen.AdoptChild(child)
-
-	cen.Draw = cen.draw
+	cen.Rendering = cen.rendering
 
 	// cen.AdoptChild(child)
 
@@ -48,8 +46,8 @@ func (c *_center) Child() Widget {
 
 // Widget interface
 
-// Draw implements Widget interface.
-func (c *_center) draw(co Constraint) *render.Frame {
+// rendering implements Widget interface.
+func (c *_center) rendering(co Constraint) *render.Frame {
 	// Child bounds are relative
 	childConstraint := Constraint{
 		image.Rectangle{
