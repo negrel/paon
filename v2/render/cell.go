@@ -1,29 +1,25 @@
 package render
 
-import (
-	"github.com/negrel/ginger/v2/style"
-)
+import "github.com/negrel/ginger/v2/style"
+
+// Cell represents a cell of the terminal screen.
+type Cell struct {
+	Char  rune
+	Theme style.Theme
+}
 
 // CellDefault is the default cell used for
 // Matrix constructor.
 var CellDefault = Cell{
-	Theme: &style.DefaultTheme,
-	Char:  0,
+	Char:  ' ',
+	Theme: style.DefaultTheme,
 }
-
-var overflowTheme = style.DefaultTheme.Foreground(0xFFFFFF).Background(0xFF0000).Blink(true)
 
 // CellOverflow is used when a component is too large
 // to fit the constraint.
 var CellOverflow = Cell{
-	Theme: &overflowTheme,
 	Char:  '!',
-}
-
-// Cell is an element in the terminal screen matrix.
-type Cell struct {
-	Theme *style.Theme
-	Char  rune
+	Theme: style.DefaultTheme.Background(0xFF0000).Foreground(0xFFFFFF).Blink(true),
 }
 
 /*****************************************************
@@ -31,13 +27,14 @@ type Cell struct {
  *****************************************************/
 // ANCHOR Methods
 
-// Compute return the raw cell for the painter.
+// Compute return a raw cell ready to be drawn on the
+// screen.
 func (c *Cell) Compute(p Position) *RawCell {
 	return &RawCell{
 		X:     p.X,
 		Y:     p.Y,
 		Mainc: c.Char,
-		Style: *c.Theme,
+		Style: c.Theme.Compute(),
 	}
 }
 

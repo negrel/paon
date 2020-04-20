@@ -8,9 +8,8 @@ import (
 
 // Frame are rectangular update screen patch
 type Frame struct {
-
-	// Position is the relative position where the
-	// frame painting must start (from top left corner).
+	// Position is the relative position of the frame
+	// from the parent top left corner.
 	Position Position
 
 	// Patch is screen patch relative to the frame
@@ -24,35 +23,6 @@ func NewFrame(p Position, width, height int) *Frame {
 		Position: p,
 		Patch:    NewMatrix(width, height),
 	}
-}
-
-/*****************************************************
- ********************* Interface  ********************
- *****************************************************/
-// ANCHOR Interface
-
-// Paint implements Paintable interface.
-func (f *Frame) Paint() [][]*RawCell {
-	height := f.Patch.Height()
-	width := f.Patch.Width()
-	final := make([][]*RawCell, height)
-
-	for i := 0; i < height; i++ {
-		row := make([]*RawCell, width)
-
-		yOffset := f.Position.Y + i
-
-		for j := 0; j < width; j++ {
-			xOffset := f.Position.X + j
-			offset := image.Pt(xOffset, yOffset)
-
-			row[j] = f.Patch.M[i][j].Compute(offset)
-		}
-
-		final[i] = row
-	}
-
-	return final
 }
 
 /*****************************************************
@@ -113,7 +83,6 @@ func (f *Frame) Add(o *Frame) error {
 // CanContain return wether or not it can contain
 // the given frame.
 func (f *Frame) CanContain(o *Frame) bool {
-
 	if !o.Patch.isValid() {
 		log.Println("Can't contain because the frame is invalid.")
 		return false
