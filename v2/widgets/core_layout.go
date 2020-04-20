@@ -2,6 +2,8 @@ package widgets
 
 import (
 	"log"
+
+	"github.com/negrel/ginger/v2/widgets/events"
 )
 
 var _ Widget = &CoreLayout{}
@@ -28,6 +30,7 @@ func NewCoreLayout(name string, children []Widget) *CoreLayout {
 
 	for _, child := range cl.Children {
 		cl.AdoptChild(child)
+		cl.AddListener(child)
 	}
 
 	return cl
@@ -77,7 +80,7 @@ func (cl *CoreLayout) AdoptChild(child Widget) {
 	}
 
 	// Cache not valid anymore, need a new render frame.
-	cl.cache.valid = false
+	cl.cache.Invalid()
 
 	// Adopting the child
 	child.setParent(cl)
@@ -98,10 +101,19 @@ func (cl *CoreLayout) DropChild(child Widget) {
 	}
 
 	// Cache not valid anymore, need a total new render frame.
-	cl.cache.valid = false
+	cl.cache.Invalid()
 
 	child.setParent(nil)
 	if child.Attached() {
 		child.Detach()
+	}
+}
+
+// AddListener method add the given child to events.Emitter listener
+// if it implements one of the events.Listener interface.
+func (cl *CoreLayout) AddListener(child Widget) {
+	// ResizeListener
+	if listener, ok := child.(events.ResizeListener); ok {
+		events.Emitter.AddResizeListener(listener)
 	}
 }
