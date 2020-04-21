@@ -31,7 +31,12 @@ func NewCache(bounds image.Rectangle) *Cache {
 
 // IsValid return wether or not the cache is valid.
 func (c *Cache) IsValid() bool {
-	return c.valid
+	return c.valid && c.F != nil
+}
+
+// Valid set the cache to a valid state.
+func (c *Cache) Valid() {
+	c.valid = true
 }
 
 // Invalid set the cache to an invalide state.
@@ -44,21 +49,16 @@ func (c *Cache) Invalid() {
  *****************************************************/
 // ANCHOR Methods
 
-// Pull the cached rendered frame.
-func (c *Cache) Pull(bounds image.Rectangle) *render.Frame {
-	if c.valid && c.F != nil &&
-		bounds.Dx() >= c.F.Patch.Width() &&
-		bounds.Dy() >= c.F.Patch.Height() {
+// Pull the cached rendered frame and the validity state.
+func (c *Cache) Pull(bounds image.Rectangle) (*render.Frame, bool) {
+	var validity bool = true
 
-		return c.F
+	if !c.IsValid() || c.F == nil ||
+		bounds.Dx() < c.F.Patch.Width() ||
+		bounds.Dy() < c.F.Patch.Height() {
+
+		validity = false
 	}
 
-	return nil
-}
-
-// Update the cache.
-func (c *Cache) Update(bounds image.Rectangle, fr *render.Frame) {
-	c.B = bounds
-	c.F = fr
-	c.valid = true
+	return c.F, validity
 }

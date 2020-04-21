@@ -1,8 +1,10 @@
 package widgets
 
 import (
+	"image"
 	"log"
 
+	"github.com/negrel/ginger/v2/render"
 	"github.com/negrel/ginger/v2/widgets/events"
 )
 
@@ -27,6 +29,9 @@ func NewCoreLayout(name string, children []Widget) *CoreLayout {
 		Core:     NewCore(name),
 		Children: children,
 	}
+
+	// No cache for layouts.
+	cl.cache = nil
 
 	for _, child := range cl.Children {
 		cl.AdoptChild(child)
@@ -79,9 +84,6 @@ func (cl *CoreLayout) AdoptChild(child Widget) {
 		node = node.Parent()
 	}
 
-	// Cache not valid anymore, need a new render frame.
-	cl.cache.Invalid()
-
 	// Adopting the child
 	child.setParent(cl)
 	if cl.Attached() {
@@ -100,9 +102,6 @@ func (cl *CoreLayout) DropChild(child Widget) {
 		log.Fatalf(" └─ Child parent %v: %+v %v", child.Parent().Name(), child.Parent(), child.Parent().Attached())
 	}
 
-	// Cache not valid anymore, need a total new render frame.
-	cl.cache.Invalid()
-
 	child.setParent(nil)
 	if child.Attached() {
 		child.Detach()
@@ -116,4 +115,18 @@ func (cl *CoreLayout) AddListener(child Widget) {
 	if listener, ok := child.(events.ResizeListener); ok {
 		events.Emitter.AddResizeListener(listener)
 	}
+
+	// ScrollListener
+	if listener, ok := child.(events.ScrollListener); ok {
+		events.Emitter.AddScrollListener(listener)
+	}
+}
+
+// Render implements Rendable interface.
+func (cl *CoreLayout) Render(bounds image.Rectangle) *render.Frame {
+	if cl.Attached() {
+		return cl.Rendering(bounds)
+	}
+
+	return nil
 }

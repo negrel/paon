@@ -15,26 +15,22 @@ var _ Layout = &_center{}
 // itself.
 type _center struct {
 	*CoreLayout
-	*events.ResizeListener
 }
 
 // Center return a layout that center its child within
 // itself.
 func Center(child Widget) Layout {
 	cen := &_center{
-		CoreLayout:     NewCoreLayout("center", []Widget{child}),
-		ResizeListener: &events.ResizeListener{},
+		CoreLayout: NewCoreLayout("center", []Widget{child}),
 	}
-
-	cen.OnResize = func(_ events.ResizeEvent) {
-		cen.cache.Invalid()
-	}
-
 	cen.Rendering = cen.rendering
 
-	// cen.AdoptChild(child)
-
 	return cen
+}
+
+// OnScroll handle scroll events
+func (c *_center) OnScroll(se *events.ScrollEvent) {
+	log.Println("Scroll to the", se.Direction().String())
 }
 
 /*****************************************************

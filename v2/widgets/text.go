@@ -42,6 +42,7 @@ func (t *_text) rendering(bounds image.Rectangle) *render.Frame {
 	// If text overflow bounds
 	if maxWidth := bounds.Dx(); maxWidth < width {
 		width = maxWidth
+		t.cache.Invalid()
 	}
 
 	// Frame to return
@@ -52,11 +53,6 @@ func (t *_text) rendering(bounds image.Rectangle) *render.Frame {
 			Char:  t.content[i],
 			Theme: t.Theme,
 		}
-	}
-
-	// Not enough space / overflow
-	if width := frame.Patch.Width(); width < len {
-		frame.Patch.M[0][width-1] = &render.CellOverflow
 	}
 
 	return frame

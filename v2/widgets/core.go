@@ -82,17 +82,19 @@ func (c *Core) setParent(parent Layout) {
 func (c *Core) Render(bounds image.Rectangle) *render.Frame {
 	if c.Attached() {
 		// Pull cached frame.
-		cachedFrame := c.cache.Pull(bounds)
-
-		if cachedFrame != nil {
+		if cachedFrame, valid := c.cache.Pull(bounds); valid {
 			return cachedFrame
 		}
 
+		// Set valid state before rendering so the rendering function
+		// can set it to unvalid if the frame is cropped to fit
+		// the bounds.
+		c.cache.valid = true
 		frame := c.Rendering(bounds)
 
-		c.cache.F = frame
+		// Updating the cache.
 		c.cache.B = bounds
-		c.cache.valid = true
+		c.cache.F = frame
 
 		return frame
 	}

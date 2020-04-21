@@ -18,6 +18,7 @@ type Root struct {
 // your widget root tree.
 func ROOT(child Widget) *Root {
 	r := &Root{
+		// No NewCoreLayout to get attached child.
 		CoreLayout: &CoreLayout{
 			Core:     NewCore("root"),
 			Children: []Widget{child},
@@ -26,6 +27,7 @@ func ROOT(child Widget) *Root {
 
 	for _, child := range r.Children {
 		r.AdoptChild(child)
+		r.AddListener(child)
 	}
 
 	r.Rendering = r.rendering
@@ -63,18 +65,21 @@ func (r *Root) AdoptChild(child Widget) {
 		log.Fatal("can't adopt the child. (child is nil or child parent is not nil)")
 	}
 
-	// Cache not valid anymore, need a new render frame.
-	r.cache.valid = false
-
 	// Adopting the child
 	child.setParent(r)
 	child.Attach(r)
 }
 
 // Rendering implements Widget interface.
-func (r *Root) rendering(co Constraint) *render.Frame {
-	frame := render.NewFrame(image.Pt(0, 0), co.Bounds.Dx(), co.Bounds.Dy())
-	frame.Add(r.Child().Render(co))
+func (r *Root) rendering(bounds image.Rectangle) *render.Frame {
+	frame := render.NewFrame(image.Pt(0, 0), bounds.Dx(), bounds.Dy())
+	child := r.Child()
+
+	if child == nil {
+		return frame
+	}
+
+	frame.Add(child.Render(bounds))
 
 	return frame
 }
