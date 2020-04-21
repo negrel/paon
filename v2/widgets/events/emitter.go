@@ -1,7 +1,7 @@
 package events
 
 import (
-	"log"
+	"errors"
 
 	"github.com/gdamore/tcell"
 )
@@ -20,42 +20,13 @@ func init() {
 
 	Emitter = &_emitter{
 		resizeListener: []ResizeListener{},
+		scrollListener: []ScrollListener{},
 	}
-
-	var oldSize size = size{0, 0}
 
 	go func() {
 		for {
-			event := <-channel
-
-			switch rawEvent := event.(type) {
-			case *tcell.EventKey:
-				log.Printf("Key event: %+v %v\n", rawEvent.Name(), rawEvent.Key())
-
-			case *tcell.EventMouse:
-				log.Printf("Mouse event: %+v\n", rawEvent)
-
-			case *tcell.EventResize:
-				// log.Printf("Resize event: %+v\n", rawEvent)
-				w, h := rawEvent.Size()
-				newSize := size{
-					width:  w,
-					height: h,
-				}
-
-				re := NewResizeEvent(rawEvent.When(), newSize, oldSize)
-				Emitter.DispatchResizeEvent(re)
-
-				// Update oldSize
-				oldSize = newSize
-
-			case *tcell.EventError:
-				log.Printf("Error event: %+v\n", rawEvent)
-
-			default:
-				log.Println("Unidentified event.")
-				continue
-			}
+			ev := <-channel
+			Emitter.Dispatch(Adapt(ev))
 		}
 	}()
 }
@@ -65,6 +36,7 @@ type _emitter struct {
 	Input <-chan Event
 
 	resizeListener []ResizeListener
+	scrollListener []ScrollListener
 }
 
 /*****************************************************
@@ -72,9 +44,14 @@ type _emitter struct {
  *****************************************************/
 // ANCHOR Getters & Setters
 
-// AddResizeHandler add an input handler.
+// AddResizeListener add a resize event listener.
 func (e *_emitter) AddResizeListener(rl ResizeListener) {
 	e.resizeListener = append(e.resizeListener, rl)
+}
+
+// AddScrollListener add a scroll event listener.
+func (e *_emitter) AddScrollListener(sl ScrollListener) {
+	e.scrollListener = append(e.scrollListener, sl)
 }
 
 /*****************************************************
@@ -82,10 +59,33 @@ func (e *_emitter) AddResizeListener(rl ResizeListener) {
  *****************************************************/
 // ANCHOR Methods
 
+func (e *_emitter) Dispatch(ev Event) error {
+	switch event := ev.(type) {
+	case *ResizeEvent:
+		e.DispatchResizeEvent(event)
+
+	case *ScrollEvent:
+		e.DispatchScrollEvent(event)
+
+	default:
+		return errors.New("the given event is undispatchable")
+	}
+
+	return nil
+}
+
 // DispatchResizeEvent method dispatch the given resize event
 // to the subscribed listeners.
 func (e *_emitter) DispatchResizeEvent(re *ResizeEvent) {
 	for _, listener := range e.resizeListener {
 		listener.OnResize(re)
+	}
+}
+
+// DispatchResizeEvent method dispatch the given resize event
+// to the subscribed listeners.
+func (e *_emitter) DispatchScrollEvent(se *ScrollEvent) {
+	for _, listener := range e.scrollListener {
+		listener.OnScroll(se)
 	}
 }
