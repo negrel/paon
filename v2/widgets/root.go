@@ -79,7 +79,5 @@ func (r *Root) rendering(bounds image.Rectangle) *render.Frame {
 		return frame
 	}
 
-	frame.Add(child.Render(bounds))
-
-	return frame
+	return child.Render(bounds)
 }

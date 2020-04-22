@@ -24,9 +24,17 @@ func Adapt(event tcell.Event) Event {
 
 	case *tcell.EventMouse:
 		log.Printf("Mouse event: %+v\n", rawEvent)
-		direction := Direction(rawEvent.Buttons() << 8)
+		buttons := rawEvent.Buttons()
+		scrollDir := Direction(buttons << 8)
+		click := Button(0xFF & buttons)
 
-		return NewScrollEvent(rawEvent.When(), direction)
+		// scroll event
+		if scrollDir > 0 {
+			return NewScrollEvent(rawEvent.When(), scrollDir)
+		}
+		// click event
+		X, Y := rawEvent.Position()
+		return NewClickEvent(rawEvent.When(), click, Position{X, Y})
 
 	case *tcell.EventResize:
 		// log.Printf("Resize event: %+v\n", rawEvent)
@@ -46,8 +54,16 @@ func Adapt(event tcell.Event) Event {
 		log.Printf("Error event: %+v\n", rawEvent)
 		return nil
 
+	case *tcell.EventInterrupt:
+		log.Printf("Interrupt event: %+v\n", rawEvent)
+		return nil
+
+	case *tcell.EventTime:
+		log.Printf("Time event: %+v\n", rawEvent)
+		return nil
+
 	default:
 		log.Println("Unidentified event.")
-		return rawEvent.(Event)
+		return nil
 	}
 }

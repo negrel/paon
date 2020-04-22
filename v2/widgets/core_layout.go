@@ -120,6 +120,11 @@ func (cl *CoreLayout) AddListener(child Widget) {
 	if listener, ok := child.(events.ScrollListener); ok {
 		events.Emitter.AddScrollListener(listener)
 	}
+
+	// ClickListener
+	if listener, ok := child.(events.ClickListener); ok {
+		events.Emitter.AddClickListener(listener)
+	}
 }
 
 // Render implements Rendable interface.
