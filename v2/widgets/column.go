@@ -57,15 +57,9 @@ func (c *_column) renderChilds(bounds image.Rectangle) ([]*render.Frame, image.P
 
 // Rendering implements Widget interface.
 func (c *_column) rendering(bounds image.Rectangle) *render.Frame {
-	// children bounds are relative
-	childBounds := image.Rectangle{
-		Min: image.Pt(0, 0),
-		Max: bounds.Max.Sub(bounds.Min),
-	}
+	childrenFrames, size := c.renderChilds(bounds)
 
-	childrenFrames, size := c.renderChilds(childBounds)
-
-	frame := render.NewFrame(bounds.Min, size.X, size.Y)
+	frame := render.NewFrame(size.X, size.Y)
 
 	for i, childFrame := range childrenFrames {
 		err := frame.Add(childFrame)
