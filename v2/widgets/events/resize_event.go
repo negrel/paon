@@ -2,6 +2,9 @@ package events
 
 import "time"
 
+// ResizeHandler are function that can handle a Resize events.
+type ResizeHandler = func(*ResizeEvent)
+
 // ResizeListener define object that can listen to resize events.
 type ResizeListener interface {
 	OnResize(*ResizeEvent)

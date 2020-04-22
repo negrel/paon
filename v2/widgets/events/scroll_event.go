@@ -4,6 +4,9 @@ import (
 	"time"
 )
 
+// ScrollHandler are function that can handle a Scroll events.
+type ScrollHandler = func(*ScrollEvent)
+
 // ScrollListener define object that can listen to scroll events.
 type ScrollListener interface {
 	OnScroll(*ScrollEvent)
