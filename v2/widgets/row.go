@@ -57,14 +57,9 @@ func (r *_row) renderChilds(bounds image.Rectangle) ([]*render.Frame, image.Poin
 
 // Rendering implements Widget interface.
 func (r *_row) rendering(bounds image.Rectangle) *render.Frame {
-	// children constraint are relative
-	childBounds := image.Rectangle{
-		Min: image.Pt(0, 0),
-		Max: bounds.Max.Sub(bounds.Min),
-	}
-	childrenFrames, size := r.renderChilds(childBounds)
+	childrenFrames, size := r.renderChilds(bounds)
 
-	frame := render.NewFrame(bounds.Min, size.X, size.Y)
+	frame := render.NewFrame(size.X, size.Y)
 
 	for i, childFrame := range childrenFrames {
 		err := frame.Add(childFrame)

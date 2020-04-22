@@ -72,7 +72,7 @@ func (r *Root) AdoptChild(child Widget) {
 
 // Rendering implements Widget interface.
 func (r *Root) rendering(bounds image.Rectangle) *render.Frame {
-	frame := render.NewFrame(image.Pt(0, 0), bounds.Dx(), bounds.Dy())
+	frame := render.NewFrame(bounds.Dx(), bounds.Dy())
 	child := r.Child()
 
 	if child == nil {

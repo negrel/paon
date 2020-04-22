@@ -51,22 +51,16 @@ func (c *_center) Child() Widget {
 
 // rendering implements Widget interface.
 func (c *_center) rendering(bounds image.Rectangle) *render.Frame {
-	// Child bounds are relative
-	childBounds := image.Rectangle{
-		Min: image.Pt(0, 0),
-		Max: bounds.Max.Sub(bounds.Min),
-	}
-
 	width := bounds.Dx()
 	height := bounds.Dy()
 
 	// Drawing child
-	childFrame := c.Child().Render(childBounds)
+	childFrame := c.Child().Render(bounds)
 	childWidth := childFrame.Patch.Width()
 	childHeight := childFrame.Patch.Height()
 
 	// The final frame
-	frame := render.NewFrame(bounds.Min, width, height)
+	frame := render.NewFrame(width, height)
 
 	// Centering position
 	cPosition := image.Point{

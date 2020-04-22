@@ -90,7 +90,9 @@ func (c *Core) Render(bounds image.Rectangle) *render.Frame {
 		// can set it to unvalid if the frame is cropped to fit
 		// the bounds.
 		c.cache.valid = true
+
 		frame := c.Rendering(bounds)
+		frame.Position = bounds.Min
 
 		// Updating the cache.
 		c.cache.B = bounds

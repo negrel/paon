@@ -125,7 +125,16 @@ func (cl *CoreLayout) AddListener(child Widget) {
 // Render implements Rendable interface.
 func (cl *CoreLayout) Render(bounds image.Rectangle) *render.Frame {
 	if cl.Attached() {
-		return cl.Rendering(bounds)
+		// children bounds are relative to parent.
+		childBounds := image.Rectangle{
+			Min: image.Pt(0, 0),
+			Max: bounds.Max.Sub(bounds.Min),
+		}
+
+		frame := cl.Rendering(childBounds)
+		frame.Position = bounds.Min
+
+		return frame
 	}
 
 	return nil

@@ -46,7 +46,7 @@ func (t *_text) rendering(bounds image.Rectangle) *render.Frame {
 	}
 
 	// Frame to return
-	frame := render.NewFrame(bounds.Min, width, 1)
+	frame := render.NewFrame(width, 1)
 
 	for i := 0; i < width; i++ {
 		frame.Patch.M[0][i] = &render.Cell{
