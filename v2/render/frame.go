@@ -18,9 +18,9 @@ type Frame struct {
 }
 
 // NewFrame return a new Frame object
-func NewFrame(p Position, width, height int) *Frame {
+func NewFrame(width, height int) *Frame {
 	return &Frame{
-		Position: p,
+		Position: image.Point{},
 		Patch:    NewMatrix(width, height),
 	}
 }
