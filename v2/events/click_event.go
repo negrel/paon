@@ -10,15 +10,8 @@ type ClickHandler = func(*ClickEvent)
 
 // ClickListener define object that can listen to click events.
 type ClickListener interface {
-	// IsListening return wether or not the widget
-	// listen to the click at the given position.
-	IsListening(Position) bool
-
 	OnClick(*ClickEvent)
 }
-
-// Position define a position by it's X and Y coordinate.
-type Position image.Point
 
 // Button define the mouse button that was clicked
 type Button int
@@ -26,6 +19,8 @@ type Button int
 // String implements fmt.Stringer interface.
 func (b Button) String() string {
 	switch b {
+	case NoneButton:
+		return "no button pressed"
 	case LeftButton:
 		return "left click"
 	case MiddleButton:
@@ -50,6 +45,7 @@ func (b Button) String() string {
 
 // Possible mouse buttons
 const (
+	NoneButton   Button = 0
 	LeftButton   Button = 1 << iota // Usually left mouse button.
 	MiddleButton                    // Usually the middle mouse button.
 	RightButton                     // Usually the right mouse button.
@@ -66,11 +62,11 @@ type ClickEvent struct {
 	*event
 
 	button Button
-	pos    Position
+	pos    image.Point
 }
 
 // NewClickEvent return a new ClickEvent instance.
-func NewClickEvent(timeStamp time.Time, button Button, pos Position) *ClickEvent {
+func NewClickEvent(timeStamp time.Time, button Button, pos image.Point) *ClickEvent {
 	return &ClickEvent{
 		event: &event{
 			evType:    ScrollEventType,
@@ -92,6 +88,6 @@ func (ce *ClickEvent) Button() Button {
 }
 
 // Position return the coordinate of the mouse.
-func (ce *ClickEvent) Position() Position {
+func (ce *ClickEvent) Position() image.Point {
 	return ce.pos
 }

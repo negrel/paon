@@ -2,12 +2,11 @@ package events
 
 import (
 	"errors"
-
-	"github.com/gdamore/tcell"
+	"log"
 )
 
 // Emit is used to emit event to listeners.
-var Emit chan<- tcell.Event
+var Emit chan<- Event
 
 // Emitter listen to the Emit channel and emit
 // received events.
@@ -15,18 +14,18 @@ var Emitter *_emitter
 
 // Tcell adpater.
 func init() {
-	channel := make(chan tcell.Event)
+	channel := make(chan Event)
 	Emit = channel
 
 	Emitter = &_emitter{
-		resizeListener: []ResizeListener{},
-		scrollListener: []ScrollListener{},
+		resizeListeners: []ResizeListener{},
+		scrollListeners: []ScrollListener{},
+		clickListeners:  []ClickListener{},
 	}
 
 	go func() {
 		for {
-			ev := <-channel
-			Emitter.Dispatch(Adapt(ev))
+			Emitter.Dispatch(<-channel)
 		}
 	}()
 }
@@ -35,9 +34,9 @@ func init() {
 type _emitter struct {
 	Input <-chan Event
 
-	resizeListener []ResizeListener
-	scrollListener []ScrollListener
-	clickListener  []ClickListener
+	resizeListeners []ResizeListener
+	scrollListeners []ScrollListener
+	clickListeners  []ClickListener
 }
 
 /*****************************************************
@@ -47,17 +46,17 @@ type _emitter struct {
 
 // AddResizeListener add a resize event listener.
 func (e *_emitter) AddResizeListener(rl ResizeListener) {
-	e.resizeListener = append(e.resizeListener, rl)
+	e.resizeListeners = append(e.resizeListeners, rl)
 }
 
 // AddScrollListener add a scroll event listener.
 func (e *_emitter) AddScrollListener(sl ScrollListener) {
-	e.scrollListener = append(e.scrollListener, sl)
+	e.scrollListeners = append(e.scrollListeners, sl)
 }
 
-// AddScrollListener add a scroll event listener.
+// // AddScrollListener add a scroll event listener.
 func (e *_emitter) AddClickListener(cl ClickListener) {
-	e.clickListener = append(e.clickListener, cl)
+	e.clickListeners = append(e.clickListeners, cl)
 }
 
 /*****************************************************
@@ -73,6 +72,9 @@ func (e *_emitter) Dispatch(ev Event) error {
 	case *ScrollEvent:
 		e.DispatchScrollEvent(event)
 
+	case *ClickEvent:
+		e.DispatchClickEvent(event)
+
 	default:
 		return errors.New("the given event is undispatchable")
 	}
@@ -83,7 +85,7 @@ func (e *_emitter) Dispatch(ev Event) error {
 // DispatchResizeEvent method dispatch the given resize event
 // to the subscribed listeners.
 func (e *_emitter) DispatchResizeEvent(re *ResizeEvent) {
-	for _, listener := range e.resizeListener {
+	for _, listener := range e.resizeListeners {
 		listener.OnResize(re)
 	}
 }
@@ -91,18 +93,16 @@ func (e *_emitter) DispatchResizeEvent(re *ResizeEvent) {
 // DispatchResizeEvent method dispatch the given resize event
 // to the subscribed listeners.
 func (e *_emitter) DispatchScrollEvent(se *ScrollEvent) {
-	for _, listener := range e.scrollListener {
+	for _, listener := range e.scrollListeners {
+		log.Println(listener)
 		listener.OnScroll(se)
 	}
 }
 
-// DispatchResizeEvent method dispatch the given resize event
-// to the subscribed listeners.
+// DispatchResizeEvent method dispatch the given click event
+// to the destined widgets.
 func (e *_emitter) DispatchClickEvent(ce *ClickEvent) {
-	pos := ce.Position()
-	for _, listener := range e.clickListener {
-		if listener.IsListening(pos) {
-			listener.OnClick(ce)
-		}
+	for _, listener := range e.clickListeners {
+		listener.OnClick(ce)
 	}
 }
