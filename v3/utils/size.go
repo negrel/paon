@@ -2,9 +2,7 @@ package utils
 
 // Size define the width and the height of an
 // object.
-type Size struct {
-	*Point
-}
+type Size Point
 
 /*****************************************************
  ***************** Getters & Setters *****************
