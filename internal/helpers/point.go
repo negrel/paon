@@ -1,4 +1,4 @@
-package utils
+package helpers
 
 // Infinite represent an infinite value.
 const Infinite int = -1

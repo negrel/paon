@@ -1,4 +1,4 @@
-package utils
+package helpers
 
 // Size define the width and the height of an
 // object.

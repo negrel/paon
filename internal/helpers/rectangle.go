@@ -1,4 +1,4 @@
-package utils
+package helpers
 
 // Rectangle define a rectangle with two points
 // for the minimum (top-left corner) and the
