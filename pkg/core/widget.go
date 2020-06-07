@@ -1,21 +1,29 @@
-package ui
+package core
 
 import (
-	"github.com/negrel/ginger/internal/utils"
-	"github.com/negrel/ginger/v3/render"
+	"fmt"
+
+	"github.com/google/uuid"
+	"github.com/negrel/debugo"
+	"github.com/negrel/ginger/internal/helpers"
 )
 
 // Widget define any graphical element on the screen.
 type Widget interface {
-	/* NOTE
+	/*
 	 * --- GETTERS & SETTERS ---
 	 */
+
+	active() bool
+
+	// Unique identifier of the widget.
+	UID() uuid.UUID
 
 	// Name of the widget (button, text, etc).
 	Name() string
 
 	// The next sibling widget at the same tree level.
-	NextSibling() Widget
+	NextSibling() (Widget, bool)
 
 	// owner of the tree that contain
 	// this widget.
@@ -25,13 +33,14 @@ type Widget interface {
 	Parent() Layout
 
 	// The previous sibling widget at the same tree level.
-	PreviousSibling() Widget
+	PreviousSibling() (Widget, bool)
 
-	/* NOTE
+	// returns the widget position in parent childrens
+	slot() int
+
+	/*
 	 * --- METHODS ---
 	 */
-
-	active() bool
 
 	// set the parent of the widget and the
 	// slot position.
@@ -45,36 +54,38 @@ type Widget interface {
 	// position (relative to parent).
 	// this method is called by layout when
 	// adopt adopt a widget child.
-	layout(utils.Point)
+	layout(helpers.Point)
 
 	// Render the widget if needed.
-	Render(render.Constraints)
+	Render()
 
 	// performRender update the render object of
 	// the widget while respecting the given
 	// constraint. This function must be overwritten
 	// by any widgets.
-	PerformRender(render.Constraints)
+	PerformRender()
 }
 
-// WidgetCore define the WidgetCore of every widgets.
-// it implements the common method for the
+// WidgetCore is the core of every widget.
+// It implements the common method for the
 // Widget interface.
 type WidgetCore struct {
+	uid uuid.UUID
+
 	// widget name
 	name string
 
 	// parent widget
 	parent Layout
-	// position in parent child list.
-	slot int
+	// child position in parent children list
+	_slot int
 
 	// owner of the node tree
 	// nil if not active state
 	_owner Manager
 
 	// position relative to the parent
-	pos utils.Point
+	pos helpers.Point
 	// need to be laid out for the
 	// next frame.
 	needLayout bool
@@ -82,7 +93,7 @@ type WidgetCore struct {
 	// frame.
 	needRender bool
 
-	renderObj *render.Object
+	// renderObj *render.Object
 }
 
 var _ Widget = &WidgetCore{}
@@ -90,6 +101,7 @@ var _ Widget = &WidgetCore{}
 // NewWidgetCore return a new widget core.
 func NewWidgetCore(name string) *WidgetCore {
 	return &WidgetCore{
+		uid:        uuid.New(),
 		name:       name,
 		parent:     nil,
 		_owner:     nil,
@@ -101,7 +113,12 @@ func NewWidgetCore(name string) *WidgetCore {
 /*****************************************************
  ***************** Getters & Setters *****************
  *****************************************************/
-// ANCHOR Getters & Setters
+// SECTION Getters & Setters
+
+// UID return the widget unique ID.
+func (wc *WidgetCore) UID() uuid.UUID {
+	return wc.uid
+}
 
 // active implements the Widget interface.
 func (wc *WidgetCore) active() bool {
@@ -114,12 +131,12 @@ func (wc *WidgetCore) Name() string {
 }
 
 // NextSibling implements the Widget interface.
-func (wc *WidgetCore) NextSibling() Widget {
+func (wc *WidgetCore) NextSibling() (Widget, bool) {
 	if wc.parent == nil {
-		return nil
+		return nil, false
 	}
 
-	return wc.parent.ChildAt(wc.slot - 1)
+	return wc.parent.ChildAt(wc._slot + 1)
 }
 
 // owner implements the Widget interface.
@@ -133,54 +150,58 @@ func (wc *WidgetCore) Parent() Layout {
 }
 
 // PreviousSibling implements the Widget interface.
-func (wc *WidgetCore) PreviousSibling() Widget {
+func (wc *WidgetCore) PreviousSibling() (Widget, bool) {
 	if wc.parent == nil {
-		return nil
+		return nil, false
 	}
-	return wc.parent.ChildAt(wc.slot + 1)
+
+	return wc.parent.ChildAt(wc._slot - 1)
+}
+
+// slot implements the Widget interface.
+func (wc *WidgetCore) slot() int {
+	return wc._slot
 }
 
 /*****************************************************
  ********************* Methods ***********************
  *****************************************************/
-// ANCHOR Methods
+// SECTION Methods
 
 // adoptedBy implements the Widget interface.
 func (wc *WidgetCore) adoptedBy(parent Layout, slot int) {
+	debugo.Assert(func() (bool, string) {
+		if parent == nil {
+			return false, fmt.Sprintf("%v - %v can't be adopted, the given parent is nil", wc.uid, wc.name)
+		}
+
+		return true, ""
+	}())
+
 	wc.parent = parent
-	wc.slot = slot
+	wc._slot = slot
 }
 
 // abandoned implements the Widget interface.
 func (wc *WidgetCore) abandoned() {
 	wc.parent = nil
-	wc.slot = -1
 }
 
 // layout implements the Widget interface.
-func (wc *WidgetCore) layout(position utils.Point) {
-	if !wc.needLayout {
-		wc.pos = position
+func (wc *WidgetCore) layout(position helpers.Point) {
 
-	}
 }
 
 // Render implements the Widget interface.
-func (wc *WidgetCore) Render(constraints render.Constraints) {
-	if constraints.Equal(wc.renderObj.Constraints) {
-		if wc.needRender {
-			wc.PerformRender(constraints)
-		}
+func (wc *WidgetCore) Render() {
 
-		return
-	}
-
-	wc.PerformRender(constraints)
 }
 
 // PerformRender implements the Widget interface.
 //
 // Must be overwritten or will paniwc.
-func (wc *WidgetCore) PerformRender(_ render.Constraints) {
-	panic("The WidgetCore widget doesn't implements PerformRender, you should overwrite it.")
+func (wc *WidgetCore) PerformRender() {
+	debugo.Assert(func() (bool, string) {
+		return false, "WidgetCore widget doesn't implements PerformRender, you should overwrite it."
+	}())
 }
