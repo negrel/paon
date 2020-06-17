@@ -35,8 +35,9 @@ type Widget interface {
 	// The previous sibling widget at the same tree level.
 	PreviousSibling() (Widget, bool)
 
-	// returns the widget position in parent childrens
+	// The widget position in parent childrens
 	slot() int
+	setSlot(int)
 
 	/*
 	 * --- METHODS ---
@@ -163,6 +164,15 @@ func (wc *WidgetCore) slot() int {
 	return wc._slot
 }
 
+// setSlot implements the Widget interface.
+func (wc *WidgetCore) setSlot(n int) {
+	if next, ok := wc.NextSibling(); ok {
+		next.setSlot(n - 1)
+	}
+
+	wc._slot = n
+}
+
 /*****************************************************
  ********************* Methods ***********************
  *****************************************************/
@@ -170,13 +180,12 @@ func (wc *WidgetCore) slot() int {
 
 // adoptedBy implements the Widget interface.
 func (wc *WidgetCore) adoptedBy(parent Layout, slot int) {
-	debugo.Assert(func() (bool, string) {
-		if parent == nil {
-			return false, fmt.Sprintf("%v - %v can't be adopted, the given parent is nil", wc.uid, wc.name)
-		}
+	defer debugo.Printf("%s was adopted by %s", wc, parent)
 
-		return true, ""
-	}())
+	debugo.Assert(
+		parent == nil,
+		fmt.Sprintf("%s can't be adopted, the given parent is nil", wc),
+	)
 
 	wc.parent = parent
 	wc._slot = slot
@@ -201,7 +210,13 @@ func (wc *WidgetCore) Render() {
 //
 // Must be overwritten or will paniwc.
 func (wc *WidgetCore) PerformRender() {
-	debugo.Assert(func() (bool, string) {
-		return false, "WidgetCore widget doesn't implements PerformRender, you should overwrite it."
-	}())
+	debugo.Assert(
+		false,
+		fmt.Sprintf("%s widget doesn't implements PerformRender, you should overwrite it.", wc),
+	)
+}
+
+// String implements the fmt.Stringer interface.
+func (wc *WidgetCore) String() string {
+	return fmt.Sprintf("%v-%v", wc.name, wc.uid)
 }

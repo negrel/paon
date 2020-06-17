@@ -78,12 +78,14 @@ func (lc *LayoutCore) Children() []Widget {
 // AppendChild try to append the given child and return an
 // error otherwise. If the child is somewhere else
 func (lc *LayoutCore) AppendChild(child Widget) {
+	defer debugo.Printf("%s has appended %s", lc, child)
+
 	// check that the child is not an ancestor of the layout
 	debugo.Assert(func() (bool, string) {
 		var node Widget = lc
 		for node != nil {
 			if node == child {
-				return false, fmt.Sprintf("%v - %v can't append the child, the given child is an ancestor of the layout", lc.uid, lc.name)
+				return false, fmt.Sprintf("%s can't append %s, the given child is an ancestor of the layout", lc, child)
 			}
 
 			node = node.Parent()
@@ -113,25 +115,27 @@ func (lc *LayoutCore) ChildAt(slot int) (Widget, bool) {
 // DropChild drop the given widget if it's direct
 // child of the layout.
 func (lc *LayoutCore) DropChild(child Widget) {
+	defer debugo.Printf("%s has dropped %s", lc, child)
+
 	slot := child.slot()
 
 	// checking that the given widget is a child of the layout
-	debugo.Assert(func() (bool, string) {
-		if lc.children[slot] != child {
-			return false, fmt.Sprintf("%v - %v can't drop the given widget %v because it's not a child", lc.uid, lc.name, child.Name())
-		}
-
-		return true, ""
-	}())
+	debugo.Assert(
+		lc.children[slot] != child,
+		fmt.Sprintf("%v - %v can't drop the given widget %v because it's not a child", lc.uid, lc.name, child.Name()),
+	)
 
 	// removing parent/child link
 	lc.children = append(lc.children[:slot-1], lc.children[slot+1:]...)
 	child.abandoned()
+
 }
 
 // InsertBefore insert the given child before the second
 // given child.
 func (lc *LayoutCore) InsertBefore(child, reference Widget) {
+	defer debugo.Printf("%s has inserted %s before %s", lc, child, reference)
+
 	if reference == nil {
 		lc.AppendChild(child)
 	}
