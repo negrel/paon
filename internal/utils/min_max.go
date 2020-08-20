@@ -1,4 +1,4 @@
-package helpers
+package utils
 
 // Min return the smallest integer.
 func Min(x, y int) int {

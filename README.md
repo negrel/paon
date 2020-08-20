@@ -1,23 +1,30 @@
 <h1 align="center">
-  <img height="250" src="https://github.com/negrel/ginger/raw/master/.github/ginger-man.svg?sanitize=true">
+    <img height="250" src="https://raw.githubusercontent.com/negrel/paon/master/.github/paon.webp">
 </h1>
+
 <p align="center">
-	<a href="https://goreportcard.com/badge/github.com/negrel/ginger">
-    <img src="https://goreportcard.com/badge/github.com/negrel/ginger">
+	<a href="https://pkg.go.dev/github.com/negrel/timer">
+		<img src="https://godoc.org/github.com/negrel/paon?status.svg">
 	</a>
-	<a href="https://github.com/negrel/ginger/raw/master/LICENSE">
-		<img src="https://img.shields.io/badge/license-MIT-green">
+	<a href="https://goreportcard.com/badge/github.com/negrel/timer">
+		<img src="https://goreportcard.com/badge/github.com/negrel/paon">
+	</a>
+	<a href="https://github.com/negrel/paon/raw/master/LICENSE">
+		<img src="https://img.shields.io/badge/license-APACHE-blue">
 	</a>
 </p>
 
-# Ginger
-***Ginger** is a framework for building terminal application.*
+# :chicken: - Paon
 
-### Contributing
-If you want to contribute to Ginger to add a feature or improve the code contact me at [negrel.dev@protonmail.com](mailto:negrel.dev@protonmail.com), open an [issue](https://github.com/negrel/ginger/issues) or make a [pull request](https://github.com/negrel/ginger/pulls).
+## Acknowledgments
+
+Peacock illustration by [Alessandra Stanga](https://www.domestika.org/en/alessandra_stanga) on
+[Domestika](https://www.domestika.org/en/alessandra_stanga)
 
 ## :stars: Show your support
+
 Please give a :star: if this project helped you!
 
-#### :scroll: License
-MIT © Alexandre Negrel
+## :scroll: License
+
+APACHE-2.0 © [Alexandre Negrel](https://www.negrel.dev/)
