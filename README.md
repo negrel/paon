@@ -1,5 +1,5 @@
 <h1 align="center">
-    <img height="250" src="https://raw.githubusercontent.com/negrel/paon/master/.github/paon.webp">
+    <img height="250" src="https://raw.githubusercontent.com/negrel/ginger/master/.github/paon.webp">
 </h1>
 
 <p align="center">
