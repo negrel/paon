@@ -6,10 +6,7 @@ type Layout interface {
 	Widget
 
 	AppendChild(child Widget)
+	Children() []Widget
 	IndexOf(child Widget) int
 	RemoveChild(child Widget)
-}
-
-func newMockLayout() Layout {
-	return nil
 }

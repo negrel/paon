@@ -2,11 +2,17 @@
 
 package widgets
 
+import (
+	"github.com/google/uuid"
+)
+
+// Widget define any TUI components in the widget tree.
 type Widget interface {
 	Name() string
+	UUID() uuid.UUID
 
 	Parent() Layout
 	setParent(parent Layout)
 
-	build(ctx interface{})
+	String() string
 }
