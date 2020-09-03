@@ -15,6 +15,22 @@
 </p>
 
 # :chicken: - Paon
+*A framework to build efficient, thread-safe, highly composable widgets based terminal user interface.*
+
+## TODO
+- [ ] Composable widgets
+- [ ] Thread-safe widgets update
+- [ ] Rendering
+	- [ ] Customizable frame rate
+	- [ ] Efficient rendering with overlapping widgets
+- [ ] Input events
+	- [ ] Mouse
+	- [ ] Keyboard
+	- [ ] Window resize
+- [ ] Style
+	- [ ] Cascade
+	- [ ] Specificity
+	- [ ] Inheritance
 
 ## Acknowledgments
 
