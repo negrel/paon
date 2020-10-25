@@ -1,11 +1,10 @@
-package surfaces
-
-import (
-	"github.com/negrel/paon/internal/render"
-)
+package render
 
 // Surface define terminal window/surface to draw on.
 type Surface interface {
 	Update()
-	Apply(render.Patch)
+	Apply(Patch)
+	Size() (w, h int)
+	Clear()
+	Fini()
 }

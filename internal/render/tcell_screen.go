@@ -1,9 +1,8 @@
-package surfaces
+package render
 
 import (
 	"github.com/gdamore/tcell"
-
-	"github.com/negrel/paon/internal/render"
+	"github.com/negrel/debuggo/pkg/log"
 )
 
 var _ Surface = &tcellScreen{}
@@ -32,17 +31,21 @@ func NewTcellSurface() (Surface, error) {
 
 // Update implements the Screen interface.
 func (t *tcellScreen) Update() {
+	log.Infoln("updating screen")
+
 	t.Show()
 }
 
 // Apply the given patch to the screen.
-func (t *tcellScreen) Apply(patch render.Patch) {
-	for i, row := range patch.Frame {
-		x := patch.Origin.X + i
-		for j, cell := range row {
-			y := patch.Origin.Y + j
+func (t *tcellScreen) Apply(patch Patch) {
+	log.Infoln("applying patch", patch)
 
-			t.SetContent(x, y, cell.Content, []rune{}, *cell.Style)
+	for i, row := range patch.Frame {
+		y := patch.Origin.Y + i
+		for j, cell := range row {
+			x := patch.Origin.X + j
+
+			t.SetContent(x, y, cell.Content, []rune{}, cell.Style)
 		}
 	}
 }
