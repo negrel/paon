@@ -1,9 +1,13 @@
 package render
 
-import "image"
+import (
+	"image"
+
+	"github.com/negrel/paon/internal/render/cells"
+)
 
 // Patch define a rectangle screen area to update.
 type Patch struct {
-	origin image.Point
-	frame  [][]Cell
+	Origin image.Point
+	Frame  [][]cells.Cell
 }
