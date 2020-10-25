@@ -31,7 +31,7 @@ func NewNodeWidget(name string) *Node {
 		style: style.Unset(),
 	}
 
-	log.Infoln("creating", n)
+	log.Infoln("creating", n, "widget")
 
 	return n
 }

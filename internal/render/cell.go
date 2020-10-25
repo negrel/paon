@@ -6,6 +6,6 @@ import (
 
 // Cell define a terminal screen cell.
 type Cell struct {
-	Style   *tcell.Style
+	Style   tcell.Style
 	Content rune
 }
