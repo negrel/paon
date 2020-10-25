@@ -1,11 +1,11 @@
-package cells
+package render
 
 import (
 	"github.com/gdamore/tcell"
 )
 
 // Cell define a terminal screen cell.
-type Cell interface {
-	Style() tcell.Style
-	Content() rune
+type Cell struct {
+	Style   *tcell.Style
+	Content rune
 }
