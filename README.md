@@ -43,4 +43,4 @@ Please give a :star: if this project helped you!
 
 ## :scroll: License
 
-APACHE-2.0 © [Alexandre Negrel](https://www.negrel.dev/)
+MIT © [Alexandre Negrel](https://www.negrel.dev/)
