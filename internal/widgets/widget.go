@@ -5,11 +5,14 @@ package widgets
 import (
 	"github.com/google/uuid"
 
+	"github.com/negrel/paon/internal/render"
 	"github.com/negrel/paon/internal/style"
 )
 
 // Widget define any TUI components in the widget tree.
 type Widget interface {
+	render.Renderable
+
 	Name() string
 	UUID() uuid.UUID
 
