@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 
+	"github.com/negrel/debuggo/pkg/log"
 	"github.com/negrel/paon/internal/style"
 )
 
@@ -14,34 +15,48 @@ type Node struct {
 	uuid   uuid.UUID
 	name   string
 	parent Layout
-	style  style.Node
+	style  *style.Node
+}
+
+func (n *Node) slot() int {
+	panic("implement me")
 }
 
 // NewNodeWidget return a new Node object to embed in custom
 // widget.
 func NewNodeWidget(name string) *Node {
-	return &Node{
-		name: name,
-		uuid: uuid.New(),
+	n := &Node{
+		name:  name,
+		uuid:  uuid.New(),
+		style: style.Unset(),
 	}
+
+	log.Infoln("creating", n)
+
+	return n
 }
 
-func (c *Node) Name() string {
-	return c.name
+func (n *Node) Name() string {
+	return n.name
 }
 
-func (c *Node) UUID() uuid.UUID {
-	return c.uuid
+func (n *Node) UUID() uuid.UUID {
+	return n.uuid
 }
 
-func (c *Node) String() string {
-	return fmt.Sprintf("%v-%v", c.name, c.uuid.String())
+func (n *Node) String() string {
+	return fmt.Sprintf("%v-%v", n.name, n.uuid.String())
 }
 
-func (c *Node) Parent() Layout {
-	return c.parent
+func (n *Node) Parent() Layout {
+	return n.parent
 }
 
-func (c *Node) setParent(parent Layout) {
-	c.parent = parent
+func (n *Node) adoptedBy(parent Layout) {
+	n.parent = parent
+	// TODO update style tree.
+}
+
+func (n *Node) Style() *style.Node {
+	return n.style
 }
