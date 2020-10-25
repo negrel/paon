@@ -5,8 +5,10 @@ package widgets
 type Layout interface {
 	Widget
 
-	AppendChild(child Widget)
+	Append(child Widget)
+	InsertBefore(child, reference Widget)
+	Insert(child Widget, index int)
 	Children() []Widget
 	IndexOf(child Widget) int
-	RemoveChild(child Widget)
+	Remove(child Widget)
 }
