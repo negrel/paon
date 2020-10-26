@@ -32,7 +32,7 @@ func TestWidgetList_GetIndexOf(t *testing.T) {
 		w := NewNodeWidget(name)
 		wl.Append(w)
 
-		assert.Equal(t, i, wl.GetIndexOf(w))
+		assert.Equal(t, i, wl.IndexOf(w))
 	}
 }
 
@@ -55,7 +55,7 @@ func TestWidgetList_Insert(t *testing.T) {
 
 		wl.Insert(w, index)
 
-		assert.Equal(t, index, wl.GetIndexOf(w))
+		assert.Equal(t, index, wl.IndexOf(w))
 		assert.Equal(t, w, wl.Get(index))
 	}
 }
@@ -95,5 +95,5 @@ func TestWidgetList_RemoveChild(t *testing.T) {
 
 	wl.Remove(w)
 	assert.Equal(t, 0, wl.Length())
-	assert.Equal(t, NotFound, wl.GetIndexOf(w))
+	assert.Equal(t, NotFound, wl.IndexOf(w))
 }
