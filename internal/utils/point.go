@@ -18,11 +18,6 @@ func Pt(x, y int) Point {
 	}
 }
 
-/*****************************************************
- ********************* Methods ***********************
- *****************************************************/
-// ANCHOR Methods
-
 // Add translate the point coordinate by adding the
 // given point.
 func (p Point) Add(other Point) Point {

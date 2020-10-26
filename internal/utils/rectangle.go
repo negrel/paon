@@ -37,11 +37,6 @@ func RectFromCenter(center Point, size Size) Rectangle {
 	}
 }
 
-/*****************************************************
- ***************** Getters & Setters *****************
- *****************************************************/
-// ANCHOR Getters & Setters
-
 // Bottom return offset of the bottom edge from the
 // y axis.
 func (r Rectangle) Bottom() int {
