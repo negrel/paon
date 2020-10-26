@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	"github.com/gdamore/tcell"
-	"github.com/mitchellh/go-wordwrap"
 
 	"github.com/negrel/paon/internal/render"
 	"github.com/negrel/paon/internal/utils"
@@ -13,6 +12,7 @@ import (
 
 var _ widgets.Widget = &Text{}
 
+// Text define a simple TUI text element.
 type Text struct {
 	*widgets.Node
 	content string
@@ -28,10 +28,12 @@ func TextWidget(content string) *Text {
 
 // Render implements the widgets.Widget interface.
 func (t Text) Render(rect utils.Rectangle) (patch render.Patch) {
-	patch.Origin = rect.Min
-	patch.Frame = make([][]render.Cell, 1)
+	maxWidth := rect.Width()
+	wrapped := utils.WordWrap(t.content, maxWidth)
 
-	wrapped := wordwrap.WrapString(t.content, uint(rect.Width()))
+	patch.Origin = rect.Min
+	patch.Frame = make([][]render.Cell, maxWidth)
+
 	for i, line := range strings.Split(wrapped, "\n") {
 		patch.Frame[i] = make([]render.Cell, len(line))
 
