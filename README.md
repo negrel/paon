@@ -1,12 +1,12 @@
 <h1 align="center">
-    <img height="250" src="https://raw.githubusercontent.com/negrel/ginger/master/.github/paon.webp">
+    <img height="250" src="https://raw.githubusercontent.com/negrel/paon/master/.github/paon.webp">
 </h1>
 
 <p align="center">
-	<a href="https://pkg.go.dev/github.com/negrel/timer">
+	<a href="https://pkg.go.dev/github.com/negrel/paon">
 		<img src="https://godoc.org/github.com/negrel/paon?status.svg">
 	</a>
-	<a href="https://goreportcard.com/badge/github.com/negrel/timer">
+	<a href="https://goreportcard.com/report/github.com/negrel/paon">
 		<img src="https://goreportcard.com/badge/github.com/negrel/paon">
 	</a>
 	<a href="https://github.com/negrel/paon/raw/master/LICENSE">
