@@ -1,5 +1,9 @@
 package events
 
+import (
+	"github.com/negrel/debuggo/pkg/assert"
+)
+
 // EventType is the type of an Event
 type EventType int
 
@@ -13,3 +17,21 @@ const (
 	WheelEventType
 	KeyboardEventType
 )
+
+var eventTypeName = map[EventType]string{
+	ErrorEventType:       "ErrorEvent",
+	UnsupportedEventType: "UnsupportedEvent",
+	InterruptEventType:   "InterruptEvent",
+	ResizeEventType:      "ResizeEvent",
+	ClickEventType:       "ClickEvent",
+	WheelEventType:       "WheelEvent",
+	KeyboardEventType:    "KeyboardEvent",
+}
+
+// String implements the fmt.Stringer interface.
+func (et EventType) String() string {
+	name, ok := eventTypeName[et]
+	assert.Truef(ok, "%v is an invalid event type", et)
+
+	return name
+}
