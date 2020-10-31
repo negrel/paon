@@ -1,15 +1,21 @@
 package tree
 
+import (
+	"fmt"
+)
+
 type NodeType int8
 
 const (
-	ElementNode NodeType = iota + 1
-	TextNode
-	DocumentNode
+	ElementNodeType NodeType = iota + 1
+	TextNodeType
+	DocumentNodeType
 )
 
 // Node are part of the Node tree that compose the Document.
 type Node interface {
+	fmt.Stringer
+
 	Owner() *Document
 	setOwner(*Document)
 
@@ -43,6 +49,10 @@ type node struct {
 	next        Node
 	nodeType    NodeType
 	isContainer bool
+}
+
+func (n *node) String() string {
+	panic("implement me")
 }
 
 func (n *node) Owner() *Document {
