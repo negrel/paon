@@ -34,8 +34,6 @@ github.com/mattn/go-runewidth v0.0.4 h1:2BvfKmzob6Bmd4YsL0zygOqfdFnK7GR4QL06Do4/
 github.com/mattn/go-runewidth v0.0.4/go.mod h1:LwmH8dsx7+W8Uxz3IHJYH5QSwggIsqBzpuz5H//U1FU=
 github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b/go.mod h1:01TrycV0kFyexm33Z7vhZRXopbI8J3TDReVlkTgMUxE=
 github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d/go.mod h1:01TrycV0kFyexm33Z7vhZRXopbI8J3TDReVlkTgMUxE=
-github.com/mitchellh/go-wordwrap v1.0.1 h1:TLuKupo69TCn6TQSyGxwI1EblZZEsQ0vMlAFQflz0v0=
-github.com/mitchellh/go-wordwrap v1.0.1/go.mod h1:R62XHJLzvMFRBbcrT7m7WgmE1eOyTSsCt+hzestvNj0=
 github.com/negrel/asttk v0.0.0-20201023213657-e9c55de06520/go.mod h1:JCEr1L4C1RWKe9Rx7sduwBazgqJKn+XuYLlchvGpQzo=
 github.com/negrel/debuggo v0.0.0-20201024091346-a616c45023ac h1:nU61wrVUqKRlaWrqOVkxg6RD48sOSLp3VxzZTmn+qVI=
 github.com/negrel/debuggo v0.0.0-20201024091346-a616c45023ac/go.mod h1:Y78R4hP4Ryo+36p5A/2TRdcgTKl26xICr0kUmZrL0+A=
