@@ -153,7 +153,9 @@ func (p *parent) RemoveChild(child Node) error {
 	// Removing parent & root link
 	child.setParent(nil)
 	child.setRoot(nil)
-	p.root.unregister(child)
+	if p.isConnected() {
+		p.root.unregister(child)
+	}
 
 	return nil
 }
