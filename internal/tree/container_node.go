@@ -14,8 +14,8 @@ type ContainerNode interface {
 	LastChild() ChildNode
 	setLastChild(ChildNode)
 
-	AppendChild(newChild Node) (ChildNode, error)
-	InsertBefore(newChild Node, reference Node) (ChildNode, error)
+	AppendChild(Node) (ChildNode, error)
+	InsertBefore(reference Node, newChild Node) (ChildNode, error)
 }
 
 var _ ContainerNode = &containerNode{}
@@ -27,7 +27,7 @@ type containerNode struct {
 	lastChild  ChildNode
 }
 
-func makeContainerNode() ContainerNode {
+func newContainerNode() ContainerNode {
 	return &containerNode{
 		Node: &node{
 			nType:       DocumentNode,
@@ -36,32 +36,40 @@ func makeContainerNode() ContainerNode {
 	}
 }
 
-func (c *containerNode) FirstChild() ChildNode {
-	return c.firstChild
+func (cn *containerNode) isSame(other Node) bool {
+	return cn == other
 }
 
-func (c *containerNode) setFirstChild(child ChildNode) {
-	c.firstChild = child
+func (cn *containerNode) FirstChild() ChildNode {
+	return cn.firstChild
 }
 
-func (c *containerNode) LastChild() ChildNode {
-	return c.lastChild
+func (cn *containerNode) setFirstChild(child ChildNode) {
+	cn.firstChild = child
 }
 
-func (c *containerNode) setLastChild(child ChildNode) {
-	c.lastChild = child
+func (cn *containerNode) LastChild() ChildNode {
+	return cn.lastChild
 }
 
-func (c *containerNode) InsertBefore(newChild, reference Node) (ChildNode, error) {
+func (cn *containerNode) setLastChild(child ChildNode) {
+	cn.lastChild = child
+}
+
+func (cn *containerNode) InsertBefore(reference, newChild Node) (ChildNode, error) {
 	assert.NotNil(newChild, "child must be non-nil to be inserted")
 
-	// InsertBefore(node, nil) is equivalent to AppendChild(node)
+	// InsertBefore(nil, node) is equivalent to AppendChild(node)
 	if reference == nil {
-		return c.AppendChild(newChild)
+		return cn.AppendChild(newChild)
+	}
+
+	if !cn.isSame(reference.Parent()) {
+		return nil, errors.New("the node before the child must be inserted is not a child of this node")
 	}
 
 	// Some check to keep a valid node tree
-	err := c.ensurePreInsertionValidity(newChild)
+	err := cn.ensurePreInsertionValidity(newChild)
 	if err != nil {
 		return nil, err
 	}
@@ -70,22 +78,22 @@ func (c *containerNode) InsertBefore(newChild, reference Node) (ChildNode, error
 	if reference == newChild {
 		reference = newChild.Next()
 		if reference == nil {
-			return c.AppendChild(newChild)
+			return cn.AppendChild(newChild)
 		}
 	}
 
-	c.prepareNewChild(newChild)
+	cn.prepareNewChild(newChild)
 	child := makeChildNode(newChild)
-	c.performInsertBefore(child, reference)
+	cn.performInsertBefore(reference, child)
 
 	return makeChildNode(newChild), nil
 }
 
-func (c *containerNode) prepareNewChild(newChild Node) {
+func (cn *containerNode) prepareNewChild(newChild Node) {
 	makeChildNode(newChild).Remove()
 }
 
-func (c *containerNode) performInsertBefore(newChild ChildNode, reference Node) {
+func (cn *containerNode) performInsertBefore(reference Node, newChild ChildNode) {
 	prev := reference.Previous()
 	reference.setPrevious(newChild)
 
@@ -93,44 +101,43 @@ func (c *containerNode) performInsertBefore(newChild ChildNode, reference Node) 
 		prev.setNext(newChild)
 		newChild.setPrevious(prev)
 	} else {
-		c.setFirstChild(newChild)
+		cn.setFirstChild(newChild)
 	}
 
 	newChild.setNext(reference)
-	c.adopt(newChild)
+	cn.adopt(newChild)
 }
 
-func (c *containerNode) adopt(child Node) {
-	child.setParent(c)
-	child.setOwner(c.Owner())
+func (cn *containerNode) adopt(child Node) {
+	child.setParent(cn)
+	child.setOwner(cn.Owner())
 }
 
-func (c *containerNode) AppendChild(newChild Node) (ChildNode, error) {
+func (cn *containerNode) AppendChild(newChild Node) (ChildNode, error) {
 	assert.NotNil(newChild, "child must be non-nil to be appended")
 
-	err := c.ensurePreInsertionValidity(newChild)
+	err := cn.ensurePreInsertionValidity(newChild)
 	if err != nil {
 		return nil, err
 	}
 
-	c.prepareNewChild(newChild)
+	cn.prepareNewChild(newChild)
 	child := makeChildNode(newChild)
 
-	if c.firstChild == nil {
-		c.setFirstChild(child)
-	}
-	if c.lastChild != nil {
-		c.lastChild.setNext(child)
-		child.setPrevious(c.lastChild)
+	if cn.lastChild != nil {
+		cn.lastChild.setNext(child)
+		child.setPrevious(cn.lastChild)
+	} else {
+		cn.setFirstChild(child)
 	}
 
-	c.setLastChild(child)
-	c.adopt(child)
+	cn.setLastChild(child)
+	cn.adopt(child)
 
 	return child, nil
 }
 
-func (c *containerNode) ensurePreInsertionValidity(newChild Node) error {
+func (cn *containerNode) ensurePreInsertionValidity(newChild Node) error {
 	assert.NotNil(newChild, "nil ")
 
 	childType := newChild.Type()
@@ -141,7 +148,7 @@ func (c *containerNode) ensurePreInsertionValidity(newChild Node) error {
 		return nil
 	}
 
-	if newChild.contains(c) {
+	if newChild.contains(cn) {
 		return errors.New("the new child contains the parent")
 	}
 
