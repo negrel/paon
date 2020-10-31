@@ -7,7 +7,7 @@ import (
 )
 
 func TestContainerNode_AppendChild(t *testing.T) {
-	cn := newParentNode(ElementNode)
+	cn := newParentNode(ElementNodeType)
 
 	child, err := cn.AppendChild(newTextNode("Hello world"))
 	assert.Nil(t, err)
@@ -32,7 +32,7 @@ func TestContainerNode_AppendChild(t *testing.T) {
 }
 
 func TestContainerNode_FailAdoptingDocument(t *testing.T) {
-	cn := newParentNode(ElementNode)
+	cn := newParentNode(ElementNodeType)
 
 	_, err := cn.AppendChild(NewDocument())
 	assert.NotNil(t, err, "appending a DocumentNode should fail")
@@ -43,7 +43,7 @@ func TestContainerNode_FailAdoptingDocument(t *testing.T) {
 }
 
 func TestContainerNode_InsertBefore(t *testing.T) {
-	cn := newParentNode(ElementNode)
+	cn := newParentNode(ElementNodeType)
 
 	child, err := cn.InsertBefore(nil, newTextNode("Hello world"))
 	assert.Nil(t, err)
@@ -78,7 +78,7 @@ func TestContainerNode_InsertBefore(t *testing.T) {
 }
 
 func TestContainerNode_Fail_InsertBefore_NonChildReference(t *testing.T) {
-	cn := newParentNode(ElementNode)
+	cn := newParentNode(ElementNodeType)
 
 	_, err := cn.InsertBefore(newTextNode("Hello world"), newTextNode("non child reference"))
 	assert.NotNil(t, err, "inserting a child before a reference that is not contained by the parent should fail")

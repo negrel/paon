@@ -20,19 +20,19 @@ type ParentNode interface {
 	RemoveChild(Node) error
 }
 
-var _ ParentNode = &containerNode{}
+var _ ParentNode = &parentNode{}
 
-type containerNode struct {
+type parentNode struct {
 	Node
 
 	firstChild ChildNode
 	lastChild  ChildNode
 }
 
-func newParentNode(nodeType NodeType) ParentNode {
-	assert.NotEqual(nodeType, TextNode, "TextNode is not a valid ParentNode type")
+func newParentNode(nodeType NodeType) *parentNode {
+	assert.NotEqual(nodeType, TextNodeType, "TextNode is not a valid ParentNode type")
 
-	return &containerNode{
+	return &parentNode{
 		Node: &node{
 			nodeType:    nodeType,
 			isContainer: true,
@@ -40,41 +40,41 @@ func newParentNode(nodeType NodeType) ParentNode {
 	}
 }
 
-func (cn *containerNode) isSame(other Node) bool {
-	return cn == other
+func (pn *parentNode) isSame(other Node) bool {
+	return pn == other
 }
 
-func (cn *containerNode) FirstChild() ChildNode {
-	return cn.firstChild
+func (pn *parentNode) FirstChild() ChildNode {
+	return pn.firstChild
 }
 
-func (cn *containerNode) setFirstChild(child ChildNode) {
-	cn.firstChild = child
+func (pn *parentNode) setFirstChild(child ChildNode) {
+	pn.firstChild = child
 }
 
-func (cn *containerNode) LastChild() ChildNode {
-	return cn.lastChild
+func (pn *parentNode) LastChild() ChildNode {
+	return pn.lastChild
 }
 
-func (cn *containerNode) setLastChild(child ChildNode) {
-	cn.lastChild = child
+func (pn *parentNode) setLastChild(child ChildNode) {
+	pn.lastChild = child
 }
 
-func (cn *containerNode) InsertBefore(reference, newChild Node) (ChildNode, error) {
+func (pn *parentNode) InsertBefore(reference, newChild Node) (ChildNode, error) {
 	assert.NotNil(newChild, "child must be non-nil to be inserted")
 
 	// InsertBefore(nil, node) is equivalent to AppendChild(node)
 	if reference == nil {
 		log.Infoln("can't insert before a nil reference, appending the child")
-		return cn.AppendChild(newChild)
+		return pn.AppendChild(newChild)
 	}
 
-	if !cn.isSame(reference.Parent()) {
+	if !pn.isSame(reference.Parent()) {
 		return nil, errors.New("can't insert node, the reference node is not a child of this node")
 	}
 
 	// Some check to keep a valid node tree
-	err := cn.ensurePreInsertionValidity(newChild)
+	err := pn.ensurePreInsertionValidity(newChild)
 	if err != nil {
 		return nil, err
 	}
@@ -85,22 +85,22 @@ func (cn *containerNode) InsertBefore(reference, newChild Node) (ChildNode, erro
 		reference = newChild.Next()
 		if reference == nil {
 			log.Infoln("can't insert before a nil reference, appending the child")
-			return cn.AppendChild(newChild)
+			return pn.AppendChild(newChild)
 		}
 	}
 
-	cn.prepareNewChild(newChild)
+	pn.prepareNewChild(newChild)
 	child := makeChildNode(newChild)
-	cn.performInsertBefore(reference, child)
+	pn.performInsertBefore(reference, child)
 
 	return makeChildNode(newChild), nil
 }
 
-func (cn *containerNode) prepareNewChild(newChild Node) {
+func (pn *parentNode) prepareNewChild(newChild Node) {
 	makeChildNode(newChild).Remove()
 }
 
-func (cn *containerNode) performInsertBefore(reference Node, newChild ChildNode) {
+func (pn *parentNode) performInsertBefore(reference Node, newChild ChildNode) {
 	prev := reference.Previous()
 	reference.setPrevious(newChild)
 
@@ -108,64 +108,64 @@ func (cn *containerNode) performInsertBefore(reference Node, newChild ChildNode)
 		prev.setNext(newChild)
 		newChild.setPrevious(prev)
 	} else {
-		cn.setFirstChild(newChild)
+		pn.setFirstChild(newChild)
 	}
 
 	newChild.setNext(reference)
-	cn.adopt(newChild)
+	pn.adopt(newChild)
 }
 
-func (cn *containerNode) adopt(child Node) {
-	child.setParent(cn)
-	child.setOwner(cn.Owner())
+func (pn *parentNode) adopt(child Node) {
+	child.setParent(pn)
+	child.setOwner(pn.Owner())
 }
 
-func (cn *containerNode) AppendChild(newChild Node) (ChildNode, error) {
+func (pn *parentNode) AppendChild(newChild Node) (ChildNode, error) {
 	assert.NotNil(newChild, "child must be non-nil to be appended")
 
-	err := cn.ensurePreInsertionValidity(newChild)
+	err := pn.ensurePreInsertionValidity(newChild)
 	if err != nil {
 		return nil, err
 	}
 
-	cn.prepareNewChild(newChild)
+	pn.prepareNewChild(newChild)
 	child := makeChildNode(newChild)
 
-	if cn.lastChild != nil {
-		cn.lastChild.setNext(child)
-		child.setPrevious(cn.lastChild)
+	if pn.lastChild != nil {
+		pn.lastChild.setNext(child)
+		child.setPrevious(pn.lastChild)
 	} else {
-		cn.setFirstChild(child)
+		pn.setFirstChild(child)
 	}
 
-	cn.setLastChild(child)
-	cn.adopt(child)
+	pn.setLastChild(child)
+	pn.adopt(child)
 
 	return child, nil
 }
 
-func (cn *containerNode) ensurePreInsertionValidity(newChild Node) error {
+func (pn *parentNode) ensurePreInsertionValidity(newChild Node) error {
 	assert.NotNil(newChild, "child must be non-nil to be validate for insertion")
 
 	childType := newChild.Type()
-	if childType == DocumentNode {
+	if childType == DocumentNodeType {
 		return errors.New("document node can't be inserted")
 	}
-	if !newChild.isParentNode() || childType == TextNode {
+	if !newChild.isParentNode() || childType == TextNodeType {
 		return nil
 	}
 
-	if newChild.contains(cn) {
+	if newChild.contains(pn) {
 		return errors.New("the new child contains the parent")
 	}
 
 	return nil
 }
 
-func (cn *containerNode) RemoveChild(child Node) error {
+func (pn *parentNode) RemoveChild(child Node) error {
 	assert.NotNil(child, "child must be non-nil to be removed")
 
-	if !cn.isSame(child.Parent()) {
+	if !pn.isSame(child.Parent()) {
 		return errors.New("can't remove child, the node is not a child of the this node")
 	}
 
@@ -180,13 +180,13 @@ func (cn *containerNode) RemoveChild(child Node) error {
 	}
 
 	// Handling parent
-	if firstChild := cn.firstChild; firstChild != nil {
+	if firstChild := pn.firstChild; firstChild != nil {
 		if firstChild.isSame(child) {
-			cn.setFirstChild(nil)
+			pn.setFirstChild(nil)
 		}
-	} else if lastChild := cn.lastChild; lastChild != nil {
+	} else if lastChild := pn.lastChild; lastChild != nil {
 		if lastChild.isSame(child) {
-			cn.setLastChild(nil)
+			pn.setLastChild(nil)
 		}
 	}
 	child.setParent(nil)
