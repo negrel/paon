@@ -32,10 +32,17 @@ func TestContainerNode_InsertBefore(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, child)
 
-	child2, err := cn.InsertBefore(MakeTextNode("Bonjour tout le monde"), child)
+	child, err = cn.InsertBefore(MakeTextNode("Bonjour tout le monde"), child)
 	assert.Nil(t, err)
-	assert.NotNil(t, child2)
+	assert.NotNil(t, child)
 
-	assert.Equal(t, child2, child.Previous())
-	assert.Equal(t, child2, cn.FirstChild())
+	assert.Equal(t, child, cn.LastChild().Previous())
+	assert.Equal(t, child, cn.FirstChild())
+
+	child, err = cn.InsertBefore(MakeTextNode("Hola mundo"), cn.LastChild())
+	assert.Nil(t, err)
+	assert.NotNil(t, child)
+
+	assert.Equal(t, child, cn.FirstChild().Next())
+	assert.Equal(t, child, cn.LastChild().Previous())
 }
