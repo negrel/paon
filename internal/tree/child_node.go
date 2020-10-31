@@ -28,46 +28,19 @@ func makeChildNode(node Node) ChildNode {
 	}
 }
 
-func (c childNode) leaveSiblings() {
-	if prev := c.Previous(); prev != nil {
-		prev.setNext(c.Next())
-		c.setPrevious(nil)
+func (cn childNode) Remove() Node {
+	err := cn.Parent().RemoveChild(cn)
+	if err != nil {
+		panic(err)
 	}
-	if next := c.Next(); next != nil {
-		next.setPrevious(c.Previous())
-		c.setNext(nil)
-	}
+
+	return cn.Node
 }
 
-func (c childNode) leaveParent() {
-	if parent := c.Parent(); parent != nil {
-		if firstChild := parent.FirstChild(); firstChild != nil {
-			if firstChild.isSame(c.Node) {
-				parent.setFirstChild(nil)
-			}
-		}
-		if lastChild := parent.LastChild(); lastChild != nil {
-			if lastChild.isSame(c.Node) {
-				parent.setLastChild(nil)
-			}
-		}
-		c.setParent(nil)
-	}
-}
-
-func (c childNode) Remove() Node {
-	c.leaveSiblings()
-	c.leaveParent()
-
-	c.setOwner(nil)
-
-	return c.Node
-}
-
-func (c childNode) Before(nodes ...Node) (err error) {
-	parent := c.Parent()
+func (cn childNode) Before(nodes ...Node) (err error) {
+	parent := cn.Parent()
 	for _, node := range nodes {
-		_, err = parent.InsertBefore(node, c.Node)
+		_, err = parent.InsertBefore(node, cn.Node)
 		if err != nil {
 			return
 		}
@@ -76,13 +49,13 @@ func (c childNode) Before(nodes ...Node) (err error) {
 	return nil
 }
 
-func (c childNode) After(nodes ...Node) (err error) {
-	return makeChildNode(c.Next()).Before(nodes...)
+func (cn childNode) After(nodes ...Node) (err error) {
+	return makeChildNode(cn.Next()).Before(nodes...)
 }
 
-func (c childNode) ReplaceWith(nodes ...Node) (err error) {
-	err = c.Before(nodes...)
-	c.Remove()
+func (cn childNode) ReplaceWith(nodes ...Node) (err error) {
+	err = cn.Before(nodes...)
+	cn.Remove()
 
 	return err
 }

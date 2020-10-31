@@ -161,3 +161,35 @@ func (cn *containerNode) ensurePreInsertionValidity(newChild Node) error {
 
 	return nil
 }
+
+func (cn *containerNode) RemoveChild(child Node) error {
+	assert.NotNil(child, "child must be non-nil to be removed")
+
+	if !cn.isSame(child.Parent()) {
+		return errors.New("can't remove child, the node is not a child of the this node")
+	}
+
+	// Handling siblings
+	if prev := child.Previous(); prev != nil {
+		prev.setNext(child.Next())
+		child.setPrevious(nil)
+	}
+	if next := child.Next(); next != nil {
+		next.setPrevious(child.Previous())
+		child.setNext(nil)
+	}
+
+	// Handling parent
+	if firstChild := cn.firstChild; firstChild != nil {
+		if firstChild.isSame(child) {
+			cn.setFirstChild(nil)
+		}
+	} else if lastChild := cn.lastChild; lastChild != nil {
+		if lastChild.isSame(child) {
+			cn.setLastChild(nil)
+		}
+	}
+	child.setParent(nil)
+
+	return nil
+}
