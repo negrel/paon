@@ -29,8 +29,9 @@
 	- [ ] Window resize
 - [ ] Style
 	- [ ] Cascade
-	- [ ] Specificity
 	- [ ] Inheritance
+- [ ] Parse XML to build Element Tree
+- [ ] Lua bindings to Element Tree
 
 ## Acknowledgments
 
