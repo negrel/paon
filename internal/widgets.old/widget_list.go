@@ -20,9 +20,9 @@ func NewWidgetList() *widgetList {
 }
 
 // Append the given child to the end of the list.
-func (wl *widgetList) Append(child Widget) {
-	wl.list = append(wl.list, child)
-	wl.length++
+func (wl *widgetList) Append(child ...Widget) {
+	wl.list = append(wl.list, child...)
+	wl.length += len(child)
 }
 
 func (wl *widgetList) InsertBefore(child, reference Widget) {

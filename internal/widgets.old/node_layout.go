@@ -1,5 +1,9 @@
 package widgets
 
+import (
+	"github.com/negrel/paon/internal/events"
+)
+
 var _ Layout = &NodeLayout{}
 
 // NodeLayout define a minimal branch node in the Widget tree.
@@ -19,5 +23,14 @@ func NewNodeLayout(name string) *NodeLayout {
 	return &NodeLayout{
 		Node:       NewNodeWidget(name),
 		widgetList: NewWidgetList(),
+	}
+}
+
+// DispatchEvent implements the events.EventTarget interface.
+func (nl *NodeLayout) DispatchEvent(event events.Event) {
+	nl.Node.Target.DispatchEvent(event)
+
+	for _, widget := range nl.widgetList.list {
+		widget.DispatchEvent(event)
 	}
 }

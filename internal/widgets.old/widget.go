@@ -7,14 +7,15 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/negrel/paon/internal/events"
 	"github.com/negrel/paon/internal/render"
-	"github.com/negrel/paon/internal/style"
 )
 
 // Widget define any TUI components in the widget tree.
 type Widget interface {
 	fmt.Stringer
 	render.Renderable
+	events.EventTarget
 
 	// Return the name of the widget.
 	Name() string
@@ -24,9 +25,7 @@ type Widget interface {
 	// Parent return the parent layout.
 	Parent() Layout
 	adoptedBy(parent Layout)
-	// Position in parent children collection
-	slot() int
 
-	// Return the style of the widget
-	Style() *style.Node
+	isAttached() bool
+	Window() Widget
 }
