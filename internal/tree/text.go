@@ -1,19 +1,27 @@
 package tree
 
-var _ ChildNode = &Text{}
+import (
+	"fmt"
+)
 
-// Text is a node
-type Text struct {
+var _ ChildNode = &TextNode{}
+
+// TextNode is a node
+type TextNode struct {
 	ChildNode
 
 	content string
 }
 
-func MakeTextNode(data string) Text {
-	return Text{
+func newTextNode(data string) TextNode {
+	return TextNode{
 		ChildNode: makeChildNode(&node{
-			nType: TextNode,
+			nodeType: TextNodeType,
 		}),
 		content: data,
 	}
+}
+
+func (t TextNode) String() string {
+	return fmt.Sprintf("TextNode(%v)", t.content)
 }
