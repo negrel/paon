@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/negrel/debuggo/pkg/log"
 )
 
 type Widget interface {
@@ -23,6 +24,8 @@ type widget struct {
 }
 
 func newWidget(name string) *widget {
+	log.Debugln("creating a", name, "widget")
+
 	return &widget{
 		name: name,
 		id:   uuid.New(),
