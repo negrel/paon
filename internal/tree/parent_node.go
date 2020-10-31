@@ -65,6 +65,7 @@ func (cn *containerNode) InsertBefore(reference, newChild Node) (ChildNode, erro
 
 	// InsertBefore(nil, node) is equivalent to AppendChild(node)
 	if reference == nil {
+		log.Infoln("can't insert before a nil reference, appending the child")
 		return cn.AppendChild(newChild)
 	}
 
@@ -80,8 +81,10 @@ func (cn *containerNode) InsertBefore(reference, newChild Node) (ChildNode, erro
 
 	// newChild and reference are the same
 	if reference == newChild {
+		log.Infoln("can't insert a node before itself, reference is now node next sibling")
 		reference = newChild.Next()
 		if reference == nil {
+			log.Infoln("can't insert before a nil reference, appending the child")
 			return cn.AppendChild(newChild)
 		}
 	}
