@@ -16,8 +16,8 @@ type Node interface {
 	setParent(Parent)
 
 	// Root define the root of the Node tree.
-	Root() Parent
-	setRoot(Parent)
+	Root() Root
+	setRoot(Root)
 
 	isDescendantOf(node Node) bool
 
@@ -33,10 +33,10 @@ type node struct {
 	next     Node
 	previous Node
 	parent   Parent
-	root     Parent
+	root     Root
 }
 
-func (n node) isDescendantOf(parent Node) bool {
+func (n *node) isDescendantOf(parent Node) bool {
 	var node Node = n
 	for node != nil {
 		if node.isSame(parent) {
@@ -55,37 +55,37 @@ func newNode(name string) *node {
 	}
 }
 
-func (n node) Next() Node {
+func (n *node) Next() Node {
 	return n.next
 }
 
-func (n node) setNext(next Node) {
+func (n *node) setNext(next Node) {
 	n.next = next
 }
 
-func (n node) Previous() Node {
+func (n *node) Previous() Node {
 	return n.previous
 }
 
-func (n node) setPrevious(previous Node) {
+func (n *node) setPrevious(previous Node) {
 	n.previous = previous
 }
 
-func (n node) Parent() Parent {
+func (n *node) Parent() Parent {
 	return n.parent
 }
 
-func (n node) setParent(parent Parent) {
+func (n *node) setParent(parent Parent) {
 	n.parent = parent
 }
 
-func (n node) Root() Parent {
+func (n *node) Root() Root {
 	return n.root
 }
 
-func (n node) setRoot(root Parent) {
+func (n *node) setRoot(root Root) {
 	n.root = root
 }
-func (n node) isConnected() bool {
+func (n *node) isConnected() bool {
 	return n.root != nil
 }
