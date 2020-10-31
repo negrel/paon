@@ -4,9 +4,10 @@ import (
 	"errors"
 
 	"github.com/negrel/debuggo/pkg/assert"
+	"github.com/negrel/debuggo/pkg/log"
 )
 
-type ContainerNode interface {
+type ParentNode interface {
 	Node
 
 	FirstChild() ChildNode
@@ -16,9 +17,10 @@ type ContainerNode interface {
 
 	AppendChild(Node) (ChildNode, error)
 	InsertBefore(reference Node, newChild Node) (ChildNode, error)
+	RemoveChild(Node) error
 }
 
-var _ ContainerNode = &containerNode{}
+var _ ParentNode = &containerNode{}
 
 type containerNode struct {
 	Node
@@ -27,10 +29,12 @@ type containerNode struct {
 	lastChild  ChildNode
 }
 
-func newContainerNode() ContainerNode {
+func newParentNode(nodeType NodeType) ParentNode {
+	assert.NotEqual(nodeType, TextNode, "TextNode is not a valid ParentNode type")
+
 	return &containerNode{
 		Node: &node{
-			nType:       DocumentNode,
+			nodeType:    nodeType,
 			isContainer: true,
 		},
 	}
@@ -65,7 +69,7 @@ func (cn *containerNode) InsertBefore(reference, newChild Node) (ChildNode, erro
 	}
 
 	if !cn.isSame(reference.Parent()) {
-		return nil, errors.New("the node before the child must be inserted is not a child of this node")
+		return nil, errors.New("can't insert node, the reference node is not a child of this node")
 	}
 
 	// Some check to keep a valid node tree
@@ -138,13 +142,13 @@ func (cn *containerNode) AppendChild(newChild Node) (ChildNode, error) {
 }
 
 func (cn *containerNode) ensurePreInsertionValidity(newChild Node) error {
-	assert.NotNil(newChild, "nil ")
+	assert.NotNil(newChild, "child must be non-nil to be validate for insertion")
 
 	childType := newChild.Type()
 	if childType == DocumentNode {
 		return errors.New("document node can't be inserted")
 	}
-	if !newChild.isContainerNode() || childType == TextNode {
+	if !newChild.isParentNode() || childType == TextNode {
 		return nil
 	}
 

@@ -8,12 +8,13 @@ const (
 	DocumentNode
 )
 
+// Node are part of the Node tree that compose the Document.
 type Node interface {
-	Owner() Node
-	setOwner(Node)
+	Owner() *Document
+	setOwner(*Document)
 
-	Parent() ContainerNode
-	setParent(ContainerNode)
+	Parent() ParentNode
+	setParent(ParentNode)
 
 	Previous() Node
 	setPrevious(Node)
@@ -24,11 +25,11 @@ type Node interface {
 	Type() NodeType
 
 	isConnected() bool
-	isContainerNode() bool
+	isParentNode() bool
 	contains(Node) bool
 
 	isAncestorOf(Node) bool
-	isDescendantOf(ContainerNode) bool
+	isDescendantOf(ParentNode) bool
 
 	isSame(Node) bool
 }
@@ -36,27 +37,31 @@ type Node interface {
 var _ Node = &node{}
 
 type node struct {
-	owner       Node
-	parent      ContainerNode
+	owner       **Document
+	parent      ParentNode
 	previous    Node
 	next        Node
-	nType       NodeType
+	nodeType    NodeType
 	isContainer bool
 }
 
-func (n *node) Owner() Node {
-	return n.owner
+func (n *node) Owner() *Document {
+	if n.owner != nil {
+		return *n.owner
+	}
+
+	return nil
 }
 
-func (n *node) setOwner(owner Node) {
-	n.owner = owner
+func (n *node) setOwner(owner *Document) {
+	n.owner = &owner
 }
 
-func (n *node) Parent() ContainerNode {
+func (n *node) Parent() ParentNode {
 	return n.parent
 }
 
-func (n *node) setParent(parent ContainerNode) {
+func (n *node) setParent(parent ParentNode) {
 	n.parent = parent
 }
 func (n *node) Previous() Node {
@@ -76,14 +81,14 @@ func (n *node) setNext(next Node) {
 }
 
 func (n *node) Type() NodeType {
-	return n.nType
+	return n.nodeType
 }
 
 func (n *node) isConnected() bool {
 	return n.owner != nil
 }
 
-func (n *node) isContainerNode() bool {
+func (n *node) isParentNode() bool {
 	return n.isContainer
 }
 
@@ -112,7 +117,7 @@ func (n *node) isAncestorOf(node Node) bool {
 	return false
 }
 
-func (n *node) isDescendantOf(node ContainerNode) bool {
+func (n *node) isDescendantOf(node ParentNode) bool {
 	return node.isAncestorOf(n)
 }
 
