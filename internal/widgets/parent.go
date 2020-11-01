@@ -108,7 +108,7 @@ func (p *parent) InsertBefore(reference, newChild Node) error {
 	if reference == nil {
 		return p.AppendChild(newChild)
 	}
-	if referenceIsNotChild := p.isSame(reference.Parent()); referenceIsNotChild {
+	if referenceIsNotChild := !p.isSame(reference.Parent()); referenceIsNotChild {
 		return errors.New("can't insert child, the given reference is not a child of this node")
 	}
 
@@ -125,6 +125,19 @@ func (p *parent) InsertBefore(reference, newChild Node) error {
 			return p.AppendChild(newChild)
 		}
 	}
+
+	p.prepareChildForInsertion(newChild)
+
+	if previous := reference.Previous(); previous != nil {
+		previous.setNext(newChild)
+		newChild.setNext(previous)
+	} else {
+		p.firstChild = newChild
+	}
+	newChild.setNext(reference)
+	reference.setPrevious(newChild)
+
+	p.adopt(newChild)
 
 	return nil
 }
