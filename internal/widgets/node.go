@@ -36,6 +36,12 @@ type node struct {
 	root     Root
 }
 
+func newNode(name string) *node {
+	return &node{
+		widget: newWidget(name),
+	}
+}
+
 func (n *node) isDescendantOf(parent Node) bool {
 	var node Node = n
 	for node != nil {
@@ -47,12 +53,6 @@ func (n *node) isDescendantOf(parent Node) bool {
 	}
 
 	return false
-}
-
-func newNode(name string) *node {
-	return &node{
-		widget: newWidget(name),
-	}
 }
 
 func (n *node) Next() Node {
