@@ -130,7 +130,7 @@ func (p *parent) InsertBefore(reference, newChild Node) error {
 
 	if previous := reference.Previous(); previous != nil {
 		previous.setNext(newChild)
-		newChild.setNext(previous)
+		newChild.setPrevious(previous)
 	} else {
 		p.firstChild = newChild
 	}
@@ -152,16 +152,20 @@ func (p *parent) RemoveChild(child Node) error {
 	}
 
 	// Removing siblings link
-	if child.Next() != nil {
+	next := child.Next()
+	prev := child.Previous()
+	if next != nil {
 		child.setNext(nil)
+		next.setPrevious(prev)
 	} else {
-		p.lastChild = child.Previous()
+		p.lastChild = prev
 	}
 
-	if child.Previous() != nil {
+	if prev != nil {
 		child.setPrevious(nil)
+		prev.setNext(next)
 	} else {
-		p.firstChild = child.Next()
+		p.firstChild = next
 	}
 	// Removing parent & root link
 	child.setParent(nil)
