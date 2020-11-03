@@ -1,7 +1,19 @@
 package widgets
 
+import (
+	"fmt"
+
+	"github.com/google/uuid"
+	"github.com/negrel/debuggo/pkg/log"
+)
+
 type Node interface {
-	Widget
+	fmt.Stringer
+
+	ID() uuid.UUID
+	Name() string
+
+	isSame(Node) bool
 
 	// Next sibling.
 	Next() Node
@@ -28,7 +40,8 @@ type Node interface {
 var _ Node = &node{}
 
 type node struct {
-	*widget
+	name string
+	id   uuid.UUID
 
 	next     Node
 	previous Node
@@ -37,9 +50,28 @@ type node struct {
 }
 
 func newNode(name string) *node {
+	log.Debugln("creating a", name, "node")
+
 	return &node{
-		widget: newWidget(name),
+		name: name,
+		id:   uuid.New(),
 	}
+}
+
+func (n *node) String() string {
+	return fmt.Sprintf("%v-%v", n.name, n.id)
+}
+
+func (n *node) ID() uuid.UUID {
+	return n.id
+}
+
+func (n *node) Name() string {
+	return n.name
+}
+
+func (n *node) isSame(other Node) bool {
+	return n.ID() == other.ID()
 }
 
 func (n *node) isDescendantOf(parent Node) bool {
