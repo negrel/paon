@@ -1,4 +1,4 @@
-package widgets
+package tree
 
 import (
 	"github.com/google/uuid"
