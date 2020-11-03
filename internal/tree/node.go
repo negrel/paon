@@ -7,6 +7,7 @@ import (
 	"github.com/negrel/debuggo/pkg/log"
 )
 
+// Node define an element in a Node tree.
 type Node interface {
 	fmt.Stringer
 
@@ -47,6 +48,10 @@ type node struct {
 	previous Node
 	parent   Parent
 	root     Root
+}
+
+func NewNode(name string) Node {
+	return newNode(name)
 }
 
 func newNode(name string) *node {

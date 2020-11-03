@@ -8,6 +8,7 @@ import (
 	"github.com/negrel/debuggo/pkg/log"
 )
 
+// Parent define a Node that can have children Node.
 type Parent interface {
 	Node
 
@@ -30,6 +31,17 @@ type parent struct {
 	lastChild  Node
 }
 
+// NewParent returns a Parent Node with zero child.
+func NewParent(name string) Parent {
+	return newParent(name)
+}
+
+func newParent(name string) *parent {
+	return &parent{
+		node: newNode(name),
+	}
+}
+
 func (p *parent) isAncestorOf(child Node) bool {
 	return child.isDescendantOf(p)
 }
@@ -40,12 +52,6 @@ func (p *parent) FirstChild() Node {
 
 func (p *parent) LastChild() Node {
 	return p.lastChild
-}
-
-func newParent(name string) *parent {
-	return &parent{
-		node: newNode(name),
-	}
 }
 
 func (p *parent) adopt(child Node) {
