@@ -16,8 +16,8 @@ type Point struct {
 
 // Pt is a shortcut for Point.
 func Pt(x, y int) Point {
-	assert.GreaterOrEqual(0, x)
-	assert.GreaterOrEqual(0, y)
+	assert.GreaterOrEqual(x, 0)
+	assert.GreaterOrEqual(y, 0)
 
 	return Point{
 		x: x,
