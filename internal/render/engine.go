@@ -11,25 +11,25 @@ import (
 type Engine struct {
 	ch          chan Patch
 	ctx         context.Context
-	Surface     Surface
+	Screen      Screen
 	ticker      *time.Ticker
 	needRefresh bool
 }
 
 // NewEngine return a new rendering engine that draw on the given surface.
-func NewEngine(surface Surface, ctx context.Context) *Engine {
+func NewEngine(screen Screen, ctx context.Context) *Engine {
 	log.Infoln("creating the rendering engine")
 
 	return &Engine{
-		ch:      make(chan Patch),
-		ctx:     ctx,
-		Surface: surface,
-		ticker:  time.NewTicker(time.Millisecond * 16),
+		ch:     make(chan Patch),
+		ctx:    ctx,
+		Screen: screen,
+		ticker: time.NewTicker(time.Millisecond * 16),
 	}
 }
 
-func (e *Engine) Render(patch Patch) {
-	e.ch <- patch
+func (e *Engine) Render(patch *Patch) {
+	e.ch <- *patch
 }
 
 // SetUpdateInterval set the update interval of the surface.
@@ -46,12 +46,12 @@ renderLoop:
 	for {
 		select {
 		case patch := <-e.ch:
-			e.Surface.Apply(patch)
+			e.Screen.Apply(patch)
 			e.needRefresh = true
 
 		case <-e.ticker.C:
 			if e.needRefresh {
-				e.Surface.Update()
+				e.Screen.Update()
 				e.needRefresh = false
 			}
 

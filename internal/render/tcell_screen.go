@@ -8,15 +8,15 @@ import (
 	"github.com/negrel/paon/internal/geometry"
 )
 
-var _ Surface = &tcellScreen{}
+var _ Screen = &tcellScreen{}
 
 type tcellScreen struct {
 	tcell.Screen
 	size geometry.Size
 }
 
-// NewTcellSurface return a new Surface based on the github.com/gdamore/tcell screen.
-func NewTcellSurface() (Surface, error) {
+// NewTcellScreen return a new Screen based on the github.com/gdamore/tcell screen.
+func NewTcellScreen() (Screen, error) {
 	// Initialise tcell screen
 	scr, err := tcell.NewScreen()
 	if err != nil {
