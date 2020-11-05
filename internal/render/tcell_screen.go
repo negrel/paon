@@ -5,14 +5,14 @@ import (
 	"github.com/negrel/debuggo/pkg/log"
 
 	"github.com/negrel/paon/internal/events"
-	"github.com/negrel/paon/internal/utils"
+	"github.com/negrel/paon/internal/geometry"
 )
 
 var _ Surface = &tcellScreen{}
 
 type tcellScreen struct {
 	tcell.Screen
-	size utils.Size
+	size geometry.Size
 }
 
 // NewTcellSurface return a new Surface based on the github.com/gdamore/tcell screen.
@@ -30,12 +30,12 @@ func NewTcellSurface() (Surface, error) {
 
 	return &tcellScreen{
 		Screen: scr,
-		size:   utils.Size{},
+		size:   geometry.Size{},
 	}, nil
 }
 
 // Size implements the Screen interface.
-func (t *tcellScreen) Size() utils.Size {
+func (t *tcellScreen) Size() geometry.Size {
 	return t.size
 }
 
@@ -61,9 +61,9 @@ func (t *tcellScreen) Apply(patch Patch) {
 	log.Infoln("applying patch", patch)
 
 	for i, row := range patch.Frame {
-		y := patch.Origin.Y + i
+		y := patch.Origin.Y() + i
 		for j, cell := range row {
-			x := patch.Origin.X + j
+			x := patch.Origin.X() + j
 
 			t.SetContent(x, y, cell.Content, []rune{}, cell.Style)
 		}
@@ -79,17 +79,14 @@ func (t *tcellScreen) PollEvent() events.Event {
 		oldSize := t.size
 
 		w, h := event.Size()
-		newSize := utils.Size{
-			X: w,
-			Y: h,
-		}
+		newSize := geometry.NewSize(w, h)
 		t.size = newSize
 
 		return events.MakeResizeEvent(newSize, oldSize)
 
 	case *tcell.EventMouse:
 		X, Y := event.Position()
-		return events.MakeClickEvent(utils.Point{X: X, Y: Y})
+		return events.MakeClickEvent(geometry.Pt(X, Y))
 
 	case *tcell.EventInterrupt:
 		return events.MakeInterruptEvent(ev.When().UnixNano())
