@@ -18,7 +18,7 @@ type Engine struct {
 
 // NewEngine return a new rendering engine that draw on the given surface.
 func NewEngine(screen Screen, ctx context.Context) *Engine {
-	log.Infoln("creating the rendering engine")
+	log.Debugln("creating the rendering engine")
 
 	return &Engine{
 		ch:     make(chan Patch),
@@ -40,7 +40,7 @@ func (e *Engine) SetUpdateInterval(duration time.Duration) {
 
 // Start the rendering engine.
 func (e *Engine) Start() {
-	log.Infoln("starting the rendering engine")
+	log.Debugln("starting the rendering engine")
 
 renderLoop:
 	for {
@@ -60,5 +60,5 @@ renderLoop:
 		}
 	}
 
-	log.Infoln("stopping the rendering engine")
+	log.Debugln("stopping the rendering engine")
 }

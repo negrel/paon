@@ -124,10 +124,10 @@ func (p *parent) InsertBefore(reference, newChild Node) error {
 
 	// newChild and reference are the same
 	if reference == newChild {
-		log.Infoln("can't insert child before itself, reference is now child next sibling")
+		log.Debugln("can't insert child before itself, reference is now child next sibling")
 		reference = newChild.Next()
 		if reference == nil {
-			log.Infoln("can't insert before a nil reference, appending the child")
+			log.Debugln("can't insert before a nil reference, appending the child")
 			return p.AppendChild(newChild)
 		}
 	}

@@ -34,10 +34,10 @@ func (r *root) register(child Node) {
 	id := child.ID()
 	_, isAlreadyRegistered := r.widgets[id]
 	if isAlreadyRegistered {
-		log.Infoln(child, "is already registered")
+		log.Debugln(child, "is already registered")
 	}
 
-	log.Infoln("registering", child)
+	log.Debugln("registering", child)
 	r.widgets[id] = child
 }
 
@@ -47,7 +47,7 @@ func (r *root) unregister(child Node) {
 	id := child.ID()
 	_, isRegistered := r.widgets[id]
 	if !isRegistered {
-		log.Infoln(child, "is not registered")
+		log.Debugln(child, "is not registered")
 	}
 
 	delete(r.widgets, id)

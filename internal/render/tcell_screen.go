@@ -51,14 +51,14 @@ func (t *tcellScreen) Height() int {
 
 // Update implements the Screen interface.
 func (t *tcellScreen) Update() {
-	log.Infoln("updating screen")
+	log.Debugln("updating screen")
 
 	t.Show()
 }
 
 // Apply the given patch to the screen.
 func (t *tcellScreen) Apply(patch Patch) {
-	log.Infoln("applying patch", patch)
+	log.Debugln("applying patch", patch)
 
 	for i, row := range patch.Frame {
 		y := patch.Origin.Y() + i
