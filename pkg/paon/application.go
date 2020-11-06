@@ -2,60 +2,67 @@ package paon
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/negrel/debuggo/pkg/log"
 
+	"github.com/negrel/paon/internal/events"
+	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/internal/render"
-	"github.com/negrel/paon/internal/utils"
 	"github.com/negrel/paon/internal/widgets"
 )
 
-var surface render.Surface
+// Singletons
+var screen render.Screen
+var engine *render.Engine
 
 // App is the entry point of your TUI application.
 type App struct {
 	root *root
-	stop func()
+
+	Stop func()
 }
 
 // New return a new application object.
-func New(root widgets.Widget) *App {
-
+func New() *App {
 	return &App{
-		root: newRoot(root),
+		Stop: func() {
+			log.Errorln("can't stop an application that haven't start")
+		},
 	}
 }
 
 // Start the application and block the goroutine.
-func (a *App) Start() (err error) {
-	log.Infoln("starting the app")
+func (a *App) Start(root widgets.Widget) (err error) {
+	log.Debugln("starting the app")
 	defer a.recoverStart()
 
-	// Initialising the surface
-	if surface == nil {
-		surface, err = render.NewTcellSurface()
+	// Set the root component of the widget tree
+	a.root = newRoot(root)
+
+	// Set up application context
+	ctx, cancel := context.WithCancel(context.Background())
+	a.Stop = func() {
+		log.Debugln("stopping the app")
+		// Clean screen an cancel context
+		screen.Fini()
+		cancel()
+	}
+
+	// Initialising the screen
+	if screen == nil {
+		screen, err = render.NewTcellScreen()
 		if err != nil {
 			return
 		}
 	}
 
-	// Set up application context
-	ctx, cancel := context.WithCancel(context.Background())
-	a.stop = func() {
-		// Clean surface an cancel context
-		surface.Fini()
-		cancel()
-	}
+	// Start listening to events
+	go a.listenToEvents(ctx)
 
 	// Create & start the rendering engine
-	engine := render.NewEngine(surface, ctx)
+	engine = render.NewEngine(screen, ctx)
 	go engine.Start()
-
-	// Force first render of the root widget
-	w, h := surface.Size()
-	engine.Render(a.root.Render(
-		utils.Rect(0, 0, w, h),
-	))
 
 	// Wait until application stop
 	<-ctx.Done()
@@ -66,13 +73,41 @@ func (a *App) Start() (err error) {
 func (a *App) recoverStart() {
 	if r := recover(); r != nil {
 		a.Stop()
-		log.Fatal(r)
+		panic(r)
 	}
 }
 
-// Stop the application
-func (a *App) Stop() {
-	log.Infoln("stopping the app")
+func (a *App) listenToEvents(ctx context.Context) {
+	log.Debugln("starting event loop")
+	for {
+		select {
+		case <-ctx.Done():
+			log.Debugln("stopping event loop")
+			return
 
-	a.stop()
+		default:
+			a.dispatchEvent(screen.PollEvent())
+		}
+	}
+}
+
+func (a *App) dispatchEvent(event events.Event) {
+	log.Debugfn(func() []interface{} {
+		return []interface{}{
+			fmt.Sprintf("%v: %+v\n", event.Type(), event),
+		}
+	})
+
+	a.root.DispatchEvent(event)
+
+	if event.Type() == events.InterruptEventType {
+		a.Stop()
+		return
+	}
+
+	if event.Type() == events.ResizeEventType {
+		patch := render.NewPatch(geometry.Rect(0, 0, 100, 100))
+		a.root.Render(patch)
+		engine.Render(patch)
+	}
 }

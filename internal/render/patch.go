@@ -1,6 +1,8 @@
 package render
 
 import (
+	"github.com/negrel/debuggo/pkg/assert"
+
 	"github.com/negrel/paon/internal/geometry"
 )
 
@@ -39,5 +41,27 @@ func (p *Patch) Height() int {
 }
 
 func (p *Patch) Draw(pt geometry.Point, cell Cell) {
-	p.Frame[pt.Y()][pt.X()] = cell
+	x := pt.X()
+	y := pt.Y()
+
+	if x >= p.Width() || y >= p.Height() {
+		return
+	}
+
+	p.Frame[y][x] = cell
+}
+
+func (p *Patch) Mask(rect geometry.Rectangle) {
+	top := rect.Top()
+	bottom := rect.Bottom()
+	left := rect.Left()
+	right := rect.Right()
+
+	assert.LessOrEqual(bottom, p.Height())
+	assert.LessOrEqual(right, p.Width())
+
+	p.Frame = p.Frame[top:bottom]
+	for i := range p.Frame {
+		p.Frame[i] = p.Frame[i][left:right]
+	}
 }

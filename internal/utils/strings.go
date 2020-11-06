@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+
+	"github.com/negrel/debuggo/pkg/assert"
 )
 
 // Explode the given string using the given separators.
@@ -27,6 +29,8 @@ func explode(split []string, separators ...string) []string {
 // WordWrap apply a wordwrap algorithm on the given string for the given
 // width.
 func WordWrap(s string, width int) string {
+	assert.Greater(width, 0, "width must be greater than 0")
+
 	// We add space so the regex can match the end of the string.
 	s += " "
 
