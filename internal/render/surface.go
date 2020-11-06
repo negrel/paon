@@ -7,4 +7,5 @@ import (
 type Surface interface {
 	geometry.Sized
 	Draw(pt geometry.Point, cell Cell)
+	Mask(geometry.Rectangle)
 }

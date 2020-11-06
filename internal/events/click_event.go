@@ -3,7 +3,7 @@ package events
 import (
 	"github.com/negrel/debuggo/pkg/log"
 
-	"github.com/negrel/paon/internal/utils"
+	"github.com/negrel/paon/internal/geometry"
 )
 
 // ClickListener convert the given event handler as a generic Listener.
@@ -27,11 +27,11 @@ var _ Event = ClickEvent{}
 // ClickEvent is triggered when the user click inside the rendering surface.
 type ClickEvent struct {
 	event
-	Position utils.Point
+	Position geometry.Point
 }
 
 // MakeResizeEvent returns a new ClickEvent object.
-func MakeClickEvent(position utils.Point) ClickEvent {
+func MakeClickEvent(position geometry.Point) ClickEvent {
 	return ClickEvent{
 		event:    makeEvent(ClickEventType),
 		Position: position,
