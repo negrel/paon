@@ -49,11 +49,11 @@ func TestParent_AppendChild_AncestorOfParent(t *testing.T) {
 	err := fakeChild.AppendChild(parent)
 	assert.Nil(t, err)
 
-	// should return an error, fakeChild is the parent
+	// should return an error, fakeChild is the parentNode
 	err = parent.AppendChild(fakeChild)
 	assert.NotNil(t, err)
 
-	// Try again with Parent of fake child
+	// Try again with ParentNode of fake child
 	fakeChildParent := newParent("test_fake_child_parent")
 	err = fakeChildParent.AppendChild(fakeChild)
 	assert.Nil(t, err)
@@ -163,7 +163,7 @@ func TestParent_InsertBefore_AncestorOfParent(t *testing.T) {
 	err := parent.InsertBefore(reference, fakeChild)
 	assert.NotNil(t, err)
 
-	// Try again with Parent of fake child
+	// Try again with ParentNode of fake child
 	fakeChildParent := newParent("test_fake_child_parent")
 	err = fakeChildParent.AppendChild(fakeChild)
 	assert.Nil(t, err)

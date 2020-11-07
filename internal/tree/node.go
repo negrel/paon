@@ -24,9 +24,9 @@ type Node interface {
 	Previous() Node
 	setPrevious(Node)
 
-	// Parent is the direct parent of the Node.
-	Parent() Parent
-	setParent(Parent)
+	// ParentNode is the direct parentNode of the Node.
+	Parent() ParentNode
+	setParent(ParentNode)
 
 	// Root define the root of the Node tree.
 	Root() Root
@@ -46,7 +46,7 @@ type node struct {
 
 	next     Node
 	previous Node
-	parent   Parent
+	parent   ParentNode
 	root     Root
 }
 
@@ -108,11 +108,11 @@ func (n *node) setPrevious(previous Node) {
 	n.previous = previous
 }
 
-func (n *node) Parent() Parent {
+func (n *node) Parent() ParentNode {
 	return n.parent
 }
 
-func (n *node) setParent(parent Parent) {
+func (n *node) setParent(parent ParentNode) {
 	n.parent = parent
 }
 
