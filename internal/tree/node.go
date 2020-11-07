@@ -14,7 +14,7 @@ type Node interface {
 	ID() uuid.UUID
 	Name() string
 
-	isSame(Node) bool
+	IsSame(Node) bool
 
 	// Next sibling.
 	Next() Node
@@ -75,14 +75,14 @@ func (n *node) Name() string {
 	return n.name
 }
 
-func (n *node) isSame(other Node) bool {
+func (n *node) IsSame(other Node) bool {
 	return n.ID() == other.ID()
 }
 
 func (n *node) isDescendantOf(parent Node) bool {
 	var node Node = n
 	for node != nil {
-		if node.isSame(parent) {
+		if node.IsSame(parent) {
 			return true
 		}
 

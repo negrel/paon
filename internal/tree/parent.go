@@ -114,7 +114,7 @@ func (p *parent) InsertBefore(reference, newChild Node) error {
 	if reference == nil {
 		return p.AppendChild(newChild)
 	}
-	if referenceIsNotChild := !p.isSame(reference.Parent()); referenceIsNotChild {
+	if referenceIsNotChild := !p.IsSame(reference.Parent()); referenceIsNotChild {
 		return errors.New("can't insert child, the given reference is not a child of this node")
 	}
 
@@ -153,7 +153,7 @@ func (p *parent) RemoveChild(child Node) error {
 	log.Debugln("removing", child, "from", "p")
 
 	// if not a child of p
-	if !p.isSame(child.Parent()) {
+	if !p.IsSame(child.Parent()) {
 		return errors.New("can't remove child, the node is not a child of this node")
 	}
 
