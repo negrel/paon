@@ -4,6 +4,7 @@ import (
 	"github.com/negrel/paon/internal/events"
 	"github.com/negrel/paon/internal/render"
 	"github.com/negrel/paon/internal/tree"
+	"github.com/negrel/paon/pkg/style"
 )
 
 // Layout is a Widget that can contain child Widget.
@@ -22,12 +23,14 @@ type Layout interface {
 type layout struct {
 	tree.ParentNode
 	events.Target
-	*render.Layer
+
+	theme *style.Theme
 }
 
 func NewLayout(name string, opts ...Option) Layout {
 	l := &layout{
 		ParentNode: tree.NewParent(name),
+		theme:      style.NewTheme(),
 	}
 
 	for _, opt := range opts {
@@ -60,10 +63,6 @@ func (l *layout) PreviousW() Widget {
 	return nil
 }
 
-func (l *layout) layer() *render.Layer {
-	return l.Layer
-}
-
 func (l *layout) FirstChildW() Widget {
 	if fc := l.FirstChild(); fc != nil {
 		return fc.(Widget)
@@ -90,4 +89,13 @@ func (l *layout) InsertBeforeW(reference, child Widget) error {
 
 func (l *layout) RemoveChildW(child Widget) {
 	l.RemoveChildW(child)
+}
+
+func (l *layout) Render(patch render.Patch) render.Patch {
+	l.theme.ApplyOn(&patch)
+	return patch
+}
+
+func (l *layout) Theme() *style.Theme {
+	return l.theme
 }

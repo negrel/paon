@@ -2,9 +2,9 @@ package widgets
 
 import (
 	"github.com/negrel/paon/internal/events"
-	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/internal/render"
 	"github.com/negrel/paon/internal/tree"
+	"github.com/negrel/paon/pkg/style"
 )
 
 type Widget interface {
@@ -15,8 +15,8 @@ type Widget interface {
 	NextW() Widget
 	PreviousW() Widget
 
-	layer() *render.Layer
-	Render(bounds geometry.Rectangle) render.Patch
+	Theme() *style.Theme
+	Render(render.Patch) render.Patch
 }
 
 var _ Widget = &widget{}
@@ -24,7 +24,8 @@ var _ Widget = &widget{}
 type widget struct {
 	tree.Node
 	events.Target
-	*render.Layer
+
+	theme *style.Theme
 }
 
 func NewWidget(name string, opts ...Option) Widget {
@@ -34,8 +35,9 @@ func NewWidget(name string, opts ...Option) Widget {
 
 func newWidget(node tree.Node, opts ...Option) *widget {
 	w := &widget{
-		Node:  node,
-		Layer: render.NewLayer(node),
+		Node:   node,
+		Target: events.MakeTarget(),
+		theme:  style.NewTheme(),
 	}
 
 	for _, opt := range opts {
@@ -68,6 +70,12 @@ func (w *widget) PreviousW() Widget {
 	return nil
 }
 
-func (w *widget) layer() *render.Layer {
-	return w.Layer
+func (w *widget) Theme() *style.Theme {
+	return w.theme
+}
+
+func (w *widget) Render(patch render.Patch) render.Patch {
+	w.theme.ApplyOn(&patch)
+
+	return patch
 }
