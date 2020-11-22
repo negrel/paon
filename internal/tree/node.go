@@ -3,7 +3,6 @@ package tree
 import (
 	"fmt"
 
-	"github.com/google/uuid"
 	"github.com/negrel/debuggo/pkg/log"
 )
 
@@ -11,7 +10,7 @@ import (
 type Node interface {
 	fmt.Stringer
 
-	ID() uuid.UUID
+	ID() NodeID
 	Name() string
 
 	IsSame(Node) bool
@@ -42,7 +41,7 @@ var _ Node = &node{}
 
 type node struct {
 	name string
-	id   uuid.UUID
+	id   NodeID
 
 	next     Node
 	previous Node
@@ -59,7 +58,7 @@ func newNode(name string) *node {
 
 	return &node{
 		name: name,
-		id:   uuid.New(),
+		id:   nodeID(),
 	}
 }
 
@@ -67,7 +66,7 @@ func (n *node) String() string {
 	return fmt.Sprintf("%v-%v", n.name, n.id)
 }
 
-func (n *node) ID() uuid.UUID {
+func (n *node) ID() NodeID {
 	return n.id
 }
 

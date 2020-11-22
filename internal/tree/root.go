@@ -1,30 +1,38 @@
 package tree
 
 import (
-	"github.com/google/uuid"
 	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/debuggo/pkg/log"
 )
 
 type Root interface {
-	Parent
+	ParentNode
 
 	register(Node)
 	unregister(Node)
+	Get(NodeID) Node
 }
 
 var _ Root = &root{}
 
 type root struct {
-	*parent
+	*parentNode
 
-	widgets map[uuid.UUID]Node
+	widgets map[NodeID]Node
+}
+
+func (r *root) Get(nID NodeID) Node {
+	return r.widgets[nID]
+}
+
+func NewRoot() Root {
+	return newRoot()
 }
 
 func newRoot() *root {
 	return &root{
-		parent:  newParent("root"),
-		widgets: make(map[uuid.UUID]Node),
+		parentNode: newParent("root"),
+		widgets:    make(map[NodeID]Node),
 	}
 }
 
