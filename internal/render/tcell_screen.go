@@ -49,6 +49,20 @@ func (t *tcellScreen) Height() int {
 	return t.size.Height()
 }
 
+// Bounds implements the Surface interface.
+func (t *tcellScreen) Bounds() geometry.Rectangle {
+	return geometry.Rect(0, 0, t.Width(), t.Height())
+}
+
+// Get implements the Surface interface.
+func (t *tcellScreen) Get(point geometry.Point) *Cell {
+	c, _, style, _ := t.GetContent(point.X(), point.Y())
+	return &Cell{
+		Content: c,
+		Style:   style,
+	}
+}
+
 // Update implements the Screen interface.
 func (t *tcellScreen) Update() {
 	log.Debugln("updating screen")
@@ -57,13 +71,13 @@ func (t *tcellScreen) Update() {
 }
 
 // Apply the given patch to the screen.
-func (t *tcellScreen) Apply(patch Patch) {
-	log.Debugln("applying patch", patch)
+func (t *tcellScreen) Apply(patch Canvas) {
+	log.Traceln("applying patch", patch)
 
-	for i, row := range patch.Frame {
-		y := patch.Origin.Y() + i
+	for i, row := range patch.grid {
+		y := patch.Origin().Y() + i
 		for j, cell := range row {
-			x := patch.Origin.X() + j
+			x := patch.Origin().X() + j
 
 			t.SetContent(x, y, cell.Content, []rune{}, cell.Style)
 		}
