@@ -16,20 +16,20 @@ type Node interface {
 	IsSame(Node) bool
 
 	// Next sibling.
-	Next() Node
-	setNext(Node)
+	NextNode() Node
+	setNextNode(Node)
 
 	// Previous sibling.
-	Previous() Node
-	setPrevious(Node)
+	PreviousNode() Node
+	setPreviousNode(Node)
 
 	// ParentNode is the direct parentNode of the Node.
-	Parent() ParentNode
-	setParent(ParentNode)
+	ParentNode() ParentNode
+	setParentNode(ParentNode)
 
-	// Root define the root of the Node tree.
-	Root() Root
-	setRoot(Root)
+	// RootNode define the root of the Node tree.
+	RootNode() Root
+	setRootNode(Root)
 
 	isDescendantOf(node Node) bool
 
@@ -85,41 +85,41 @@ func (n *node) isDescendantOf(parent Node) bool {
 			return true
 		}
 
-		node = node.Parent()
+		node = node.ParentNode()
 	}
 
 	return false
 }
 
-func (n *node) Next() Node {
+func (n *node) NextNode() Node {
 	return n.next
 }
 
-func (n *node) setNext(next Node) {
+func (n *node) setNextNode(next Node) {
 	n.next = next
 }
 
-func (n *node) Previous() Node {
+func (n *node) PreviousNode() Node {
 	return n.previous
 }
 
-func (n *node) setPrevious(previous Node) {
+func (n *node) setPreviousNode(previous Node) {
 	n.previous = previous
 }
 
-func (n *node) Parent() ParentNode {
+func (n *node) ParentNode() ParentNode {
 	return n.parent
 }
 
-func (n *node) setParent(parent ParentNode) {
+func (n *node) setParentNode(parent ParentNode) {
 	n.parent = parent
 }
 
-func (n *node) Root() Root {
+func (n *node) RootNode() Root {
 	return n.root
 }
 
-func (n *node) setRoot(root Root) {
+func (n *node) setRootNode(root Root) {
 	n.root = root
 }
 func (n *node) isConnected() bool {

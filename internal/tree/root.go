@@ -10,7 +10,7 @@ type Root interface {
 
 	register(Node)
 	unregister(Node)
-	Get(NodeID) Node
+	GetNode(NodeID) Node
 }
 
 var _ Root = &root{}
@@ -21,7 +21,7 @@ type root struct {
 	widgets map[NodeID]Node
 }
 
-func (r *root) Get(nID NodeID) Node {
+func (r *root) GetNode(nID NodeID) Node {
 	return r.widgets[nID]
 }
 
@@ -42,7 +42,7 @@ func (r *root) register(child Node) {
 	id := child.ID()
 	_, isAlreadyRegistered := r.widgets[id]
 	if isAlreadyRegistered {
-		log.Debugln(child, "is already registered")
+		log.Infoln(child, "is already registered")
 	}
 
 	log.Debugln("registering", child)
