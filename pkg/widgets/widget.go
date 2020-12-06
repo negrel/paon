@@ -4,19 +4,17 @@ import (
 	"github.com/negrel/paon/internal/events"
 	"github.com/negrel/paon/internal/render"
 	"github.com/negrel/paon/internal/tree"
-	"github.com/negrel/paon/pkg/style"
+	"github.com/negrel/paon/pkg/styles"
 )
 
 type Widget interface {
 	tree.Node
 	events.EventTarget
+	render.Object
 
-	ParentL() Layout
-	NextW() Widget
-	PreviousW() Widget
-
-	Theme() *style.Theme
-	Render(render.Patch) render.Patch
+	Parent() Layout
+	Next() Widget
+	Previous() Widget
 }
 
 var _ Widget = &widget{}
@@ -25,20 +23,12 @@ type widget struct {
 	tree.Node
 	events.Target
 
-	theme *style.Theme
+	styles.Style
 }
 
 func NewWidget(name string, opts ...Option) Widget {
 	node := tree.NewNode(name)
-	return newWidget(node, opts...)
-}
-
-func newWidget(node tree.Node, opts ...Option) *widget {
-	w := &widget{
-		Node:   node,
-		Target: events.MakeTarget(),
-		theme:  style.NewTheme(),
-	}
+	w := newWidget(node)
 
 	for _, opt := range opts {
 		opt(w)
@@ -47,35 +37,37 @@ func newWidget(node tree.Node, opts ...Option) *widget {
 	return w
 }
 
-func (w *widget) ParentL() Layout {
-	if p := w.Parent(); p != nil {
-		return w.Parent().(Layout)
+func newWidget(node tree.Node) *widget {
+	return &widget{
+		Node:   node,
+		Target: events.MakeTarget(),
+		Style:  styles.New(),
+	}
+}
+
+func (w *widget) Parent() Layout {
+	if p := w.ParentNode(); p != nil {
+		return p.(Layout)
 	}
 	return nil
 }
 
-func (w *widget) NextW() Widget {
-	if n := w.Next(); n != nil {
+func (w *widget) ParentObject() render.Object {
+	return w.Parent()
+}
+
+func (w *widget) Next() Widget {
+	if n := w.NextNode(); n != nil {
 		return n.(Widget)
 	}
 
 	return nil
 }
 
-func (w *widget) PreviousW() Widget {
-	if p := w.Previous(); p != nil {
+func (w *widget) Previous() Widget {
+	if p := w.PreviousNode(); p != nil {
 		return p.(Widget)
 	}
 
 	return nil
-}
-
-func (w *widget) Theme() *style.Theme {
-	return w.theme
-}
-
-func (w *widget) Render(patch render.Patch) render.Patch {
-	w.theme.ApplyOn(&patch)
-
-	return patch
 }

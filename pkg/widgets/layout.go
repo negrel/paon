@@ -4,7 +4,7 @@ import (
 	"github.com/negrel/paon/internal/events"
 	"github.com/negrel/paon/internal/render"
 	"github.com/negrel/paon/internal/tree"
-	"github.com/negrel/paon/pkg/style"
+	"github.com/negrel/paon/pkg/styles"
 )
 
 // Layout is a Widget that can contain child Widget.
@@ -12,25 +12,27 @@ type Layout interface {
 	tree.ParentNode
 	Widget
 
-	FirstChildW() Widget
-	LastChildW() Widget
+	FirstChild() Widget
+	LastChild() Widget
 
-	AppendChildW(child Widget) error
-	InsertBeforeW(reference, child Widget) error
-	RemoveChildW(child Widget)
+	AppendChild(child Widget) error
+	InsertBefore(reference, child Widget) error
+	RemoveChild(child Widget)
 }
+
+var _ Layout = &layout{}
 
 type layout struct {
 	tree.ParentNode
 	events.Target
 
-	theme *style.Theme
+	styles.Style
 }
 
 func NewLayout(name string, opts ...Option) Layout {
 	l := &layout{
 		ParentNode: tree.NewParent(name),
-		theme:      style.NewTheme(),
+		Style:      styles.New(),
 	}
 
 	for _, opt := range opts {
@@ -40,62 +42,65 @@ func NewLayout(name string, opts ...Option) Layout {
 	return l
 }
 
-func (l *layout) ParentL() Layout {
-	if p := l.ParentNode.Parent(); p != nil {
-		return l.ParentNode.Parent().(Layout)
+func (l *layout) Parent() Layout {
+	if p := l.ParentNode.ParentNode(); p != nil {
+		return l.ParentNode.ParentNode().(Layout)
 	}
 	return nil
 }
 
-func (l *layout) NextW() Widget {
-	if n := l.Next(); n != nil {
+func (l *layout) ParentObject() render.Object {
+	panic("implement me")
+}
+
+func (l *layout) Next() Widget {
+	if n := l.NextNode(); n != nil {
 		return n.(Widget)
 	}
 
 	return nil
 }
 
-func (l *layout) PreviousW() Widget {
-	if p := l.Previous(); p != nil {
+func (l *layout) Previous() Widget {
+	if p := l.PreviousNode(); p != nil {
 		return p.(Widget)
 	}
 
 	return nil
 }
 
-func (l *layout) FirstChildW() Widget {
-	if fc := l.FirstChild(); fc != nil {
+func (l *layout) FirstChild() Widget {
+	if fc := l.FirstChildNode(); fc != nil {
 		return fc.(Widget)
 	}
 
 	return nil
 }
 
-func (l *layout) LastChildW() Widget {
-	if lc := l.LastChild(); lc != nil {
+func (l *layout) LastChild() Widget {
+	if lc := l.LastChildNode(); lc != nil {
 		return lc.(Widget)
 	}
 
 	return nil
 }
 
-func (l *layout) AppendChildW(child Widget) error {
-	return l.AppendChild(child)
+func (l *layout) AppendChild(child Widget) error {
+	return l.AppendChildNode(child)
 }
 
-func (l *layout) InsertBeforeW(reference, child Widget) error {
-	return l.InsertBefore(reference, child)
+func (l *layout) InsertBefore(reference, child Widget) error {
+	return l.InsertBeforeNode(reference, child)
 }
 
-func (l *layout) RemoveChildW(child Widget) {
-	l.RemoveChildW(child)
+func (l *layout) RemoveChild(child Widget) {
+	l.RemoveChild(child)
 }
 
-func (l *layout) Render(patch render.Patch) render.Patch {
-	l.theme.ApplyOn(&patch)
-	return patch
+func (l *layout) Layout(ctx render.Context) {
+	l.Style.Layout(ctx)
 }
 
-func (l *layout) Theme() *style.Theme {
-	return l.theme
+func (l *layout) Draw(ctx render.Context) {
+	l.Style.Draw(ctx)
 }
