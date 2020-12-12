@@ -6,15 +6,14 @@ import (
 
 	"github.com/negrel/debuggo/pkg/log"
 
+	"github.com/negrel/paon/internal/draw"
 	"github.com/negrel/paon/internal/events"
-	"github.com/negrel/paon/internal/geometry"
-	"github.com/negrel/paon/internal/render"
-	"github.com/negrel/paon/internal/widgets"
+	"github.com/negrel/paon/pkg/widgets"
 )
 
 // Singletons
-var screen render.Screen
-var engine *render.Engine
+var screen draw.Screen
+var engine *draw.Engine
 
 // App is the entry point of your TUI application.
 type App struct {
@@ -51,7 +50,7 @@ func (a *App) Start(root widgets.Widget) (err error) {
 
 	// Initialising the screen
 	if screen == nil {
-		screen, err = render.NewTcellScreen()
+		screen, err = draw.NewTcellScreen()
 		if err != nil {
 			return
 		}
@@ -61,7 +60,7 @@ func (a *App) Start(root widgets.Widget) (err error) {
 	go a.listenToEvents(ctx)
 
 	// Create & start the rendering engine
-	engine = render.NewEngine(screen, ctx)
+	engine = draw.NewEngine(screen, ctx)
 	go engine.Start()
 
 	// Wait until application stop
@@ -103,11 +102,5 @@ func (a *App) dispatchEvent(event events.Event) {
 	if event.Type() == events.InterruptEventType {
 		a.Stop()
 		return
-	}
-
-	if event.Type() == events.ResizeEventType {
-		patch := render.NewPatch(geometry.Rect(0, 0, 100, 100))
-		a.root.Render(patch)
-		engine.Render(patch)
 	}
 }
