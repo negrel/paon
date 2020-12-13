@@ -25,8 +25,14 @@ func (r *root) GetNode(nID NodeID) Node {
 	return r.widgets[nID]
 }
 
-func NewRoot() Root {
-	return newRoot()
+func NewRoot(children Node) Root {
+	assert.NotNil(children, "node must be non-nil to be the root")
+
+	r := newRoot()
+	r.setRootNode(r)
+	r.appendChildNode(children)
+
+	return r
 }
 
 func newRoot() *root {

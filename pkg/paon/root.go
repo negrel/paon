@@ -16,8 +16,17 @@ func newRoot(child widgets.Widget) *root {
 }
 
 func (r *root) DispatchEvent(event events.Event) {
+	r.Root.DispatchEvent(event)
+
+	// Render the entire tree on screen resize
+	if event.Type() == events.ResizeEventType {
+		r.fullRender()
+	}
+}
+
+func (r *root) fullRender() {
+	screen.Clear()
+
 	canvas := r.Render(screen.Size())
 	engine.Draw(canvas)
-
-	r.Layout.DispatchEvent(event)
 }

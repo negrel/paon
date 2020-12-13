@@ -91,11 +91,7 @@ func (a *App) listenToEvents(ctx context.Context) {
 }
 
 func (a *App) dispatchEvent(event events.Event) {
-	log.Debugfn(func() []interface{} {
-		return []interface{}{
-			fmt.Sprintf("%v: %+v\n", event.Type(), event),
-		}
-	})
+	log.Debug(fmt.Sprintf("%v: %+v\n", event.Type(), event))
 
 	a.root.DispatchEvent(event)
 
