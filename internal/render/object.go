@@ -10,4 +10,6 @@ type Object interface {
 	Steps() []string
 	Step(name string) Step
 	SetStep(Step)
+
+	RenderStep() StepType
 }

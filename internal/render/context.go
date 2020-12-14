@@ -8,10 +8,15 @@ import (
 
 // Context is the rendering context passed to Object for the layout step and the draw step.
 type Context struct {
-	step StepType
-
 	Object Object
 	canvas *draw.Canvas
+}
+
+func MakeContext(obj Object, canvas *draw.Canvas) Context {
+	return Context{
+		Object: obj,
+		canvas: canvas,
+	}
 }
 
 // Layer return a geometry.Rectangle object defining the current Object layer.
@@ -22,9 +27,9 @@ func (ctx Context) Layer() *geometry.Rectangle {
 // Canvas return the draw.Canvas of the rendering context.
 // A mock canvas is returned during LayoutStep.
 func (ctx Context) Canvas() draw.Canvas {
-	assert.Equal(ctx.step, DrawStepType, "accessing canvas during non-draw step is not allowed")
+	assert.Equal(ctx.Step(), DrawStepType, "accessing canvas during non-draw step is not allowed")
 
-	if ctx.step == DrawStepType {
+	if ctx.Step() == DrawStepType {
 		return *ctx.canvas
 	}
 
@@ -32,5 +37,5 @@ func (ctx Context) Canvas() draw.Canvas {
 }
 
 func (ctx Context) Step() StepType {
-	return ctx.step
+	return ctx.Object.RenderStep()
 }
