@@ -1,7 +1,6 @@
 package styles
 
 import (
-	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/internal/math"
 	"github.com/negrel/paon/internal/render"
@@ -20,7 +19,7 @@ func Height(size SizeValue) HeightProperty {
 	return HeightProperty{
 		property: property{
 			step:     render.LayoutStepType,
-			name:     "width",
+			name:     "height",
 			priority: HeightPriority,
 		},
 		SizeValue: size,
@@ -28,22 +27,20 @@ func Height(size SizeValue) HeightProperty {
 }
 
 func (h HeightProperty) Layout(ctx render.Context) {
-	assert.GreaterOrEqual(h.Max.toCellUnit().value, h.Min.toCellUnit())
-
-	Height := 0
+	height := 0
 	if h.Value.Defined {
-		Height = h.Value.toCellUnit().value
+		height = h.Value.toCellUnit().value
 	}
 
 	if h.Max.Defined {
-		Height = math.Min(h.Max.toCellUnit().value, Height)
+		height = math.Min(h.Max.toCellUnit().value, height)
 	}
 	if h.Min.Defined {
-		Height = math.Max(h.Min.toCellUnit().value, Height)
+		height = math.Max(h.Min.toCellUnit().value, height)
 	}
 
-	// Update the layer Height
+	// Update the layer height
 	ctx.Layer().Max = ctx.Layer().Min.Add(
-		geometry.Pt(Height, ctx.Layer().Max.Y()),
+		geometry.Pt(height, ctx.Layer().Max.Y()),
 	)
 }

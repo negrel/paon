@@ -1,7 +1,6 @@
 package styles
 
 import (
-	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/internal/math"
 	"github.com/negrel/paon/internal/render"
@@ -28,8 +27,6 @@ func Width(size SizeValue) WidthProperty {
 }
 
 func (w WidthProperty) Layout(ctx render.Context) {
-	assert.GreaterOrEqual(w.Max.toCellUnit().value, w.Min.toCellUnit())
-
 	width := 0
 	if w.Value.Defined {
 		width = w.Value.toCellUnit().value

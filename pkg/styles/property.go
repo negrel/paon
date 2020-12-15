@@ -16,7 +16,7 @@ const (
 	PaddingPriority
 	BackgroundColorPriority
 
-	innerRenderingPriority
+	InnerRenderingPriority
 
 	TextColorPriority
 	TextBoldPriority
