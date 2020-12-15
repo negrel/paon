@@ -42,14 +42,6 @@ func newParent(name string) *parentNode {
 	}
 }
 
-func (pn *parentNode) setRootNode(root Root) {
-	pn.node.setRootNode(root)
-
-	for node := pn.firstChild; node != nil; node = node.NextNode() {
-		node.setRootNode(root)
-	}
-}
-
 func (pn *parentNode) isAncestorOf(child Node) bool {
 	return child.isDescendantOf(pn)
 }
@@ -64,7 +56,6 @@ func (pn *parentNode) LastChildNode() Node {
 
 func (pn *parentNode) adopt(child Node) {
 	child.setParentNode(pn)
-	child.setRootNode(pn.root)
 	if pn.root != nil {
 		pn.root.register(child)
 	}
@@ -192,7 +183,6 @@ func (pn *parentNode) RemoveChildNode(child Node) error {
 	}
 	// Removing parentNode & root link
 	child.setParentNode(nil)
-	child.setRootNode(nil)
 	if pn.isConnected() {
 		pn.root.unregister(child)
 	}

@@ -29,7 +29,7 @@ func NewRoot(children Node) Root {
 	assert.NotNil(children, "node must be non-nil to be the root")
 
 	r := newRoot()
-	r.setRootNode(r)
+	r.parentNode.node.root = r
 	r.appendChildNode(children)
 
 	return r

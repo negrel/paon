@@ -29,7 +29,6 @@ type Node interface {
 
 	// RootNode define the root of the Node tree.
 	RootNode() Root
-	setRootNode(Root)
 
 	isDescendantOf(node Node) bool
 
@@ -116,12 +115,13 @@ func (n *node) setParentNode(parent ParentNode) {
 }
 
 func (n *node) RootNode() Root {
-	return n.root
+	if n.parent != nil {
+		return n.parent.RootNode()
+	}
+
+	return nil
 }
 
-func (n *node) setRootNode(root Root) {
-	n.root = root
-}
 func (n *node) isConnected() bool {
 	return n.root != nil
 }
