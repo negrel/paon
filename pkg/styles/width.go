@@ -27,7 +27,8 @@ func Width(size SizeValue) WidthProperty {
 }
 
 func (w WidthProperty) Layout(ctx render.Context) {
-	width := 0
+	width := ctx.Layer().Width()
+
 	if w.Value.Defined {
 		width = w.Value.toCellUnit().value
 	}

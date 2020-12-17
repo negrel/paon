@@ -1,6 +1,7 @@
 package styles
 
 import (
+	"github.com/negrel/debuggo/pkg/log"
 	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/internal/math"
 	"github.com/negrel/paon/internal/render"
@@ -27,7 +28,8 @@ func Height(size SizeValue) HeightProperty {
 }
 
 func (h HeightProperty) Layout(ctx render.Context) {
-	height := 0
+	height := ctx.Layer().Height()
+
 	if h.Value.Defined {
 		height = h.Value.toCellUnit().value
 	}
@@ -41,6 +43,8 @@ func (h HeightProperty) Layout(ctx render.Context) {
 
 	// Update the layer height
 	ctx.Layer().Max = ctx.Layer().Min.Add(
-		geometry.Pt(height, ctx.Layer().Max.Y()),
+		geometry.Pt(ctx.Layer().Max.X(), height),
 	)
+
+	log.Debug("LAYER ", ctx.Layer())
 }
