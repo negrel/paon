@@ -136,7 +136,7 @@ func (r Rectangle) TopRight() Point {
 	return r.Max
 }
 
-// Width return the widht of the rectangle
+// Width return the width of the rectangle
 func (r Rectangle) Width() int {
 	return r.Max.x - r.Min.x
 }
