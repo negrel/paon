@@ -71,7 +71,7 @@ func (t *tcellScreen) Update() {
 }
 
 // Apply the given patch to the screen.
-func (t *tcellScreen) Apply(patch Canvas) {
+func (t *tcellScreen) Apply(patch Patch) {
 	log.Traceln("applying patch", patch)
 
 	for i, row := range patch.grid {

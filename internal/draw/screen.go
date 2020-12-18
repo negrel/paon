@@ -5,12 +5,12 @@ import (
 	"github.com/negrel/paon/internal/geometry"
 )
 
-// Screen define a terminal window to apply render Canvas on.
+// Screen define a terminal window to apply render Patch on.
 type Screen interface {
 	geometry.Sized
 
 	Update()
-	Apply(Canvas)
+	Apply(Patch)
 	Clear()
 	Fini()
 	PollEvent() events.Event

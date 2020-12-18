@@ -9,7 +9,7 @@ import (
 
 // Engine is responsible for rendering the
 type Engine struct {
-	ch          chan Canvas
+	ch          chan Patch
 	ctx         context.Context
 	Screen      Screen
 	ticker      *time.Ticker
@@ -19,14 +19,14 @@ type Engine struct {
 // NewEngine return a new rendering engine that draw on the given surface.
 func NewEngine(screen Screen, ctx context.Context) *Engine {
 	return &Engine{
-		ch:     make(chan Canvas),
+		ch:     make(chan Patch),
 		ctx:    ctx,
 		Screen: screen,
 		ticker: time.NewTicker(time.Millisecond * 16),
 	}
 }
 
-func (e *Engine) Draw(patch Canvas) {
+func (e *Engine) Draw(patch Patch) {
 	e.ch <- patch
 }
 

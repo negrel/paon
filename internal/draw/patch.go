@@ -4,14 +4,14 @@ import (
 	"github.com/negrel/paon/internal/geometry"
 )
 
-// Canvas define a rectangle area to draw on.
-type Canvas struct {
+// Patch define a rectangle area to draw on.
+type Patch struct {
 	geometry.Rectangle
 	grid map[int]map[int]*Cell
 }
 
-func MakeCanvas(bound geometry.Rectangle) Canvas {
-	p := Canvas{
+func MakePatch(bound geometry.Rectangle) Patch {
+	p := Patch{
 		Rectangle: bound,
 		grid:      make(map[int]map[int]*Cell, bound.Height()),
 	}
@@ -19,15 +19,15 @@ func MakeCanvas(bound geometry.Rectangle) Canvas {
 	return p
 }
 
-func (c Canvas) Origin() geometry.Point {
+func (c Patch) Origin() geometry.Point {
 	return c.Min
 }
 
-func (c Canvas) Bounds() geometry.Rectangle {
+func (c Patch) Bounds() geometry.Rectangle {
 	return c.Rectangle
 }
 
-func (c Canvas) Get(pt geometry.Point) *Cell {
+func (c Patch) Get(pt geometry.Point) *Cell {
 	if c.Contain(pt) {
 		// Make position relative to the top-left corner
 		// of the patch.
@@ -51,7 +51,7 @@ func (c Canvas) Get(pt geometry.Point) *Cell {
 	return nil
 }
 
-func (c Canvas) ForEach(fn func(cell *Cell)) {
+func (c Patch) ForEach(fn func(cell *Cell)) {
 	for y := c.Rectangle.Min.Y(); y <= c.Rectangle.Max.Y(); y++ {
 		for x := c.Rectangle.Min.X(); x <= c.Rectangle.Max.X(); x++ {
 			fn(c.Get(geometry.Pt(x, y)))
