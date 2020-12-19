@@ -9,10 +9,10 @@ import (
 // Context is the rendering context passed to Object for the layout step and the draw step.
 type Context struct {
 	Object Object
-	canvas *draw.Canvas
+	canvas *draw.Patch
 }
 
-func MakeContext(obj Object, canvas *draw.Canvas) Context {
+func MakeContext(obj Object, canvas *draw.Patch) Context {
 	return Context{
 		Object: obj,
 		canvas: canvas,
@@ -24,16 +24,16 @@ func (ctx Context) Layer() *geometry.Rectangle {
 	return &ctx.canvas.Rectangle
 }
 
-// Canvas return the draw.Canvas of the rendering context.
+// Canvas return the draw.Patch of the rendering context.
 // A mock canvas is returned during LayoutStep.
-func (ctx Context) Canvas() draw.Canvas {
+func (ctx Context) Canvas() draw.Patch {
 	assert.Equal(ctx.Step(), DrawStepType, "accessing canvas during non-draw step is not allowed")
 
 	if ctx.Step() == DrawStepType {
 		return *ctx.canvas
 	}
 
-	return draw.Canvas{}
+	return draw.Patch{}
 }
 
 func (ctx Context) Step() StepType {
