@@ -2,21 +2,21 @@ package paon
 
 import (
 	"github.com/negrel/paon/internal/events"
-	"github.com/negrel/paon/pkg/widgets"
+	"github.com/negrel/paon/pkg/pdk/widgets"
 )
 
 type root struct {
-	*widgets.Root
+	*widgets.root
 }
 
 func newRoot(child widgets.Widget) *root {
 	return &root{
-		Root: widgets.NewRoot(child),
+		root: widgets.NewRoot(child),
 	}
 }
 
 func (r *root) DispatchEvent(event events.Event) {
-	r.Root.DispatchEvent(event)
+	r.root.DispatchEvent(event)
 
 	// Render the entire tree on screen resize
 	if event.Type() == events.ResizeEventType {

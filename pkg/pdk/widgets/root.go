@@ -10,27 +10,33 @@ import (
 
 type rLayout = Layout
 
-// Root define the root node of the Widget tree.
-type Root struct {
+type Root interface {
+	tree.Root
+	Layout
+}
+
+var _ tree.Root = &root{}
+
+// root define the root node of the Widget tree.
+type root struct {
 	rLayout
 	children Widget
 }
 
-func NewRoot(child Widget) *Root {
-	r := &Root{
+func NewRoot(child Widget) *root {
+	r := &root{
 		rLayout: newLayout(tree.NewRoot(child)),
 	}
-	InnerDrawFunc(func(ctx render.Context) {})(r)
 
 	return r
 }
 
-func (r *Root) Render(screen geometry.Size) draw.Canvas {
-	canvas := draw.MakeCanvas(geometry.Rect(0, 0, screen.Width(), screen.Height()))
+func (r *root) Render(screen geometry.Size) draw.Patch {
+	canvas := draw.MakePatch(geometry.Rect(0, 0, screen.Width(), screen.Height()))
 	ctx := render.MakeContext(r, &canvas)
 
-	r.Layout(ctx)
-	r.Draw(ctx)
+	//r.Layout(ctx)
+	//r.Draw(ctx)
 
 	return canvas
 }

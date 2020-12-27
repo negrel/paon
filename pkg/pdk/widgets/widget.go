@@ -2,16 +2,16 @@ package widgets
 
 import (
 	"github.com/negrel/paon/internal/events"
-	"github.com/negrel/paon/internal/render"
 	"github.com/negrel/paon/internal/tree"
-	"github.com/negrel/paon/pkg/styles"
 )
 
-type Widget interface {
-	tree.Node
-	events.EventTarget
-	render.Object
+type node tree.Node
 
+type Widget interface {
+	node
+	events.EventTarget
+
+	Root() Root
 	Parent() Layout
 	Next() Widget
 	Previous() Widget
@@ -22,13 +22,10 @@ var _ Widget = &widget{}
 type widget struct {
 	tree.Node
 	events.Target
-
-	styles.Style
 }
 
 func NewWidget(name string, opts ...Option) Widget {
-	node := tree.NewNode(name)
-	w := newWidget(node)
+	w := newWidget(tree.NewNode(name))
 
 	for _, opt := range opts {
 		opt(w)
@@ -41,8 +38,15 @@ func newWidget(node tree.Node) *widget {
 	return &widget{
 		Node:   node,
 		Target: events.MakeTarget(),
-		Style:  styles.New(),
 	}
+}
+
+func (w *widget) Root() Root {
+	if r := w.RootNode(); r != nil {
+		return r.(Root)
+	}
+
+	return nil
 }
 
 func (w *widget) Parent() Layout {
@@ -50,10 +54,6 @@ func (w *widget) Parent() Layout {
 		return p.(Layout)
 	}
 	return nil
-}
-
-func (w *widget) ParentObject() render.Object {
-	return w.Parent()
 }
 
 func (w *widget) Next() Widget {
