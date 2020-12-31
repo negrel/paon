@@ -17,8 +17,8 @@ func prop(id PropID) property {
 	}
 }
 
-func (u UnitProperty) ID() PropID {
-	return u.id
+func (p property) ID() PropID {
+	return p.id
 }
 
 func (p property) IsInherited() bool {
@@ -30,7 +30,7 @@ type UnitProperty struct {
 	Value UnitValue
 }
 
-func makeUnitProperty(id PropID, value int, unit Unit) UnitProperty {
+func makeUnitProp(id PropID, value int, unit Unit) UnitProperty {
 	return UnitProperty{
 		property: prop(id),
 		Value:    UnitValue{value, unit},

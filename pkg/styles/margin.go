@@ -28,7 +28,7 @@ func MarginLeft(value int, unit Unit) ThemeOpt {
 
 	return func(theme Theme) {
 		theme.SetUnitProp(
-			makeUnitProperty(PropIDMarginLeft, value, unit),
+			makeUnitProp(PropIDMarginLeft, value, unit),
 		)
 	}
 }
@@ -38,7 +38,7 @@ func MarginTop(value int, unit Unit) ThemeOpt {
 
 	return func(theme Theme) {
 		theme.SetUnitProp(
-			makeUnitProperty(PropIDMarginTop, value, unit),
+			makeUnitProp(PropIDMarginTop, value, unit),
 		)
 	}
 }
@@ -48,7 +48,7 @@ func MarginRight(value int, unit Unit) ThemeOpt {
 
 	return func(theme Theme) {
 		theme.SetUnitProp(
-			makeUnitProperty(PropIDMarginRight, value, unit),
+			makeUnitProp(PropIDMarginRight, value, unit),
 		)
 	}
 }
@@ -58,7 +58,7 @@ func MarginBottom(value int, unit Unit) ThemeOpt {
 
 	return func(theme Theme) {
 		theme.SetUnitProp(
-			makeUnitProperty(PropIDMarginBottom, value, unit),
+			makeUnitProp(PropIDMarginBottom, value, unit),
 		)
 	}
 }

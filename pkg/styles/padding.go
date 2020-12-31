@@ -28,7 +28,7 @@ func PaddingLeft(value int, unit Unit) ThemeOpt {
 
 	return func(theme Theme) {
 		theme.SetUnitProp(
-			makeUnitProperty(PropIDPaddingLeft, value, unit),
+			makeUnitProp(PropIDPaddingLeft, value, unit),
 		)
 	}
 }
@@ -38,7 +38,7 @@ func PaddingTop(value int, unit Unit) ThemeOpt {
 
 	return func(theme Theme) {
 		theme.SetUnitProp(
-			makeUnitProperty(PropIDPaddingTop, value, unit),
+			makeUnitProp(PropIDPaddingTop, value, unit),
 		)
 	}
 }
@@ -48,7 +48,7 @@ func PaddingRight(value int, unit Unit) ThemeOpt {
 
 	return func(theme Theme) {
 		theme.SetUnitProp(
-			makeUnitProperty(PropIDPaddingRight, value, unit),
+			makeUnitProp(PropIDPaddingRight, value, unit),
 		)
 	}
 }
@@ -58,7 +58,7 @@ func PaddingBottom(value int, unit Unit) ThemeOpt {
 
 	return func(theme Theme) {
 		theme.SetUnitProp(
-			makeUnitProperty(PropIDPaddingBottom, value, unit),
+			makeUnitProp(PropIDPaddingBottom, value, unit),
 		)
 	}
 }
