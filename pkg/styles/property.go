@@ -1,53 +1,38 @@
 package styles
 
-import "github.com/negrel/paon/internal/render"
-
-const (
-	DisplayPriority = iota * 100
-
-	WidthPriority
-	HeightPriority
-	FlexPriority
-	FlexDirectionPriority
-	FlexWrapPriority
-	MarginPriority
-	BorderPriority
-
-	PaddingPriority
-	BackgroundColorPriority
-
-	InnerRenderingPriority
-
-	TextColorPriority
-	TextBoldPriority
-	TextUnderlinePriority
-	TextBlinkPriority
-
-	OverflowPriority
-)
-
 type Property interface {
-	render.Step
-
-	Priority() int
+	ID() PropID
+	IsInherited() bool
 }
-
-var _ Property = &property{}
 
 type property struct {
-	step     render.StepType
-	name     string
-	priority int
+	id        PropID
+	inherited bool
 }
 
-func (p property) Name() string {
-	return p.name
+func prop(id PropID) property {
+	return property{
+		id:        id,
+		inherited: false,
+	}
 }
 
-func (p property) Type() render.StepType {
-	return p.step
+func (u UnitProperty) ID() PropID {
+	return u.id
 }
 
-func (p property) Priority() int {
-	return p.priority
+func (p property) IsInherited() bool {
+	return p.inherited
+}
+
+type UnitProperty struct {
+	property
+	Value UnitValue
+}
+
+func makeUnitProperty(id PropID, value int, unit Unit) UnitProperty {
+	return UnitProperty{
+		property: prop(id),
+		Value:    UnitValue{value, unit},
+	}
 }
