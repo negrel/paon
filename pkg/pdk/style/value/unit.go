@@ -1,42 +1,42 @@
-package styles
+package value
 
 import "github.com/negrel/paon/pkg/runtime"
 
-type Unit uint8
+type UnitID uint8
 
 const (
-	CellUnit Unit = iota
+	CellUnit UnitID = iota
 	PercentageUnit
 	WindowWidthUnit
 	WindowHeightUnit
 )
 
-type UnitValue struct {
+type Unit struct {
 	Value int
-	Unit  Unit
+	ID    UnitID
 }
 
-func (uv UnitValue) CellUnit() UnitValue {
-	switch uv.Unit {
+func (uv Unit) CellUnit() Unit {
+	switch uv.ID {
 	case CellUnit:
 		return uv
 
 	case PercentageUnit:
 
 	case WindowWidthUnit:
-		return UnitValue{
+		return Unit{
 			Value: runtime.Window.Width() / 100 * uv.Value,
-			Unit:  CellUnit,
+			ID:    CellUnit,
 		}
 	case WindowHeightUnit:
-		return UnitValue{
+		return Unit{
 			Value: runtime.Window.Height() / 100 * uv.Value,
-			Unit:  CellUnit,
+			ID:    CellUnit,
 		}
 
 	default:
 		panic("can't convert unknown unit value to cell unit")
 	}
 
-	return UnitValue{}
+	return Unit{}
 }
