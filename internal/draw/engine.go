@@ -2,38 +2,27 @@ package draw
 
 import (
 	"context"
-	"time"
-
 	"github.com/negrel/debuggo/pkg/log"
+	"github.com/negrel/paon/pkg/runtime"
 )
 
 // Engine is responsible for rendering the
 type Engine struct {
-	ch          chan Patch
+	ch          chan Canvas
 	ctx         context.Context
-	Screen      Screen
-	ticker      *time.Ticker
 	needRefresh bool
 }
 
 // NewEngine return a new rendering engine that draw on the given surface.
-func NewEngine(screen Screen, ctx context.Context) *Engine {
+func NewEngine(screen Window, ctx context.Context) *Engine {
 	return &Engine{
-		ch:     make(chan Patch),
-		ctx:    ctx,
-		Screen: screen,
-		ticker: time.NewTicker(time.Millisecond * 16),
+		ch:  make(chan Canvas),
+		ctx: ctx,
 	}
 }
 
-func (e *Engine) Draw(patch Patch) {
+func (e *Engine) Draw(patch Canvas) {
 	e.ch <- patch
-}
-
-// SetUpdateInterval set the update interval of the surface.
-// By default the rendering engine update the surface every 16ms (around 60fps).
-func (e *Engine) SetUpdateInterval(duration time.Duration) {
-	e.ticker = time.NewTicker(duration)
 }
 
 // Start the rendering engine.
@@ -45,14 +34,14 @@ renderLoop:
 		select {
 		case patch := <-e.ch:
 			go func() {
-				e.Screen.Apply(patch)
+				runtime.Window.Apply(patch)
 				e.needRefresh = true
 			}()
 
-		case <-e.ticker.C:
+		case <-runtime.Clock.C:
 			if e.needRefresh {
 				go func() {
-					e.Screen.Update()
+					runtime.Window.Update()
 					e.needRefresh = false
 				}()
 			}
