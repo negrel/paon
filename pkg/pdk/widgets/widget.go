@@ -1,15 +1,22 @@
 package widgets
 
 import (
+	"fmt"
+	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/internal/events"
+	"github.com/negrel/paon/internal/render"
 	"github.com/negrel/paon/internal/tree"
+	"github.com/negrel/paon/pkg/pdk/style"
 )
 
-type node tree.Node
-
 type Widget interface {
-	node
+	fmt.Stringer
+	tree.Node
 	events.EventTarget
+	render.Object
+	style.Themed
+
+	ID() string
 
 	Root() Root
 	Parent() Layout
@@ -22,10 +29,14 @@ var _ Widget = &widget{}
 type widget struct {
 	tree.Node
 	events.Target
+
+	theme theme
+
+	id string
 }
 
-func NewWidget(name string, opts ...Option) Widget {
-	w := newWidget(tree.NewNode(name))
+func NewWidget(opts ...Option) Widget {
+	w := newWidget(tree.NewNode())
 
 	for _, opt := range opts {
 		opt(w)
@@ -39,6 +50,14 @@ func newWidget(node tree.Node) *widget {
 		Node:   node,
 		Target: events.MakeTarget(),
 	}
+}
+
+func (w *widget) ID() string {
+	return w.id
+}
+
+func (w *widget) String() string {
+	return w.ID()
 }
 
 func (w *widget) Root() Root {
@@ -70,4 +89,18 @@ func (w *widget) Previous() Widget {
 	}
 
 	return nil
+}
+
+func (w *widget) Theme() style.Theme {
+	assert.NotNil(w.theme, "%v widget type doesn't instantiate a style.Theme object", w)
+
+	return w.theme
+}
+
+func (w *widget) ParentObject() render.Object {
+	return w.Parent()
+}
+
+func (w *widget) Renderer() render.Renderer {
+	panic("implement me")
 }
