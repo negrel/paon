@@ -1,17 +1,8 @@
 package tree
 
-import (
-	"fmt"
-
-	"github.com/negrel/debuggo/pkg/log"
-)
-
 // Node define an element in a Node tree.
 type Node interface {
-	fmt.Stringer
-
 	ID() NodeID
-	Name() string
 
 	IsSame(Node) bool
 
@@ -36,37 +27,25 @@ type Node interface {
 var _ Node = &node{}
 
 type node struct {
-	name string
-	id   NodeID
+	id NodeID
 
 	next     Node
 	previous Node
 	parent   ParentNode
 }
 
-func NewNode(name string) Node {
-	return newNode(name)
-}
-
-func newNode(name string) *node {
-	log.Debugln("creating a", name, "node")
+func NewNode(nodeID NodeID) *node {
+	if nodeID == "" {
+		nodeID = makeNodeID()
+	}
 
 	return &node{
-		name: name,
-		id:   nodeID(),
+		id: nodeID,
 	}
-}
-
-func (n *node) String() string {
-	return fmt.Sprintf("%v-%v", n.name, n.id)
 }
 
 func (n *node) ID() NodeID {
 	return n.id
-}
-
-func (n *node) Name() string {
-	return n.name
 }
 
 func (n *node) IsSame(other Node) bool {

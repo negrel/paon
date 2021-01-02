@@ -38,7 +38,7 @@ func NewParent(name string) ParentNode {
 
 func newParent(name string) *parentNode {
 	return &parentNode{
-		node: newNode(name),
+		node: NewNode(name),
 	}
 }
 

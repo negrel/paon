@@ -10,12 +10,11 @@ import (
 func TestParent_New(t *testing.T) {
 	parent := newParent("test_parent")
 	assert.NotNil(t, parent)
-	assert.Equal(t, "test_parent", parent.Name())
 }
 
 func TestParent_AppendChild_Success(t *testing.T) {
 	parent := newParent("test_parent")
-	child := newNode("test_child")
+	child := NewNode("test_child")
 
 	// Appending it
 	err := parent.AppendChildNode(child)
@@ -25,7 +24,7 @@ func TestParent_AppendChild_Success(t *testing.T) {
 	assert.Equal(t, parent, child.parent)
 
 	// Appending another child
-	child = newNode("second_test_child")
+	child = NewNode("second_test_child")
 	err = parent.AppendChildNode(child)
 	assert.Nil(t, err)
 	assert.Equal(t, child, parent.lastChild)
@@ -72,11 +71,11 @@ func TestParent_AppendChild_NilChild(t *testing.T) {
 
 func TestParent_AppendChild_WithParent(t *testing.T) {
 	parent := newParent("test_parent")
-	prev := newNode("test_prev_sibling")
-	next := newNode("test_next_sibling")
+	prev := NewNode("test_prev_sibling")
+	next := NewNode("test_next_sibling")
 	_ = parent.AppendChildNode(prev)
 	_ = parent.AppendChildNode(next)
-	child := newNode("test_child")
+	child := NewNode("test_child")
 	_ = parent.AppendChildNode(child)
 
 	otherParent := newParent("test_other_parent")
@@ -94,9 +93,9 @@ func TestParent_AppendChild_WithParent(t *testing.T) {
 
 func TestParent_InsertBefore_Success(t *testing.T) {
 	parent := newParent("test_parent")
-	prev := newNode("test_prev")
-	next := newNode("test_next")
-	child := newNode("test_child")
+	prev := NewNode("test_prev")
+	next := NewNode("test_next")
+	child := NewNode("test_child")
 
 	_ = parent.AppendChildNode(prev)
 	_ = parent.AppendChildNode(next)
@@ -114,7 +113,7 @@ func TestParent_InsertBefore_Success(t *testing.T) {
 func TestParent_InsertBefore_NilChild(t *testing.T) {
 	parent := newParent("test_parent")
 
-	reference := newNode("test_reference")
+	reference := NewNode("test_reference")
 	err := parent.AppendChildNode(reference)
 	assert.Nil(t, err)
 
@@ -128,7 +127,7 @@ func TestParent_InsertBefore_NilReference(t *testing.T) {
 	// Inserting before a nil reference is same as appending
 
 	parent := newParent("test_parent")
-	child := newNode("test_child")
+	child := NewNode("test_child")
 
 	// Appending it
 	err := parent.InsertBeforeNode(nil, child)
@@ -137,7 +136,7 @@ func TestParent_InsertBefore_NilReference(t *testing.T) {
 	assert.Equal(t, child, parent.lastChild)
 
 	// Appending another child
-	child = newNode("second_test_child")
+	child = NewNode("second_test_child")
 	err = parent.InsertBeforeNode(nil, child)
 	assert.Nil(t, err)
 	assert.Equal(t, child, parent.lastChild)
@@ -174,15 +173,15 @@ func TestParent_InsertBefore_AncestorOfParent(t *testing.T) {
 
 func TestParent_InsertBefore_ChildWithParent(t *testing.T) {
 	parent := newParent("test_parent")
-	prev := newNode("test_prev_sibling")
-	next := newNode("test_next_sibling")
+	prev := NewNode("test_prev_sibling")
+	next := NewNode("test_next_sibling")
 	_ = parent.AppendChildNode(next)
 	_ = parent.InsertBeforeNode(next, prev)
-	child := newNode("test_child")
+	child := NewNode("test_child")
 	_ = parent.InsertBeforeNode(next, child)
 
 	otherParent := newParent("test_other_parent")
-	reference := newNode("test_reference_child")
+	reference := NewNode("test_reference_child")
 	_ = otherParent.AppendChildNode(reference)
 	err := otherParent.InsertBeforeNode(reference, child)
 	assert.Nil(t, err)
