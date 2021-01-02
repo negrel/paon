@@ -12,7 +12,7 @@ import (
 type ParentNode interface {
 	Node
 
-	isAncestorOf(child Node) bool
+	IsAncestorOf(child Node) bool
 
 	FirstChildNode() Node
 	LastChildNode() Node
@@ -42,8 +42,12 @@ func newParent(name string) *parentNode {
 	}
 }
 
-func (pn *parentNode) isAncestorOf(child Node) bool {
-	return child.isDescendantOf(pn)
+func (pn *parentNode) IsAncestorOf(child Node) bool {
+	if child == nil {
+		return false
+	}
+
+	return child.IsDescendantOf(pn)
 }
 
 func (pn *parentNode) FirstChildNode() Node {
@@ -56,9 +60,6 @@ func (pn *parentNode) LastChildNode() Node {
 
 func (pn *parentNode) adopt(child Node) {
 	child.setParentNode(pn)
-	if pn.root != nil {
-		pn.root.register(child)
-	}
 }
 
 func (pn *parentNode) AppendChildNode(newChild Node) (err error) {
@@ -91,7 +92,7 @@ func (pn *parentNode) appendChildNode(newChild Node) {
 func (pn *parentNode) ensurePreInsertionValidity(child Node) error {
 	// check if child is not a parentNode of pn
 	if parentNode, isParent := child.(ParentNode); isParent {
-		if parentNode.isAncestorOf(pn) {
+		if parentNode.IsAncestorOf(pn) {
 			return errors.New("child contains the parentNode")
 		}
 	}
@@ -183,9 +184,6 @@ func (pn *parentNode) RemoveChildNode(child Node) error {
 	}
 	// Removing parentNode & root link
 	child.setParentNode(nil)
-	if pn.isConnected() {
-		pn.root.unregister(child)
-	}
 
 	return nil
 }

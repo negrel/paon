@@ -27,10 +27,15 @@ func TestNode_isDescendantOf(t *testing.T) {
 
 	err := parent.AppendChildNode(node)
 	assert.Nil(t, err)
-	assert.True(t, node.isDescendantOf(parent))
+	assert.True(t, node.IsDescendantOf(parent))
 	err = parent.RemoveChildNode(node)
 	assert.Nil(t, err)
-	assert.False(t, node.isDescendantOf(parent))
+	assert.False(t, node.IsDescendantOf(parent))
 
-	assert.False(t, newNode("test_node").isDescendantOf(parent))
+	assert.False(t, newNode("test_node").IsDescendantOf(parent))
+}
+
+func TestNode_isDescendantOf_NilParent(t *testing.T) {
+	node := newNode("test_child")
+	assert.False(t, node.IsDescendantOf(nil))
 }

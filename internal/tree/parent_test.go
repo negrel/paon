@@ -201,3 +201,8 @@ func TestParent_InsertBefore_ChildWithParent(t *testing.T) {
 	assert.Equal(t, next, child.next)
 	assert.Equal(t, prev, child.previous)
 }
+
+func TestParent_isAncestorOf_NilChild(t *testing.T) {
+	parent := newParent("test_child")
+	assert.False(t, parent.IsAncestorOf(nil))
+}

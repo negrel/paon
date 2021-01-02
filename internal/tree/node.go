@@ -30,10 +30,7 @@ type Node interface {
 	// RootNode define the root of the Node tree.
 	RootNode() Root
 
-	isDescendantOf(node Node) bool
-
-	// Whether the Node is connected to an active Node tree.
-	isConnected() bool
+	IsDescendantOf(node Node) bool
 }
 
 var _ Node = &node{}
@@ -45,7 +42,6 @@ type node struct {
 	next     Node
 	previous Node
 	parent   ParentNode
-	root     Root
 }
 
 func NewNode(name string) Node {
@@ -77,7 +73,11 @@ func (n *node) IsSame(other Node) bool {
 	return n.ID() == other.ID()
 }
 
-func (n *node) isDescendantOf(parent Node) bool {
+func (n *node) IsDescendantOf(parent Node) bool {
+	if parent == nil {
+		return false
+	}
+
 	var node Node = n
 	for node != nil {
 		if node.IsSame(parent) {
@@ -120,8 +120,4 @@ func (n *node) RootNode() Root {
 	}
 
 	return nil
-}
-
-func (n *node) isConnected() bool {
-	return n.root != nil
 }
