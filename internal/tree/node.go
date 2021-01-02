@@ -2,7 +2,7 @@ package tree
 
 // Node define an element in a Node tree.
 type Node interface {
-	ID() NodeID
+	nodeID() NodeID
 
 	IsSame(Node) bool
 
@@ -40,12 +40,12 @@ func NewNode() *node {
 	}
 }
 
-func (n *node) ID() NodeID {
+func (n *node) nodeID() NodeID {
 	return n.id
 }
 
 func (n *node) IsSame(other Node) bool {
-	return n.ID() == other.ID()
+	return n.nodeID() == other.nodeID()
 }
 
 func (n *node) IsDescendantOf(parent Node) bool {
