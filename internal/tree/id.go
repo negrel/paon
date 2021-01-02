@@ -4,11 +4,11 @@ import (
 	"sync/atomic"
 )
 
-type NodeID int32
+type NodeID string
 
 var id int32 = 0
 
-func nodeID() NodeID {
+func makeNodeID() NodeID {
 	nID := atomic.AddInt32(&id, 1)
 	return NodeID(nID)
 }
