@@ -25,7 +25,6 @@ func MakeTarget() Target {
 	return make(map[EventType][]*Listener)
 }
 
-// AddEventListener registers an event handler of a specific event type on the Target.
 func (t Target) AddEventListener(eventType EventType, listener *Listener) {
 	assert.NotNil(listener, "listener must be not nil")
 
@@ -41,7 +40,7 @@ func (t Target) RemoveEventListener(eventType EventType, listener *Listener) {
 	assert.NotNil(listener, "listener must be not nil")
 
 	if t[eventType] == nil {
-		log.Warnf("can't remove event listener %v, no event listener for %v event type", listener, eventType.String())
+		log.Infof("can't remove event listener %v, no event listener for %v event type", listener, eventType.String())
 		return
 	}
 
@@ -52,7 +51,7 @@ func (t Target) RemoveEventListener(eventType EventType, listener *Listener) {
 		}
 	}
 
-	log.Warnf("can't remove event listener %v, not found")
+	log.Infof("can't remove event listener %v, not found")
 }
 
 // DispatchEvent dispatch the given event to listeners.
