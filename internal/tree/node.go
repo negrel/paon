@@ -34,13 +34,9 @@ type node struct {
 	parent   ParentNode
 }
 
-func NewNode(nodeID NodeID) *node {
-	if nodeID == "" {
-		nodeID = makeNodeID()
-	}
-
+func NewNode() *node {
 	return &node{
-		id: nodeID,
+		id: makeNodeID(),
 	}
 }
 
