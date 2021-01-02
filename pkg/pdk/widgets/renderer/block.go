@@ -1,4 +1,4 @@
-package block
+package renderer
 
 import (
 	"github.com/negrel/paon/internal/geometry"
@@ -9,7 +9,15 @@ import (
 	"github.com/negrel/paon/pkg/pdk/widgets"
 )
 
-func Layout(ctx render.Context) {
+var _ render.Renderer = Block{}
+
+type Block struct{}
+
+func MakeBlock() render.Renderer {
+	return Block{}
+}
+
+func (b Block) Layout(ctx *render.Context) {
 	width := computeLayerWidth(ctx.Object)
 	height := computeLayerHeight(ctx.Object)
 
@@ -19,31 +27,26 @@ func Layout(ctx render.Context) {
 func computeLayerWidth(object render.Object) int {
 	width := computeThemeWidth(object.Theme())
 	if width == -1 {
-		width = computeWidgetWidth(object.(widgets.Widget))
+		width = 0
 	}
 
 	return width
-}
-
-func computeWidgetWidth(object render.Object) int {
-	// Dynamic size base on widget content
-	return 0
 }
 
 func computeThemeWidth(theme style.Theme) int {
 	width := -1
 
 	if w := theme.Get(property.IDWidth); w != nil {
-		width = w.(property.Unit).Value().CellUnit().Value
+		width = w.(property.Unit).Value.CellUnit().Value
 	}
 
 	if maxW := theme.Get(property.IDMaxWidth); maxW != nil {
-		maxWidth := maxW.(property.Unit).Value().CellUnit().Value
+		maxWidth := maxW.(property.Unit).Value.CellUnit().Value
 		width = math.Min(width, maxWidth)
 	}
 
 	if minW := theme.Get(property.IDMinWidth); minW != nil {
-		minWidth := minW.(property.Unit).Value().CellUnit().Value
+		minWidth := minW.(property.Unit).Value.CellUnit().Value
 		width = math.Max(width, minWidth)
 	}
 
@@ -68,18 +71,22 @@ func computeThemeHeight(theme style.Theme) int {
 	height := -1
 
 	if w := theme.Get(property.IDHeight); w != nil {
-		height = w.(property.Unit).Value().CellUnit().Value
+		height = w.(property.Unit).Value.CellUnit().Value
 	}
 
 	if maxW := theme.Get(property.IDMaxHeight); maxW != nil {
-		maxHeight := maxW.(property.Unit).Value().CellUnit().Value
+		maxHeight := maxW.(property.Unit).Value.CellUnit().Value
 		height = math.Min(height, maxHeight)
 	}
 
 	if minW := theme.Get(property.IDMinHeight); minW != nil {
-		minHeight := minW.(property.Unit).Value().CellUnit().Value
+		minHeight := minW.(property.Unit).Value.CellUnit().Value
 		height = math.Max(height, minHeight)
 	}
 
 	return height
+}
+
+func (b Block) Draw(ctx *render.Context) {
+	panic("implement me")
 }
