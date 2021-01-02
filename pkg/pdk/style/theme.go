@@ -3,23 +3,25 @@ package style
 import "github.com/negrel/paon/pkg/pdk/style/property"
 
 type Theme interface {
-	priority() int
-
 	Set(property.Property)
 	Get(property.ID) property.Property
+	Del(property.ID)
 }
 
 var _ Theme = theme{}
 
 type theme struct {
-	_priority int
-
-	onPropertyChange func(old, new property.Property)
-	props            map[property.ID]property.Property
+	props map[property.ID]property.Property
 }
 
-func (t theme) priority() int {
-	return t._priority
+func MakeTheme() Theme {
+	return theme{
+		props: make(map[property.ID]property.Property, 8),
+	}
+}
+
+func (t theme) Del(id property.ID) {
+	delete(t.props, id)
 }
 
 func (t theme) Set(prop property.Property) {
@@ -27,11 +29,7 @@ func (t theme) Set(prop property.Property) {
 		return
 	}
 
-	old := t.props[prop.ID()]
-	if old != prop {
-		t.onPropertyChange(old, prop)
-		t.props[prop.ID()] = prop
-	}
+	t.props[prop.ID()] = prop
 }
 
 func (t theme) Get(id property.ID) property.Property {
