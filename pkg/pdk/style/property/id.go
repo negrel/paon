@@ -25,4 +25,6 @@ const (
 	IDPaddingTop
 	IDPaddingRight
 	IDPaddingBottom
+
+	IDBackgroundColor
 )
