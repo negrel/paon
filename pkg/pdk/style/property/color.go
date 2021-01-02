@@ -11,7 +11,7 @@ type Color struct {
 	Value value.Color
 }
 
-func MakeColorProp(id ID, value value.Color) Color {
+func MakeColor(id ID, value value.Color) Color {
 	return Color{
 		Prop:  MakeProp(id),
 		Value: value,
