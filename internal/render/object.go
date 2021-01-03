@@ -1,15 +1,11 @@
 package render
 
+import pdkstyle "github.com/negrel/paon/pkg/pdk/style"
+
 // Object define any object that can be rendered
 type Object interface {
+	pdkstyle.Themed
+
 	ParentObject() Object
-
-	Layout(ctx Context)
-	Draw(ctx Context)
-
-	Steps() []string
-	Step(name string) Step
-	SetStep(Step)
-
-	RenderStep() StepType
+	Renderer() Renderer
 }
