@@ -6,7 +6,7 @@ var _ render.Renderer = flex{}
 
 type flex struct{}
 
-func MakeFlex() render.Renderer {
+func makeFlex() render.Renderer {
 	return flex{}
 }
 

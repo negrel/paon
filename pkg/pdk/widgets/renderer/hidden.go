@@ -6,7 +6,7 @@ var _ render.Renderer = hidden{}
 
 type hidden struct{}
 
-func MakeHidden() render.Renderer {
+func makeHidden() render.Renderer {
 	return hidden{}
 }
 

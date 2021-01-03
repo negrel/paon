@@ -9,15 +9,15 @@ import (
 	"github.com/negrel/paon/pkg/pdk/widgets"
 )
 
-var _ render.Renderer = Block{}
+var _ render.Renderer = block{}
 
-type Block struct{}
+type block struct{}
 
-func MakeBlock() render.Renderer {
-	return Block{}
+func makeBlock() render.Renderer {
+	return block{}
 }
 
-func (b Block) Layout(ctx *render.Context) {
+func (b block) Layout(ctx *render.Context) {
 	width := computeLayerWidth(ctx.Object)
 	height := computeLayerHeight(ctx.Object)
 
@@ -87,6 +87,6 @@ func computeThemeHeight(theme style.Theme) int {
 	return height
 }
 
-func (b Block) Draw(ctx *render.Context) {
+func (b block) Draw(ctx *render.Context) {
 	panic("implement me")
 }
