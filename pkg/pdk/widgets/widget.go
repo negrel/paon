@@ -2,25 +2,37 @@ package widgets
 
 import (
 	"fmt"
-	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/internal/events"
 	"github.com/negrel/paon/internal/render"
 	"github.com/negrel/paon/internal/tree"
-	"github.com/negrel/paon/pkg/pdk/style"
+	"github.com/negrel/paon/pkg/pdk/styles"
 )
 
+// Widget define any object part of the Widget tree
+// that can be rendered in the screen.
 type Widget interface {
 	fmt.Stringer
 	tree.Node
 	events.Target
 	render.Object
-	style.Themed
+	styles.Stylised
 
+	// Theme return the Widget Theme.
+	Theme() Theme
+
+	// ID return the unique generated ID or the given one using the ID Option.
 	ID() string
 
+	// Root return the root Widget in the tree.
 	Root() Root
+
+	// Parent return the Layout that contain this Widget in the tree.
 	Parent() Layout
+
+	// Next return the next sibling of the Widget.
 	Next() Widget
+
+	// Previous return the previous sibling of the Widget.
 	Previous() Widget
 }
 
@@ -35,6 +47,7 @@ type widget struct {
 	id string
 }
 
+// NewWidget return a new Widget object customized with the given Option.
 func NewWidget(opts ...Option) Widget {
 	w := newWidget(tree.NewNode())
 
@@ -52,14 +65,17 @@ func newWidget(node tree.Node) *widget {
 	}
 }
 
+// ID implements the Widget interface.
 func (w *widget) ID() string {
 	return w.id
 }
 
+// String implements fmt.Stringer interface.
 func (w *widget) String() string {
 	return w.ID()
 }
 
+// Root implements the Widget interface.
 func (w *widget) Root() Root {
 	if r := w.RootNode(); r != nil {
 		return r.(Root)
@@ -68,6 +84,7 @@ func (w *widget) Root() Root {
 	return nil
 }
 
+// Parent implements the Widget interface.
 func (w *widget) Parent() Layout {
 	if p := w.ParentNode(); p != nil {
 		return p.(Layout)
@@ -75,6 +92,7 @@ func (w *widget) Parent() Layout {
 	return nil
 }
 
+// Next implements the Widget interface.
 func (w *widget) Next() Widget {
 	if n := w.NextNode(); n != nil {
 		return n.(Widget)
@@ -83,6 +101,7 @@ func (w *widget) Next() Widget {
 	return nil
 }
 
+// Previous implements the Widget interface.
 func (w *widget) Previous() Widget {
 	if p := w.PreviousNode(); p != nil {
 		return p.(Widget)
@@ -91,16 +110,17 @@ func (w *widget) Previous() Widget {
 	return nil
 }
 
-func (w *widget) Theme() style.Theme {
-	assert.NotNil(w.theme, "%v widget type doesn't instantiate a style.Theme object", w)
-
+// Style implements the styles.Stylised interface.
+func (w *widget) Style() styles.Style {
 	return w.theme
 }
 
-func (w *widget) ParentObject() render.Object {
-	return w.Parent()
+// Theme return the theme of the widget.
+func (w *widget) Theme() Theme {
+	return w.theme
 }
 
-func (w *widget) Renderer() render.Renderer {
-	panic("implement me")
+// ParentObject implements the render.Object interface.
+func (w *widget) ParentObject() render.Object {
+	return w.Parent()
 }
