@@ -1,16 +1,14 @@
 package widgets
 
 import (
-	"github.com/negrel/paon/internal/events"
+	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/internal/render"
 	"github.com/negrel/paon/internal/tree"
 )
 
-type pNode = tree.ParentNode
-
 // Layout is a Widget that can contain child Widget.
 type Layout interface {
-	pNode
+	tree.ParentNode
 	Widget
 
 	FirstChild() Widget
@@ -21,18 +19,20 @@ type Layout interface {
 	RemoveChild(child Widget)
 }
 
+type parentNode = tree.ParentNode
+
 var _ Layout = &layout{}
 
 type layout struct {
-	pNode
-	events.Target
+	*widget
+	parentNode
 }
 
-func NewLayout(name string, opts ...Option) Layout {
-	l := newLayout(tree.NewParent(name))
+func NewLayout(opts ...Option) Layout {
+	l := newLayout(tree.NewParent())
 
 	for _, opt := range opts {
-		opt(l)
+		opt(l.widget)
 	}
 
 	return l
@@ -40,17 +40,9 @@ func NewLayout(name string, opts ...Option) Layout {
 
 func newLayout(node tree.ParentNode) *layout {
 	return &layout{
-		pNode:  node,
-		Target: events.MakeTarget(),
+		widget:     newWidget(node),
+		parentNode: node,
 	}
-}
-
-func (l *layout) Root() *root {
-	if r := l.RootNode(); r != nil {
-
-	}
-
-	return nil
 }
 
 func (l *layout) Parent() Layout {
@@ -63,22 +55,6 @@ func (l *layout) Parent() Layout {
 func (l *layout) ParentObject() render.Object {
 	if p := l.ParentNode(); p != nil {
 		return p.(render.Object)
-	}
-
-	return nil
-}
-
-func (l *layout) Next() Widget {
-	if n := l.NextNode(); n != nil {
-		return n.(Widget)
-	}
-
-	return nil
-}
-
-func (l *layout) Previous() Widget {
-	if p := l.PreviousNode(); p != nil {
-		return p.(Widget)
 	}
 
 	return nil
@@ -109,5 +85,6 @@ func (l *layout) InsertBefore(reference, child Widget) error {
 }
 
 func (l *layout) RemoveChild(child Widget) {
-	_ = l.RemoveChildNode(child)
+	err := l.RemoveChildNode(child)
+	assert.Nilf(err, "removing %v returned a non-nil error", child)
 }
