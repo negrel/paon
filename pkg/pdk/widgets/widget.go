@@ -12,7 +12,7 @@ import (
 type Widget interface {
 	fmt.Stringer
 	tree.Node
-	events.EventTarget
+	events.Target
 	render.Object
 	style.Themed
 

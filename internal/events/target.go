@@ -5,27 +5,29 @@ import (
 	"github.com/negrel/debuggo/pkg/log"
 )
 
-// Listener represents an object that can handle an event dispatched by an EventTarget object.
+// Listener represents an object that can handle an event dispatched by an Target object.
 type Listener func(event Event)
 
-// EventTarget define an object that can receive events and may have listeners for them.
-type EventTarget interface {
+// Target define an object that can receive events and may have listeners for them.
+type Target interface {
 	AddEventListener(EventType, *Listener)
 	RemoveEventListener(EventType, *Listener)
 	DispatchEvent(event Event)
 }
 
-var _ EventTarget = &Target{}
+var _ Target = &target{}
 
-// Target is an implementation of the EventTarget interface.
-type Target map[EventType][]*Listener
+// target is an implementation of the Target interface.
+type target map[EventType][]*Listener
 
 // MakeTarget return an event target
 func MakeTarget() Target {
-	return make(map[EventType][]*Listener)
+	return target(
+		make(map[EventType][]*Listener),
+	)
 }
 
-func (t Target) AddEventListener(eventType EventType, listener *Listener) {
+func (t target) AddEventListener(eventType EventType, listener *Listener) {
 	assert.NotNil(listener, "listener must be not nil")
 
 	if t[eventType] == nil {
@@ -35,8 +37,8 @@ func (t Target) AddEventListener(eventType EventType, listener *Listener) {
 	t[eventType] = append(t[eventType], listener)
 }
 
-// RemoveEventListener removes an event listener of a specific event type from the Target.
-func (t Target) RemoveEventListener(eventType EventType, listener *Listener) {
+// RemoveEventListener removes an event listener of a specific event type from the target.
+func (t target) RemoveEventListener(eventType EventType, listener *Listener) {
 	assert.NotNil(listener, "listener must be not nil")
 
 	if t[eventType] == nil {
@@ -55,7 +57,7 @@ func (t Target) RemoveEventListener(eventType EventType, listener *Listener) {
 }
 
 // DispatchEvent dispatch the given event to listeners.
-func (t Target) DispatchEvent(event Event) {
+func (t target) DispatchEvent(event Event) {
 	for _, listener := range t[event.Type()] {
 		(*listener)(event)
 	}
