@@ -1,8 +1,8 @@
 package style
 
 import (
-	"github.com/negrel/paon/pkg/pdk/style/property"
-	"github.com/negrel/paon/pkg/pdk/style/value"
+	"github.com/negrel/paon/pkg/pdk/styles/property"
+	"github.com/negrel/paon/pkg/pdk/styles/value"
 )
 
 func BgColor(color value.Color) property.Color {

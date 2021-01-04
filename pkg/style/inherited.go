@@ -1,6 +1,6 @@
 package style
 
-import "github.com/negrel/paon/pkg/pdk/style/property"
+import "github.com/negrel/paon/pkg/pdk/styles/property"
 
 var _ property.Property = InheritedProp{}
 

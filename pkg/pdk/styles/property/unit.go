@@ -1,7 +1,7 @@
 package property
 
 import (
-	val "github.com/negrel/paon/pkg/pdk/style/value"
+	val "github.com/negrel/paon/pkg/pdk/styles/value"
 )
 
 var _ Property = Unit{}

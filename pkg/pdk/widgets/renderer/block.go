@@ -4,8 +4,8 @@ import (
 	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/internal/math"
 	"github.com/negrel/paon/internal/render"
-	"github.com/negrel/paon/pkg/pdk/style"
-	"github.com/negrel/paon/pkg/pdk/style/property"
+	"github.com/negrel/paon/pkg/pdk/styles"
+	"github.com/negrel/paon/pkg/pdk/styles/property"
 	"github.com/negrel/paon/pkg/pdk/widgets"
 )
 
@@ -25,7 +25,7 @@ func (b block) Layout(ctx *render.Context) {
 }
 
 func computeLayerWidth(object render.Object) int {
-	width := computeThemeWidth(object.Theme())
+	width := computeThemeWidth(object.Style())
 	if width == -1 {
 		width = 0
 	}
@@ -33,7 +33,7 @@ func computeLayerWidth(object render.Object) int {
 	return width
 }
 
-func computeThemeWidth(theme style.Theme) int {
+func computeThemeWidth(theme styles.Style) int {
 	width := -1
 
 	if w := theme.Get(property.IDWidth); w != nil {
@@ -54,7 +54,7 @@ func computeThemeWidth(theme style.Theme) int {
 }
 
 func computeLayerHeight(object render.Object) int {
-	height := computeThemeHeight(object.Theme())
+	height := computeThemeHeight(object.Style())
 	if height == -1 {
 		height = computeWidgetHeight(object.(widgets.Widget))
 	}
@@ -67,7 +67,7 @@ func computeWidgetHeight(object render.Object) int {
 	return 0
 }
 
-func computeThemeHeight(theme style.Theme) int {
+func computeThemeHeight(theme styles.Style) int {
 	height := -1
 
 	if w := theme.Get(property.IDHeight); w != nil {

@@ -1,7 +1,7 @@
 package property
 
 import (
-	"github.com/negrel/paon/pkg/pdk/style/value"
+	"github.com/negrel/paon/pkg/pdk/styles/value"
 )
 
 var _ Property = Color{}

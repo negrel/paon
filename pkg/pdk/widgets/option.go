@@ -2,8 +2,8 @@ package widgets
 
 import (
 	"github.com/negrel/paon/internal/events"
-	pdkstyle "github.com/negrel/paon/pkg/pdk/style"
-	"github.com/negrel/paon/pkg/pdk/style/property"
+	pdkstyle "github.com/negrel/paon/pkg/pdk/styles"
+	"github.com/negrel/paon/pkg/pdk/styles/property"
 )
 
 type Option func(widget *widget)
@@ -29,17 +29,17 @@ func Listener(eventType events.EventType, listener events.Listener) Option {
 	}
 }
 
-// Themes apply the given themes to the widget. Those theme can be shared across multiple
-// widget and won't be modified by yourWidget.Theme().Set(property) method.
-func Themes(themes ...pdkstyle.Theme) Option {
+// Themes apply the given styles to the widget. Those theme can be shared across multiple
+// widget and won't be modified by yourWidget.Style().Set(property) method.
+func Themes(themes ...pdkstyle.Style) Option {
 	return func(widget *widget) {
-		widget.theme.themes = themes
+		widget.theme.styles = themes
 	}
 }
 
-// Theme apply the given property to the widget theme. This theme is not shareable
-// and can only be modified using the yourWidget.Theme().Set(property) method.
-func Theme(props ...property.Property) Option {
+// Props apply the given properties to the widget theme. This theme is not shareable
+// and can only be modified using the yourWidget.Style().Set(property) method.
+func Props(props ...property.Property) Option {
 	return func(widget *widget) {
 		for _, prop := range props {
 			widget.theme.Set(prop)

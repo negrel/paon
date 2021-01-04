@@ -2,7 +2,7 @@ package style
 
 import (
 	"github.com/negrel/debuggo/pkg/assert"
-	"github.com/negrel/paon/pkg/pdk/style/property"
+	"github.com/negrel/paon/pkg/pdk/styles/property"
 	"github.com/negrel/paon/pkg/pdk/widgets/renderer"
 )
 
