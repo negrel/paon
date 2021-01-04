@@ -155,7 +155,7 @@ func (pn *parentNode) insertBeforeNode(reference, newChild Node) {
 
 func (pn *parentNode) RemoveChildNode(child Node) error {
 	assert.NotNil(child, "child must be non-nil to be removed")
-	log.Debugln("removing", child, "from", "pn")
+	log.Debugln("removing", child, "from", pn)
 
 	// if not a child of pn
 	if !pn.IsSame(child.ParentNode()) {
