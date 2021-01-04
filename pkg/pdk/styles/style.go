@@ -1,10 +1,15 @@
 package styles
 
 import (
-	"github.com/negrel/paon/internal/events"
 	"github.com/negrel/paon/pkg/pdk/styles/property"
 )
 
+// Stylised define object that are stylised and have a Style object.
+type Stylised interface {
+	Style() Style
+}
+
+// Style is a set of property.Property object.
 type Style interface {
 	Set(property.Property)
 	Get(property.ID) property.Property
@@ -14,7 +19,6 @@ type Style interface {
 var _ Style = style{}
 
 type style struct {
-	events.Target
 	props map[property.ID]property.Property
 }
 
