@@ -1,10 +1,11 @@
 package draw
 
 import (
+	"github.com/davecgh/go-spew/spew"
 	"github.com/gdamore/tcell"
 	"github.com/negrel/debuggo/pkg/log"
+	"github.com/negrel/paon/pkg/pdk/events"
 
-	"github.com/negrel/paon/internal/events"
 	"github.com/negrel/paon/internal/geometry"
 )
 
@@ -96,16 +97,16 @@ func (t *tcellScreen) PollEvent() events.Event {
 		newSize := geometry.NewSize(w, h)
 		t.size = newSize
 
-		return events.MakeResizeEvent(newSize, oldSize)
+		return events.MakeResize(newSize, oldSize)
 
 	case *tcell.EventMouse:
 		X, Y := event.Position()
-		return events.MakeClickEvent(geometry.Pt(X, Y))
+		return events.MakeClick(geometry.Pt(X, Y))
 
 	case *tcell.EventInterrupt:
-		return events.MakeInterruptEvent(ev.When().UnixNano())
+		return events.MakeInterrupt(ev.When().UnixNano())
 
 	default:
-		return events.UnsupportedEvent{}
+		return events.MakeUnsupported(spew.Sdump(event))
 	}
 }
