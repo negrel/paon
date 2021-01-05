@@ -1,10 +1,6 @@
 package widgets
 
 import (
-	"github.com/negrel/paon/internal/draw"
-	"github.com/negrel/paon/internal/geometry"
-	"github.com/negrel/paon/internal/render"
-
 	"github.com/negrel/paon/internal/tree"
 )
 
@@ -29,14 +25,4 @@ func NewRoot(child Widget) *root {
 	}
 
 	return r
-}
-
-func (r *root) Render(screen geometry.Size) draw.Patch {
-	canvas := draw.MakePatch(geometry.Rect(0, 0, screen.Width(), screen.Height()))
-	ctx := render.MakeContext(r, &canvas)
-
-	//r.Layout(ctx)
-	//r.Draw(ctx)
-
-	return canvas
 }

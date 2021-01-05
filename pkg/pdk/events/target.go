@@ -10,24 +10,24 @@ type Listener func(event Event)
 
 // Target define an object that can receive events and may have listeners for them.
 type Target interface {
-	AddEventListener(EventType, *Listener)
-	RemoveEventListener(EventType, *Listener)
+	AddEventListener(Type, *Listener)
+	RemoveEventListener(Type, *Listener)
 	DispatchEvent(event Event)
 }
 
 var _ Target = &target{}
 
 // target is an implementation of the Target interface.
-type target map[EventType][]*Listener
+type target map[Type][]*Listener
 
 // MakeTarget return an event target
 func MakeTarget() Target {
 	return target(
-		make(map[EventType][]*Listener),
+		make(map[Type][]*Listener),
 	)
 }
 
-func (t target) AddEventListener(eventType EventType, listener *Listener) {
+func (t target) AddEventListener(eventType Type, listener *Listener) {
 	assert.NotNil(listener, "listener must be not nil")
 
 	if t[eventType] == nil {
@@ -38,7 +38,7 @@ func (t target) AddEventListener(eventType EventType, listener *Listener) {
 }
 
 // RemoveEventListener removes an event listener of a specific event type from the target.
-func (t target) RemoveEventListener(eventType EventType, listener *Listener) {
+func (t target) RemoveEventListener(eventType Type, listener *Listener) {
 	assert.NotNil(listener, "listener must be not nil")
 
 	if t[eventType] == nil {

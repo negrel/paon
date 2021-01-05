@@ -7,15 +7,19 @@ import (
 // Event is a generic interface for all events
 type Event interface {
 	When() int64
-	Type() EventType
+	Type() Type
 }
 
 type event struct {
-	eType     EventType
+	eType     Type
 	timeStamp int64
 }
 
-func makeEvent(eventType EventType) event {
+func MakeEvent(eventType Type) Event {
+	return makeEvent(eventType)
+}
+
+func makeEvent(eventType Type) event {
 	return event{
 		eType:     eventType,
 		timeStamp: time.Now().UnixNano(),
@@ -23,7 +27,7 @@ func makeEvent(eventType EventType) event {
 }
 
 // Type returns the type of the event.
-func (e event) Type() EventType {
+func (e event) Type() Type {
 	return e.eType
 }
 
