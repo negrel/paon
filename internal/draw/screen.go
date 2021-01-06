@@ -5,8 +5,8 @@ import (
 	"github.com/negrel/paon/pkg/pdk/events"
 )
 
-// Window define a terminal window to apply render Canvas on.
-type Window interface {
+// Screen define a terminal window to apply render Canvas on.
+type Screen interface {
 	geometry.Sized
 
 	Update()

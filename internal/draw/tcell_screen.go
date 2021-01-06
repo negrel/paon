@@ -4,22 +4,20 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gdamore/tcell"
 	"github.com/negrel/debuggo/pkg/log"
-	"github.com/negrel/paon/pkg/pdk/events"
-
 	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/pkg/pdk/events"
 )
 
-var _ Window = &tcellScreen{}
+var _ Screen = &tcellScreen{}
 
 type tcellScreen struct {
 	tcell.Screen
 	size geometry.Size
 }
 
-// NewTcellScreen return a new Window based on the github.com/gdamore/tcell screen.
-func NewTcellScreen() (Window, error) {
-	// Initialise tcell screen
+// NewTcellScreen return a new Screen based on the github.com/gdamore/tcell Screen.
+func NewTcellScreen() (Screen, error) {
+	// Initialise tcell Screen
 	scr, err := tcell.NewScreen()
 	if err != nil {
 		return nil, err
@@ -36,17 +34,17 @@ func NewTcellScreen() (Window, error) {
 	}, nil
 }
 
-// Size implements the Window interface.
+// Size implements the Screen interface.
 func (t *tcellScreen) Size() geometry.Size {
 	return t.size
 }
 
-// Width implements the Window interface.
+// Width implements the Screen interface.
 func (t *tcellScreen) Width() int {
 	return t.size.Width()
 }
 
-// Height implements the Window interface.
+// Height implements the Screen interface.
 func (t *tcellScreen) Height() int {
 	return t.size.Height()
 }
@@ -65,14 +63,14 @@ func (t *tcellScreen) Get(point geometry.Point) *Cell {
 	}
 }
 
-// Update implements the Window interface.
+// Update implements the Screen interface.
 func (t *tcellScreen) Update() {
-	log.Debugln("updating screen")
+	log.Debugln("updating Screen")
 
 	t.Show()
 }
 
-// Apply the given patch to the screen.
+// Apply the given patch to the Screen.
 func (t *tcellScreen) Apply(patch Canvas) {
 	log.Traceln("applying patch", patch)
 
@@ -86,7 +84,7 @@ func (t *tcellScreen) Apply(patch Canvas) {
 	}
 }
 
-// PollEvent implements the Window interface.
+// PollEvent implements the Screen interface.
 func (t *tcellScreen) PollEvent() events.Event {
 	ev := t.Screen.PollEvent()
 

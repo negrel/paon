@@ -10,11 +10,12 @@ import (
 type Engine struct {
 	ch          chan Canvas
 	ctx         context.Context
+	Screen      Screen
 	needRefresh bool
 }
 
 // NewEngine return a new rendering engine that draw on the given surface.
-func NewEngine(screen Window, ctx context.Context) *Engine {
+func NewEngine(ctx context.Context) *Engine {
 	return &Engine{
 		ch:  make(chan Canvas),
 		ctx: ctx,
@@ -34,14 +35,14 @@ renderLoop:
 		select {
 		case patch := <-e.ch:
 			go func() {
-				runtime.Window.Apply(patch)
+				e.Screen.Apply(patch)
 				e.needRefresh = true
 			}()
 
 		case <-runtime.Clock.C:
 			if e.needRefresh {
 				go func() {
-					runtime.Window.Update()
+					e.Screen.Update()
 					e.needRefresh = false
 				}()
 			}
