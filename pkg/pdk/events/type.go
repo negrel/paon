@@ -24,8 +24,6 @@ const (
 	unusedType
 )
 
-var eventTypeCounter int32 = int32(unusedType - 1)
-
 func (t Type) name() string {
 	return typeName.get(t)
 }
@@ -64,6 +62,8 @@ var typeName = &typeMap{
 		TypeWheel:       "wheel",
 	},
 }
+
+var eventTypeCounter int32 = int32(unusedType - 1)
 
 func MakeType(name string) Type {
 	t := Type(atomic.AddInt32(&eventTypeCounter, 1))
