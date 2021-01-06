@@ -1,6 +1,7 @@
 package styles
 
 import (
+	"github.com/negrel/paon/pkg/pdk/events"
 	"github.com/negrel/paon/pkg/pdk/styles/property"
 )
 
@@ -11,6 +12,8 @@ type Stylised interface {
 
 // Style is a set of property.Property object.
 type Style interface {
+	events.Target
+
 	Set(property.Property)
 	Get(property.ID) property.Property
 	Del(property.ID)
@@ -19,12 +22,15 @@ type Style interface {
 var _ Style = style{}
 
 type style struct {
+	events.Target
+
 	props map[property.ID]property.Property
 }
 
 func MakeStyle() Style {
 	return style{
-		props: make(map[property.ID]property.Property, 8),
+		Target: events.MakeTarget(),
+		props:  make(map[property.ID]property.Property, 8),
 	}
 }
 
@@ -33,11 +39,10 @@ func (s style) Del(id property.ID) {
 }
 
 func (s style) Set(prop property.Property) {
-	if prop == nil {
-		return
-	}
-
+	old := s.props[prop.ID()]
 	s.props[prop.ID()] = prop
+
+	s.DispatchEvent(makeEventSetProperty(old, prop))
 }
 
 func (s style) Get(id property.ID) property.Property {
