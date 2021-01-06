@@ -1,6 +1,11 @@
 package events
 
-import "sync/atomic"
+import (
+	"fmt"
+	"strings"
+	"sync"
+	"sync/atomic"
+)
 
 //go:generate stringer -type=Type -trimprefix=Type
 // Type is the type of an Event
@@ -22,6 +27,47 @@ const (
 
 var eventTypeCounter int32 = int32(unusedType - 1)
 
-func MakeType() Type {
-	return Type(atomic.AddInt32(&eventTypeCounter, 1))
+func (t Type) name() string {
+	return typeName.get(t)
+}
+
+func (t Type) String() string {
+	return fmt.Sprintf("%v (%d)", t.name(), t)
+}
+
+type typeMap struct {
+	sync.Mutex
+	m map[Type]string
+}
+
+func (tm *typeMap) set(p Type, name string) {
+	tm.Lock()
+	defer tm.Unlock()
+	tm.m[p] = name
+}
+
+func (tm *typeMap) get(p Type) string {
+	tm.Lock()
+	defer tm.Unlock()
+	return tm.m[p]
+}
+
+var typeName = &typeMap{
+	Mutex: sync.Mutex{},
+
+	m: map[Type]string{
+		TypeError:       "error",
+		TypeUnsupported: "unsupported",
+		TypeInterrupt:   "interrupt",
+		TypeClick:       "click",
+		TypeKeyboard:    "keyboard",
+		TypeResize:      "resize",
+		TypeWheel:       "wheel",
+	},
+}
+
+func MakeType(name string) Type {
+	t := Type(atomic.AddInt32(&eventTypeCounter, 1))
+	typeName.set(t, strings.ToLower(name))
+	return t
 }
