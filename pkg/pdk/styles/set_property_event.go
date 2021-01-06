@@ -8,21 +8,28 @@ import (
 
 // SetPropertyListener convert the given event handler as a generic events.Listener.
 func SetPropertyListener(handler func(setProperty EventSetProperty)) *events.Listener {
-	l := events.Listener(func(event events.Event) {
-		spe, ok := event.(EventSetProperty)
+	l := events.Listener{
+		Type: eventTypeSetProperty,
+		Handle: func(event events.Event) {
+			spe, ok := event.(EventSetProperty)
 
-		if !ok {
-			log.Warnf("click listener expected \"%v\", but got \"%v\"", eventTypeSetProperty, event.Type())
-			return
-		}
+			if !ok {
+				log.Warnf("click listener expected %v, but got %v", EventTypeSetProperty, event.Type())
+				return
+			}
 
-		handler(spe)
-	})
+			handler(spe)
+		},
+	}
 
 	return &l
 }
 
 var eventTypeSetProperty = events.MakeType("set-property")
+
+func EventTypeSetProperty() events.Type {
+	return eventTypeSetProperty
+}
 
 type EventSetProperty struct {
 	events.Event

@@ -5,13 +5,10 @@ import (
 	"github.com/negrel/debuggo/pkg/log"
 )
 
-// Listener represents an object that can handle an event dispatched by an Target object.
-type Listener func(event Event)
-
 // Target define an object that can receive events and may have listeners for them.
 type Target interface {
-	AddEventListener(Type, *Listener)
-	RemoveEventListener(Type, *Listener)
+	AddEventListener(*Listener)
+	RemoveEventListener(*Listener)
 	DispatchEvent(event Event)
 }
 
@@ -27,28 +24,28 @@ func MakeTarget() Target {
 	)
 }
 
-func (t target) AddEventListener(eventType Type, listener *Listener) {
+func (t target) AddEventListener(listener *Listener) {
 	assert.NotNil(listener, "listener must be not nil")
 
-	if t[eventType] == nil {
-		t[eventType] = make([]*Listener, 0, 8)
+	if t[listener.Type] == nil {
+		t[listener.Type] = make([]*Listener, 0, 8)
 	}
 
-	t[eventType] = append(t[eventType], listener)
+	t[listener.Type] = append(t[listener.Type], listener)
 }
 
 // RemoveEventListener removes an event listener of a specific event type from the target.
-func (t target) RemoveEventListener(eventType Type, listener *Listener) {
+func (t target) RemoveEventListener(listener *Listener) {
 	assert.NotNil(listener, "listener must be not nil")
 
-	if t[eventType] == nil {
-		log.Infof("can't remove event listener %v, no such event listener registered for %v event type", listener, eventType)
+	if t[listener.Type] == nil {
+		log.Infof("can't remove event listener %v, no such event listener registered for %v event type", listener, listener.Type)
 		return
 	}
 
-	for i, l := range t[eventType] {
+	for i, l := range t[listener.Type] {
 		if l == listener {
-			t[eventType] = append(t[eventType][:i], t[eventType][i+1:]...)
+			t[listener.Type] = append(t[listener.Type][:i], t[listener.Type][i+1:]...)
 			return
 		}
 	}
@@ -59,6 +56,6 @@ func (t target) RemoveEventListener(eventType Type, listener *Listener) {
 // DispatchEvent dispatch the given event to listeners.
 func (t target) DispatchEvent(event Event) {
 	for _, listener := range t[event.Type()] {
-		(*listener)(event)
+		listener.Handle(event)
 	}
 }

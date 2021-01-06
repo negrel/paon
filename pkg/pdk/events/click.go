@@ -7,16 +7,19 @@ import (
 
 // ClickListener convert the given event handler as a generic Listener.
 func ClickListener(handler func(Click)) *Listener {
-	l := Listener(func(event Event) {
-		ce, ok := event.(Click)
+	l := Listener{
+		Type: TypeClick,
+		Handle: func(event Event) {
+			ce, ok := event.(Click)
 
-		if !ok {
-			log.Warnf("click listener expected %v, but got %v", TypeClick, event.Type())
-			return
-		}
+			if !ok {
+				log.Warnf("click listener expected %v, but got %v", TypeClick, event.Type())
+				return
+			}
 
-		handler(ce)
-	})
+			handler(ce)
+		},
+	}
 
 	return &l
 }
