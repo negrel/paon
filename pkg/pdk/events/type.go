@@ -7,7 +7,6 @@ import (
 	"sync/atomic"
 )
 
-//go:generate stringer -type=Type -trimprefix=Type
 // Type is the type of an Event
 type Type int32
 
