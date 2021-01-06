@@ -42,7 +42,7 @@ func (t target) RemoveEventListener(eventType Type, listener *Listener) {
 	assert.NotNil(listener, "listener must be not nil")
 
 	if t[eventType] == nil {
-		log.Infof("can't remove event listener %v, no event listener for %v event type", listener, eventType.String())
+		log.Infof("can't remove event listener %v, no such event listener registered for %v event type", listener, eventType)
 		return
 	}
 
@@ -53,7 +53,7 @@ func (t target) RemoveEventListener(eventType Type, listener *Listener) {
 		}
 	}
 
-	log.Infof("can't remove event listener %v, not found")
+	log.Infof("can't remove event listener %v, not found", listener)
 }
 
 // DispatchEvent dispatch the given event to listeners.
