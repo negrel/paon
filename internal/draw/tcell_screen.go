@@ -4,6 +4,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gdamore/tcell"
 	"github.com/negrel/debuggo/pkg/log"
+	"github.com/negrel/paon/pkg/pdk/events"
 
 	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/pkg/pdk/events"
