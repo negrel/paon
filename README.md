@@ -14,7 +14,7 @@
 	</a>
 </p>
 
-# :chicken: - Paon
+# :peacock: - Paon
 *A framework to build efficient, thread-safe, highly composable widgets based terminal user interface.*
 
 ## TODO
