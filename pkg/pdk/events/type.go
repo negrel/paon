@@ -2,8 +2,8 @@ package events
 
 import (
 	"fmt"
+	"github.com/negrel/paon/internal/idmap"
 	"strings"
-	"sync"
 	"sync/atomic"
 )
 
@@ -25,48 +25,29 @@ const (
 )
 
 func (t Type) name() string {
-	return typeName.get(t)
+	return typeName.Get(int32(t))
 }
 
 func (t Type) String() string {
 	return fmt.Sprintf("%v (%d)", t.name(), t)
 }
 
-type typeMap struct {
-	sync.Mutex
-	m map[Type]string
-}
+var typeName = idmap.New(int(unusedType))
 
-func (tm *typeMap) set(p Type, name string) {
-	tm.Lock()
-	defer tm.Unlock()
-	tm.m[p] = name
-}
-
-func (tm *typeMap) get(p Type) string {
-	tm.Lock()
-	defer tm.Unlock()
-	return tm.m[p]
-}
-
-var typeName = &typeMap{
-	Mutex: sync.Mutex{},
-
-	m: map[Type]string{
-		TypeError:       "error",
-		TypeUnsupported: "unsupported",
-		TypeInterrupt:   "interrupt",
-		TypeClick:       "click",
-		TypeKeyboard:    "keyboard",
-		TypeResize:      "resize",
-		TypeWheel:       "wheel",
-	},
+func init() {
+	typeName.Set(int32(TypeError), "error")
+	typeName.Set(int32(TypeUnsupported), "unsupported")
+	typeName.Set(int32(TypeInterrupt), "interrupt")
+	typeName.Set(int32(TypeClick), "click")
+	typeName.Set(int32(TypeKeyboard), "keyboard")
+	typeName.Set(int32(TypeResize), "resize")
+	typeName.Set(int32(TypeWheel), "wheel")
 }
 
 var eventTypeCounter int32 = int32(unusedType - 1)
 
 func MakeType(name string) Type {
-	t := Type(atomic.AddInt32(&eventTypeCounter, 1))
-	typeName.set(t, strings.ToLower(name))
+	t := atomic.AddInt32(&eventTypeCounter, 1)
+	typeName.Set(t, strings.ToLower(name))
 	return t
 }

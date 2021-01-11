@@ -2,7 +2,7 @@ package property
 
 import (
 	"fmt"
-	"sync"
+	"github.com/negrel/paon/internal/idmap"
 	"sync/atomic"
 )
 
@@ -38,56 +38,19 @@ const (
 )
 
 func (id ID) name() string {
-	return idName.get(id)
+	return idName.Get(int32(id))
 }
 
 func (id ID) String() string {
 	return fmt.Sprintf("%v (%d)", id.name(), id)
 }
 
-type idMap struct {
-	sync.Mutex
-	m map[ID]string
-}
-
-func (im *idMap) set(i ID, name string) {
-	im.Lock()
-	defer im.Unlock()
-	im.m[i] = name
-}
-
-func (im *idMap) get(i ID) string {
-	im.Lock()
-	defer im.Unlock()
-	return im.m[i]
-}
-
-var idName = &idMap{
-	Mutex: sync.Mutex{},
-	m: map[ID]string{
-		IDDisplay:         "display",
-		IDWidth:           "width",
-		IDMinWidth:        "min-width",
-		IDMaxWidth:        "max-width",
-		IDHeight:          "height",
-		IDMinHeight:       "min-height",
-		IDMaxHeight:       "max-height",
-		IDMarginLeft:      "margin-left",
-		IDMarginTop:       "margin-top",
-		IDMarginRight:     "margin-right",
-		IDMarginBottom:    "margin-bottom",
-		IDPaddingLeft:     "padding-left",
-		IDPaddingTop:      "padding-top",
-		IDPaddingRight:    "padding-right",
-		IDPaddingBottom:   "padding-bottom",
-		IDBackgroundColor: "background-color",
-	},
-}
+var idName = idmap.New(int(unusedID))
 
 var propIdCounter int32 = int32(unusedID - 1)
 
 func MakeID(name string) ID {
-	id := ID(atomic.AddInt32(&propIdCounter, 1))
-	idName.set(id, name)
-	return id
+	id := atomic.AddInt32(&propIdCounter, 1)
+	idName.Set(id, name)
+	return ID(id)
 }

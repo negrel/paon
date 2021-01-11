@@ -1,6 +1,7 @@
 package events
 
 import (
+	"github.com/negrel/paon/internal/idmap"
 	"github.com/stretchr/testify/assert"
 	"strconv"
 	"sync"
@@ -9,8 +10,7 @@ import (
 
 func Test_MakeType(t *testing.T) {
 	typeCount := 1000
-	types := make(map[Type]struct{}, typeCount)
-	ch := make(chan Type)
+	types := idmap.New(typeCount)
 
 	var wg sync.WaitGroup
 	wg.Add(typeCount)
@@ -20,7 +20,7 @@ func Test_MakeType(t *testing.T) {
 	for i := 0; i < typeCount; i++ {
 		go func(i int) {
 			name := strconv.Itoa(i)
-			ch <- MakeType(name)
+			types.Set(MakeType(name))
 		}(i)
 	}
 
