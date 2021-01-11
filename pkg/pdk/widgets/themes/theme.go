@@ -33,11 +33,11 @@ type theme struct {
 
 // Make return a new Theme object with the given shared style.Style and
 // a new unique style.Style object.
-func Make(getParent func() Themed, styles ...pdkstyles.Style) Theme {
+func Make(getParent func() Themed) Theme {
 	return theme{
 		getParent: getParent,
 		Style:     pdkstyles.MakeStyle(),
-		styles:    styles,
+		styles:    make([]pdkstyles.Style, 8),
 	}
 }
 

@@ -42,7 +42,7 @@ type widget struct {
 	tree.Node
 	events.Target
 
-	theme theme
+	theme themes.Theme
 
 	id string
 }
@@ -59,10 +59,13 @@ func NewWidget(opts ...Option) Widget {
 }
 
 func newWidget(node tree.Node) *widget {
-	return &widget{
+	w := &widget{
 		Node:   node,
 		Target: events.MakeTarget(),
 	}
+	w.theme = themes.Make(func() themes.Themed { return w.Parent() })
+
+	return w
 }
 
 // ID implements the Widget interface.
