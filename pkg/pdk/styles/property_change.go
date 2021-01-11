@@ -6,15 +6,15 @@ import (
 	"github.com/negrel/paon/pkg/pdk/styles/property"
 )
 
-// SetPropertyListener convert the given event handler as a generic events.Listener.
-func SetPropertyListener(handler func(setProperty EventSetProperty)) *events.Listener {
+// PropertyChangeListener convert the given event handler as a generic events.Listener.
+func PropertyChangeListener(handler func(setProperty EventPropertyChange)) *events.Listener {
 	l := events.Listener{
 		Type: eventTypeSetProperty,
 		Handle: func(event events.Event) {
-			spe, ok := event.(EventSetProperty)
+			spe, ok := event.(EventPropertyChange)
 
 			if !ok {
-				log.Warnf("click listener expected %v, but got %v", EventTypeSetProperty, event.Type())
+				log.Warnf("click listener expected %v, but got %v", EventTypePropertyChange, event.Type())
 				return
 			}
 
@@ -27,17 +27,17 @@ func SetPropertyListener(handler func(setProperty EventSetProperty)) *events.Lis
 
 var eventTypeSetProperty = events.MakeType("set-property")
 
-func EventTypeSetProperty() events.Type {
+func EventTypePropertyChange() events.Type {
 	return eventTypeSetProperty
 }
 
-type EventSetProperty struct {
+type EventPropertyChange struct {
 	events.Event
 	Old, New property.Property
 }
 
-func makeEventSetProperty(old, new property.Property) EventSetProperty {
-	return EventSetProperty{
+func makeEventSetProperty(old, new property.Property) EventPropertyChange {
+	return EventPropertyChange{
 		Event: events.MakeEvent(eventTypeSetProperty),
 		Old:   old,
 		New:   new,
