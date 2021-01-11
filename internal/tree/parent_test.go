@@ -1,7 +1,6 @@
 package tree
 
 import (
-	"log"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -189,8 +188,6 @@ func TestParent_InsertBefore_ChildWithParent(t *testing.T) {
 	assert.Nil(t, child.previous)
 	assert.Equal(t, reference, child.next)
 
-	log.Println(prev, next.previous)
-	log.Println(prev.next, next)
 	assert.Equal(t, prev.next, next)
 	assert.Equal(t, next.previous, prev)
 
@@ -204,4 +201,43 @@ func TestParent_InsertBefore_ChildWithParent(t *testing.T) {
 func TestParent_isAncestorOf_NilChild(t *testing.T) {
 	parent := NewParent()
 	assert.False(t, parent.IsAncestorOf(nil))
+}
+
+func TestParentNode_RemoveChild_Success(t *testing.T) {
+	parent := NewParent()
+
+	node := NewNode()
+	_ = parent.AppendChildNode(node)
+
+	child := NewNode()
+	_ = parent.AppendChildNode(child)
+
+	err := parent.RemoveChildNode(node)
+	assert.Nil(t, err)
+	assert.Equal(t, nil, node.ParentNode())
+	assert.Equal(t, nil, node.NextNode())
+	assert.Equal(t, child.PreviousNode(), nil)
+	assert.Equal(t, parent.FirstChildNode(), child)
+	assert.Equal(t, parent.LastChildNode(), child)
+}
+
+func TestParentNode_RemoveChild_NilChild(t *testing.T) {
+	parent := NewParent()
+
+	// Remove child from parent with no child
+	assert.Panics(t, func() {
+		_ = parent.RemoveChildNode(nil)
+	})
+
+	node := NewNode()
+	_ = parent.AppendChildNode(node)
+
+	// Parent with one child
+	assert.Panics(t, func() {
+		_ = parent.RemoveChildNode(nil)
+	})
+}
+
+func TestParentNode_RemoveChild_ChildOfAnotherParent(t *testing.T) {
+
 }

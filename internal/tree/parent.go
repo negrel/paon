@@ -99,7 +99,7 @@ func (pn *parentNode) ensurePreInsertionValidity(child Node) error {
 func (pn *parentNode) prepareChildForInsertion(newChild Node) {
 	if parent := newChild.ParentNode(); parent != nil {
 		err := parent.RemoveChildNode(newChild)
-		assert.Nil(err, err)
+		assert.Nil(err)
 	}
 	assert.Nil(newChild.RootNode())
 	assert.Nil(newChild.ParentNode())
