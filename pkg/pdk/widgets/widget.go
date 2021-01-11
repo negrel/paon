@@ -5,7 +5,9 @@ import (
 	"github.com/negrel/paon/internal/events"
 	"github.com/negrel/paon/internal/render"
 	"github.com/negrel/paon/internal/tree"
+	"github.com/negrel/paon/pkg/pdk/events"
 	"github.com/negrel/paon/pkg/pdk/styles"
+	"github.com/negrel/paon/pkg/pdk/widgets/themes"
 )
 
 // Widget define any object part of the Widget tree
@@ -16,9 +18,7 @@ type Widget interface {
 	events.Target
 	render.Object
 	styles.Stylised
-
-	// Theme return the Widget Theme.
-	Theme() Theme
+	themes.Themed
 
 	// ID return the unique generated ID or the given one using the ID Option.
 	ID() string
@@ -116,7 +116,7 @@ func (w *widget) Style() styles.Style {
 }
 
 // Theme return the theme of the widget.
-func (w *widget) Theme() Theme {
+func (w *widget) Theme() themes.Theme {
 	return w.theme
 }
 

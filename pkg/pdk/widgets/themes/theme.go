@@ -1,43 +1,14 @@
-package widgets
+package themes
 
 import (
-	"github.com/negrel/debuggo/pkg/log"
 	"github.com/negrel/paon/pkg/pdk/events"
 	pdkstyles "github.com/negrel/paon/pkg/pdk/styles"
 	"github.com/negrel/paon/pkg/pdk/styles/property"
 	"github.com/negrel/paon/pkg/style"
 )
 
-func delStyleListener(handler func(event eventDelStyle)) *events.Listener {
-	l := events.Listener{
-		Type: eventTypeDelStyle,
-		Handle: func(event events.Event) {
-			spe, ok := event.(eventDelStyle)
-
-			if !ok {
-				log.Warnf("click listener expected %v, but got %v", eventTypeDelStyle, event.Type())
-				return
-			}
-
-			handler(spe)
-		},
-	}
-
-	return &l
-}
-
-var eventTypeDelStyle = events.MakeType("delete-style")
-
-type eventDelStyle struct {
-	events.Event
-	pdkstyles.Style
-}
-
-func makeEventDelStyle(style pdkstyles.Style) eventDelStyle {
-	return eventDelStyle{
-		Event: events.MakeEvent(eventTypeDelStyle),
-		Style: style,
-	}
+type Themed interface {
+	Theme() Theme
 }
 
 // Theme is a composition of multiple style.Style object. Each widget have a unique
@@ -54,48 +25,40 @@ type Theme interface {
 var _ Theme = theme{}
 
 type theme struct {
-	Widget
 	pdkstyles.Style
 
-	styles []pdkstyles.Style // Switch to a list
+	getParent func() Themed
+	styles    []pdkstyles.Style // Switch to a list
 }
 
-// MakeTheme return a new Theme object with the given shared style.Style and
+// Make return a new Theme object with the given shared style.Style and
 // a new unique style.Style object.
-func MakeTheme(widget Widget, themes ...pdkstyles.Style) Theme {
+func Make(getParent func() Themed, styles ...pdkstyles.Style) Theme {
 	return theme{
-		Widget: widget,
-		Style:  pdkstyles.MakeStyle(),
-		styles: themes,
+		getParent: getParent,
+		Style:     pdkstyles.MakeStyle(),
+		styles:    styles,
 	}
-}
-
-func (t theme) parent() pdkstyles.Style {
-	if parent := t.Widget.Parent(); parent != nil {
-		return parent.Theme()
-	}
-
-	return nil
 }
 
 // AddStyle implements the Theme interface.
 func (t theme) AddStyle(s pdkstyles.Style) {
 	// Watch property change to trigger redraw/reflow if needed.
-	spListener := pdkstyles.SetPropertyListener(func(event pdkstyles.EventSetProperty) {
+	spListener := pdkstyles.PropertyChangeListener(func(event pdkstyles.EventPropertyChange) {
 		// Nothing changed
 		if t.Get(event.Old.ID()) == event.Old {
 			return
 		}
-
-		ScheduleRenderingFor(t.Widget)
 	})
 	s.AddEventListener(spListener)
 
 	// Delete the property change listener when the theme will be removed
 	var dsListener *events.Listener
-	dsListener = delStyleListener(func(event eventDelStyle) {
-		s.RemoveEventListener(spListener)
-		s.RemoveEventListener(dsListener)
+	dsListener = ThemeChangeListener(func(event EventThemeChange) {
+		if event.DeletedStyle {
+			s.RemoveEventListener(spListener)
+			s.RemoveEventListener(dsListener)
+		}
 	})
 
 	t.styles = append(t.styles, s)
@@ -106,7 +69,7 @@ func (t theme) DelStyle(delStyle pdkstyles.Style) {
 	for i, s := range t.styles {
 		if s == delStyle {
 			t.styles = append(t.styles[:i], t.styles[i+1:]...)
-			t.DispatchEvent(makeEventDelStyle(s))
+			t.DispatchEvent(makeEventThemeChange(s, true))
 		}
 	}
 }
@@ -117,8 +80,10 @@ func (t theme) Set(property property.Property) {
 }
 
 func (t theme) getFromParent(id property.ID) property.Property {
-	if pStyle := t.parent(); pStyle != nil {
-		return pStyle.Get(id)
+	if parent := t.getParent(); parent != nil {
+		if pTheme := parent.Theme(); pTheme != nil {
+			return pTheme.Get(id)
+		}
 	}
 
 	return nil
