@@ -10,7 +10,7 @@
 		<img src="https://goreportcard.com/badge/github.com/negrel/paon">
 	</a>
 	<a href="https://github.com/negrel/paon/raw/master/LICENSE">
-		<img src="https://img.shields.io/badge/license-APACHE-blue">
+		<img src="https://img.shields.io/github/license/negrel/paon">
 	</a>
 </p>
 
