@@ -28,7 +28,7 @@ type theme struct {
 	pdkstyles.Style
 
 	getParent func() Themed
-	styles    []pdkstyles.Style // Switch to a list
+	styles    styleList
 }
 
 // Make return a new Theme object with the given shared style.Style and
@@ -37,7 +37,7 @@ func Make(getParent func() Themed) Theme {
 	return theme{
 		getParent: getParent,
 		Style:     pdkstyles.MakeStyle(),
-		styles:    make([]pdkstyles.Style, 8),
+		styles:    styleList{},
 	}
 }
 
@@ -61,17 +61,13 @@ func (t theme) AddStyle(s pdkstyles.Style) {
 		}
 	})
 
-	t.styles = append(t.styles, s)
+	t.styles.append(s)
 }
 
 // DelStyle implements the Theme interface.
 func (t theme) DelStyle(delStyle pdkstyles.Style) {
-	for i, s := range t.styles {
-		if s == delStyle {
-			t.styles = append(t.styles[:i], t.styles[i+1:]...)
-			t.DispatchEvent(makeEventThemeChange(s, true))
-		}
-	}
+	t.styles.remove(delStyle)
+	t.DispatchEvent(makeEventThemeChange(delStyle, true))
 }
 
 // Set implements the style.Style interface.
@@ -95,7 +91,7 @@ func (t theme) get(id property.ID) property.Property {
 	}
 
 	// Find the first theme with the given property
-	for _, theme := range t.styles {
+	for _, theme := range t.styles.values() {
 		if prop := theme.Get(id); prop != nil {
 			return prop
 		}
