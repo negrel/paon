@@ -30,7 +30,6 @@ func (e *Engine) Draw(patch Canvas) {
 func (e *Engine) Start() {
 	log.Debugln("starting the rendering engine")
 
-renderLoop:
 	for {
 		select {
 		case patch := <-e.ch:
@@ -48,9 +47,8 @@ renderLoop:
 			}
 
 		case <-e.ctx.Done():
-			break renderLoop
+			log.Debugln("stopping the rendering engine")
+			return
 		}
 	}
-
-	log.Debugln("stopping the rendering engine")
 }
