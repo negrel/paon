@@ -97,7 +97,13 @@ func (t *tcellScreen) PollEvent(send chan<- events.Event) {
 
 		case *tcell.EventMouse:
 			X, Y := event.Position()
-			send <- events.MakeClick(geometry.Pt(X, Y))
+			btn := event.Buttons()
+			if btn != tcell.ButtonNone {
+				send <- events.MakeClick(geometry.Pt(X, Y), events.ClickType(btn))
+			} else {
+				send <- events.MakeMouseMove(geometry.Pt(X, Y))
+			}
+			// TODO wheel events
 
 		case *tcell.EventInterrupt:
 			send <- events.MakeInterrupt(ev.When().UnixNano())

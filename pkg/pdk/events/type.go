@@ -16,6 +16,7 @@ const (
 	TypeUnsupported
 	TypeInterrupt
 	TypeClick
+	TypeMouseMove
 	TypeKeyboard
 	TypeResize
 	TypeWheel
@@ -39,6 +40,7 @@ func init() {
 	typeName.Set(int32(TypeUnsupported), "unsupported")
 	typeName.Set(int32(TypeInterrupt), "interrupt")
 	typeName.Set(int32(TypeClick), "click")
+	typeName.Set(int32(TypeMouseMove), "mouse-move")
 	typeName.Set(int32(TypeKeyboard), "keyboard")
 	typeName.Set(int32(TypeResize), "resize")
 	typeName.Set(int32(TypeWheel), "wheel")
