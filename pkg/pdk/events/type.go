@@ -51,5 +51,6 @@ var eventTypeCounter int32 = int32(unusedType - 1)
 func MakeType(name string) Type {
 	t := atomic.AddInt32(&eventTypeCounter, 1)
 	typeName.Set(t, strings.ToLower(name))
-	return t
+
+	return Type(t)
 }
