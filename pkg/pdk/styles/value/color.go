@@ -21,3 +21,7 @@ func ColorFromHex(rgb int32) Color {
 		B: uint8(rgb & 0xFF),
 	}
 }
+
+func (c Color) Int32() int32 {
+	return int32(c.R) << 16 & int32(c.G) << 8 & int32(c.B)
+}
