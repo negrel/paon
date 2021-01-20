@@ -45,19 +45,19 @@ var _ Event = Click{}
 // Click is triggered when the user click inside the rendering surface.
 type Click struct {
 	Event
-	Position geometry.Point
-	Type     ClickType
+	Position  geometry.Point
+	ClickType ClickType
 }
 
 // MakeClick returns a new Click events.Event.
 func MakeClick(position geometry.Point, clickType ClickType) Click {
 	return Click{
-		Event:    MakeEvent(TypeClick),
-		Position: position,
-		Type:     clickType,
+		Event:     MakeEvent(TypeClick),
+		Position:  position,
+		ClickType: clickType,
 	}
 }
 
 func (c Click) Is(clickType ClickType) bool {
-	return (c.Type & clickType) != 0
+	return (c.ClickType & clickType) != 0
 }
