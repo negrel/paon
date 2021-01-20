@@ -81,27 +81,29 @@ func (t *tcellScreen) Apply(patch Canvas) {
 }
 
 // PollEvent implements the Screen interface.
-func (t *tcellScreen) PollEvent() events.Event {
-	ev := t.Screen.PollEvent()
+func (t *tcellScreen) PollEvent(send chan<- events.Event) {
+	for {
+		ev := t.Screen.PollEvent()
 
-	switch event := ev.(type) {
-	case *tcell.EventResize:
-		oldSize := t.size
+		switch event := ev.(type) {
+		case *tcell.EventResize:
+			oldSize := t.size
 
-		w, h := event.Size()
-		newSize := geometry.NewSize(w, h)
-		t.size = newSize
+			w, h := event.Size()
+			newSize := geometry.NewSize(w, h)
+			t.size = newSize
 
-		return events.MakeResize(newSize, oldSize)
+			send <- events.MakeResize(newSize, oldSize)
 
-	case *tcell.EventMouse:
-		X, Y := event.Position()
-		return events.MakeClick(geometry.Pt(X, Y))
+		case *tcell.EventMouse:
+			X, Y := event.Position()
+			send <- events.MakeClick(geometry.Pt(X, Y))
 
-	case *tcell.EventInterrupt:
-		return events.MakeInterrupt(ev.When().UnixNano())
+		case *tcell.EventInterrupt:
+			send <- events.MakeInterrupt(ev.When().UnixNano())
 
-	default:
-		return events.MakeUnsupported(spew.Sdump(event))
+		default:
+			send <- events.MakeUnsupported(spew.Sdump(event))
+		}
 	}
 }

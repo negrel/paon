@@ -86,20 +86,24 @@ func (a *App) recoverStart() {
 
 func (a *App) listenToEvents(ctx context.Context) {
 	log.Debugln("starting event loop")
+
+	pollEvent := make(chan events.Event, 8)
+	go a.window.Screen.PollEvent(pollEvent)
+
 	for {
 		select {
 		case <-ctx.Done():
 			log.Debugln("stopping event loop")
 			return
 
-		default:
-			a.dispatchEvent(a.window.Screen.PollEvent())
+		case event := <-pollEvent:
+			a.dispatchEvent(event)
 		}
 	}
 }
 
 func (a *App) dispatchEvent(event events.Event) {
-	log.Debug(fmt.Sprintf("%v: %+v\n", event.Type(), event))
+	log.Debugln("dispatching", event)
 
 	a.window.DispatchEvent(event)
 	a.root.DispatchEvent(event)

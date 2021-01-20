@@ -13,5 +13,5 @@ type Screen interface {
 	Apply(Canvas)
 	Clear()
 	Fini()
-	PollEvent() events.Event
+	PollEvent(chan<- events.Event)
 }
