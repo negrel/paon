@@ -2,7 +2,7 @@ package draw
 
 import (
 	"github.com/davecgh/go-spew/spew"
-	"github.com/gdamore/tcell"
+	"github.com/gdamore/tcell/v2"
 	"github.com/negrel/debuggo/pkg/log"
 	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/pkg/pdk/events"
@@ -49,18 +49,14 @@ func (t *tcellScreen) Height() int {
 	return t.size.Height()
 }
 
-// Bounds implements the Surface interface.
-func (t *tcellScreen) Bounds() geometry.Rectangle {
+func (t *tcellScreen) bounds() geometry.Rectangle {
 	return geometry.Rect(0, 0, t.Width(), t.Height())
 }
 
-// Get implements the Surface interface.
-func (t *tcellScreen) Get(point geometry.Point) *Cell {
+func (t *tcellScreen) get(point geometry.Point) Cell {
 	c, _, style, _ := t.GetContent(point.X(), point.Y())
-	return &Cell{
-		Content: c,
-		Style:   style,
-	}
+
+	return makeCellFromTcell(c, style)
 }
 
 // Update implements the Screen interface.
@@ -79,7 +75,7 @@ func (t *tcellScreen) Apply(patch Canvas) {
 		for j, cell := range row {
 			x := patch.Origin().X() + j
 
-			t.SetContent(x, y, cell.Content, []rune{}, cell.Style)
+			t.SetContent(x, y, cell.Content, []rune{}, tcell.Style(cell.Style))
 		}
 	}
 }
