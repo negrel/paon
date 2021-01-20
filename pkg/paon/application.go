@@ -101,12 +101,8 @@ func (a *App) listenToEvents(ctx context.Context) {
 func (a *App) dispatchEvent(event events.Event) {
 	log.Debug(fmt.Sprintf("%v: %+v\n", event.Type(), event))
 
+	a.window.DispatchEvent(event)
 	a.root.DispatchEvent(event)
-
-	if event.Type() == events.TypeInterrupt {
-		a.Stop()
-		return
-	}
 }
 
 func (a *App) Window() Window {
