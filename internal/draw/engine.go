@@ -8,11 +8,10 @@ import (
 
 // Engine is responsible for rendering the
 type Engine struct {
-	ch          chan Canvas
-	ctx         context.Context
-	Screen      Screen
-	needRefresh bool
-	clock       *time.Ticker
+	ch     chan Canvas
+	ctx    context.Context
+	Screen Screen
+	clock  *time.Ticker
 }
 
 // NewEngine return a new rendering engine that draw on the given surface.
@@ -32,19 +31,21 @@ func (e *Engine) Draw(patch Canvas) {
 func (e *Engine) Start() {
 	log.Debugln("starting the rendering engine")
 
+	needRefresh := false
+
 	for {
 		select {
 		case patch := <-e.ch:
 			go func() {
 				e.Screen.Apply(patch)
-				e.needRefresh = true
+				needRefresh = true
 			}()
 
 		case <-e.clock.C:
-			if e.needRefresh {
+			if needRefresh {
 				go func() {
 					e.Screen.Update()
-					e.needRefresh = false
+					needRefresh = false
 				}()
 			}
 
