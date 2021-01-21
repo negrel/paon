@@ -29,3 +29,18 @@ func TestNode_isDescendantOf_NilParent(t *testing.T) {
 	node := newNode()
 	assert.False(t, node.IsDescendantOf(nil))
 }
+
+func TestNode_Root(t *testing.T) {
+	parent := newParent()
+	assert.Nil(t, parent.RootNode())
+
+	root := NewRoot(parent)
+	assert.Equal(t, root, parent.RootNode())
+
+	child := newNode()
+	_ = parent.AppendChildNode(child)
+	assert.Equal(t, root, child.RootNode())
+
+	_ = parent.RemoveChildNode(child)
+	assert.Nil(t, child.RootNode())
+}
