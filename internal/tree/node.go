@@ -4,6 +4,7 @@ package tree
 type Node interface {
 	nodeID() NodeID
 
+	// Return true if the given Node is the same as this.
 	IsSame(Node) bool
 
 	// Next sibling.
@@ -21,6 +22,7 @@ type Node interface {
 	// RootNode define the root of the Node tree.
 	RootNode() Root
 
+	// IsDescendantOf return true if this is a descendant of the given Node.
 	IsDescendantOf(node Node) bool
 }
 

@@ -12,13 +12,26 @@ import (
 type ParentNode interface {
 	Node
 
+	// IsAncestorOf return true if the given Node is a child of this.
 	IsAncestorOf(child Node) bool
 
+	// Return the first child Node of this.
 	FirstChildNode() Node
+
+	// Return the last child Node of this.
 	LastChildNode() Node
 
+	// Append the given child to the list of child Node. An error is returned
+	// if the given child is an ancestor of this Node.
 	AppendChildNode(newChild Node) error
+
+	// Insert the given child before the given reference child Node. If the
+	// reference is nil, the child is appended. An error is returned
+	// if the given child is an ancestor of this Node or if the reference
+	// is not a direct child of this.
 	InsertBeforeNode(reference, newChild Node) error
+
+	// Remove the given direct child Node of this. Return an error otherwise.
 	RemoveChildNode(child Node) error
 }
 
