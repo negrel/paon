@@ -32,6 +32,7 @@ const (
 	IDPaddingBottom
 
 	IDBackgroundColor
+	IDForegroundColor
 
 	// Used for custom property created using the pdk
 	unusedID
