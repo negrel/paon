@@ -2,11 +2,13 @@ package widgets
 
 import (
 	"fmt"
-	"github.com/negrel/paon/internal/events"
+	"github.com/negrel/paon/internal/geometry"
+	"github.com/negrel/paon/internal/math"
 	"github.com/negrel/paon/internal/render"
 	"github.com/negrel/paon/internal/tree"
 	"github.com/negrel/paon/pkg/pdk/events"
 	"github.com/negrel/paon/pkg/pdk/styles"
+	"github.com/negrel/paon/pkg/pdk/styles/property"
 	"github.com/negrel/paon/pkg/pdk/widgets/themes"
 )
 
@@ -126,4 +128,40 @@ func (w *widget) Theme() themes.Theme {
 // ParentObject implements the render.Object interface.
 func (w *widget) ParentObject() render.Object {
 	return w.Parent()
+}
+
+func (w *widget) Size() geometry.Size {
+	return geometry.NewSize(w.Width(), w.Height())
+}
+
+func (w *widget) Width() int {
+	return w.computeHeightOrWidth(property.IDWidth, property.IDMinWidth, property.IDMaxWidth)
+}
+
+func (w *widget) Height() int {
+	return w.computeHeightOrWidth(property.IDHeight, property.IDMinHeight, property.IDMaxHeight)
+}
+
+func (w *widget) computeHeightOrWidth(p, min, max property.ID) int {
+	result := -1
+
+	if p := w.theme.Get(p); w != nil {
+		result = p.(property.Unit).Value.CellUnit().Value
+	}
+
+	if max := w.theme.Get(min); max != nil {
+		maxR := max.(property.Unit).Value.CellUnit().Value
+		result = math.Min(result, maxR)
+	}
+
+	if min := w.theme.Get(max); min != nil {
+		minR := min.(property.Unit).Value.CellUnit().Value
+		result = math.Max(result, minR)
+	}
+
+	return result
+}
+
+func (w *widget) Position() geometry.Point {
+	return geometry.Point{}
 }

@@ -1,9 +1,9 @@
 package renderer
 
 import (
+	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/internal/render"
-	"github.com/negrel/paon/pkg/pdk/widgets"
 )
 
 var _ render.Renderer = block{}
@@ -15,33 +15,13 @@ func makeBlock() render.Renderer {
 }
 
 func (b block) Layout(ctx *render.Context) {
-	width := computeLayerWidth(ctx.Object)
-	height := computeLayerHeight(ctx.Object)
+	width := ctx.Object.Width()
+	height := ctx.Object.Height()
+
+	assert.GreaterOrEqual(width, 0, "widget width can't be a negative number")
+	assert.GreaterOrEqual(height, 0, "widget height can't be a negative number")
 
 	ctx.Layer.Resize(geometry.NewSize(width, height))
-}
-
-func computeLayerWidth(object render.Object) int {
-	width := computeThemeWidth(object.Style())
-	if width == -1 {
-		width = 0
-	}
-
-	return width
-}
-
-func computeLayerHeight(object render.Object) int {
-	height := computeThemeHeight(object.Style())
-	if height == -1 {
-		height = computeWidgetHeight(object.(widgets.Widget))
-	}
-
-	return height
-}
-
-func computeWidgetHeight(object render.Object) int {
-	// Dynamic size base on widget content
-	return 0
 }
 
 func (b block) Draw(ctx *render.Context) {
