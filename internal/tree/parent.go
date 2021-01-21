@@ -32,9 +32,13 @@ type parentNode struct {
 }
 
 // NewParent returns a ParentNode Node with zero child.
-func NewParent() *parentNode {
+func NewParent() ParentNode {
+	return newParent()
+}
+
+func newParent() *parentNode {
 	return &parentNode{
-		node: NewNode(),
+		node: newNode(),
 	}
 }
 

@@ -27,6 +27,8 @@ type Node interface {
 var _ Node = &node{}
 
 type node struct {
+	cache
+
 	id NodeID
 
 	next     Node
@@ -34,7 +36,11 @@ type node struct {
 	parent   ParentNode
 }
 
-func NewNode() *node {
+func NewNode() Node {
+	return newNode()
+}
+
+func newNode() *node {
 	return &node{
 		id: makeNodeID(),
 	}

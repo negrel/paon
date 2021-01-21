@@ -25,7 +25,7 @@ func NewRoot(children Node) Root {
 
 func newRoot() *root {
 	return &root{
-		parentNode: NewParent(),
+		parentNode: newParent(),
 	}
 }
 
