@@ -10,14 +10,14 @@ func MouseMoveListener(handler func(MouseMove)) *Listener {
 	l := Listener{
 		Type: TypeMouseMove,
 		Handle: func(event Event) {
-			ce, ok := event.(MouseMove)
+			mme, ok := event.(MouseMove)
 
 			if !ok {
 				log.Warnf("mouse-move listener expected %v, but got %v", TypeMouseMove, event.Type())
 				return
 			}
 
-			handler(ce)
+			handler(mme)
 		},
 	}
 

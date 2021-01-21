@@ -29,7 +29,7 @@ func ClickListener(handler func(Click)) *Listener {
 			ce, ok := event.(Click)
 
 			if !ok {
-				log.Warnf("click listener expected %v, but got %v", TypeClick, event.Type())
+				log.Warnf("\"%v\" listener expected, but got %v", TypeClick, event.Type())
 				return
 			}
 
