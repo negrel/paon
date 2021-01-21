@@ -8,12 +8,12 @@ var _ Property = Color{}
 
 type Color struct {
 	Prop
-	Value value.Color
+	value.Color
 }
 
-func MakeColor(id ID, value value.Color) Color {
+func MakeColor(id ID, color value.Color) Color {
 	return Color{
 		Prop:  MakeProp(id),
-		Value: value,
+		Color: color,
 	}
 }
