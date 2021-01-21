@@ -44,10 +44,10 @@ var _ Widget = &widget{}
 type widget struct {
 	tree.Node
 	events.Target
+	cache
 
 	theme themes.Theme
-
-	id string
+	id    string
 }
 
 // NewWidget return a new Widget object customized with the given Option.
@@ -138,11 +138,40 @@ func (w *widget) Size() geometry.Size {
 	return geometry.NewSize(w.Width(), w.Height())
 }
 
+func (w *widget) cleanCache() {
+	w.cache = cache{}
+}
+
 func (w *widget) Width() int {
+	var width int
+	if w.cache.validWidth {
+		width = w.cache.width
+	} else {
+		width = w.width()
+		w.cache.width = width
+	}
+
+	return width
+}
+
+func (w *widget) width() int {
 	return w.computeHeightOrWidth(property.IDWidth, property.IDMinWidth, property.IDMaxWidth)
 }
 
 func (w *widget) Height() int {
+	var height int
+
+	if w.cache.validHeight {
+		height = w.cache.height
+	} else {
+		height = w.height()
+		w.cache.height = height
+	}
+
+	return height
+}
+
+func (w *widget) height() int {
 	return w.computeHeightOrWidth(property.IDHeight, property.IDMinHeight, property.IDMaxHeight)
 }
 
@@ -194,5 +223,17 @@ func (w *widget) toCellUnitValue(uv value.Unit, width bool) int {
 }
 
 func (w *widget) Position() geometry.Point {
+	var position geometry.Point
+	if w.cache.validPosition {
+		position = w.cache.position
+	} else {
+		position = w.position()
+		w.cache.position = position
+	}
+
+	return position
+}
+
+func (w *widget) position() geometry.Point {
 	return geometry.Point{}
 }
