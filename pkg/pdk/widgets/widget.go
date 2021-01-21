@@ -9,6 +9,7 @@ import (
 	"github.com/negrel/paon/pkg/pdk/events"
 	"github.com/negrel/paon/pkg/pdk/styles"
 	"github.com/negrel/paon/pkg/pdk/styles/property"
+	"github.com/negrel/paon/pkg/pdk/styles/value"
 	"github.com/negrel/paon/pkg/pdk/widgets/themes"
 )
 
@@ -66,6 +67,9 @@ func newWidget(node tree.Node) *widget {
 		Target: events.MakeTarget(),
 	}
 	w.theme = themes.Make(func() themes.Themed { return w.Parent() })
+	w.theme.AddEventListener(themes.ThemeChangeListener(func(_ themes.EventThemeChange) {
+
+	}))
 
 	return w
 }
@@ -145,21 +149,48 @@ func (w *widget) Height() int {
 func (w *widget) computeHeightOrWidth(p, min, max property.ID) int {
 	result := -1
 
-	if p := w.theme.Get(p); w != nil {
-		result = p.(property.Unit).Value.CellUnit().Value
+	if r := w.theme.Get(p); w != nil {
+		result = w.toCellUnitValue(r.(property.Unit).Unit, p == property.IDWidth)
 	}
 
 	if max := w.theme.Get(min); max != nil {
-		maxR := max.(property.Unit).Value.CellUnit().Value
+		maxR := max.(property.Unit).Value
 		result = math.Min(result, maxR)
 	}
 
 	if min := w.theme.Get(max); min != nil {
-		minR := min.(property.Unit).Value.CellUnit().Value
+		minR := min.(property.Unit).Value
 		result = math.Max(result, minR)
 	}
 
 	return result
+}
+
+func (w *widget) toCellUnitValue(uv value.Unit, width bool) int {
+	switch uv.ID {
+	case value.CellUnit:
+		return uv.Value
+
+	case value.PercentageUnit:
+		parent := w.Parent()
+		if parent == nil {
+			return -1
+		}
+
+		if width {
+			return parent.Width() / 100 * uv.Value
+		}
+		return parent.Height() / 100 * uv.Value
+
+	case value.WindowWidthUnit:
+		return w.Root().Width() / 100 * uv.Value
+
+	case value.WindowHeightUnit:
+		return w.Root().Height() / 100 * uv.Value
+
+	default:
+		panic("can't convert unknown unit value to cell unit")
+	}
 }
 
 func (w *widget) Position() geometry.Point {
