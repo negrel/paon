@@ -92,10 +92,28 @@ func (n *node) ParentNode() ParentNode {
 }
 
 func (n *node) setParentNode(parent ParentNode) {
+	n.clearCache()
 	n.parent = parent
 }
 
+func (n *node) clearCache() {
+	n.cache = cache{}
+}
+
 func (n *node) RootNode() Root {
+	var root Root
+
+	if n.cache.root != nil {
+		root = n.cache.root
+	} else {
+		root = n.rootNode()
+		n.cache.root = root
+	}
+
+	return root
+}
+
+func (n *node) rootNode() Root {
 	if n.parent != nil {
 		return n.parent.RootNode()
 	}
