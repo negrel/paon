@@ -10,14 +10,14 @@ func ThemeChangeListener(handler func(event EventThemeChange)) *events.Listener 
 	l := events.Listener{
 		Type: eventTypeThemeChange,
 		Handle: func(event events.Event) {
-			spe, ok := event.(EventThemeChange)
+			tce, ok := event.(EventThemeChange)
 
 			if !ok {
-				log.Warnf("click listener expected %v, but got %v", eventTypeThemeChange, event.Type())
+				log.Warnf("\"%v\" listener expected, but got %v", eventTypeThemeChange, event.Type())
 				return
 			}
 
-			handler(spe)
+			handler(tce)
 		},
 	}
 
