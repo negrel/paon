@@ -1,7 +1,7 @@
 package events
 
 import (
-	"github.com/negrel/debuggo/pkg/log"
+	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/internal/geometry"
 )
 
@@ -12,14 +12,8 @@ func ResizeListener(handler func(Resize)) *Listener {
 	l := Listener{
 		Type: TypeMouseMove,
 		Handle: func(event Event) {
-			re, ok := event.(Resize)
-
-			if !ok {
-				log.Warnf("\"%v\" listener expected, but got %v", TypeMouseMove, event.Type())
-				return
-			}
-
-			handler(re)
+			assert.IsType(event, MakeResize(geometry.Size{}, geometry.Size{}))
+			handler(event.(Resize))
 		},
 	}
 

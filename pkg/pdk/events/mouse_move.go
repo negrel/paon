@@ -1,7 +1,7 @@
 package events
 
 import (
-	"github.com/negrel/debuggo/pkg/log"
+	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/internal/geometry"
 )
 
@@ -10,14 +10,8 @@ func MouseMoveListener(handler func(MouseMove)) *Listener {
 	l := Listener{
 		Type: TypeMouseMove,
 		Handle: func(event Event) {
-			mme, ok := event.(MouseMove)
-
-			if !ok {
-				log.Warnf("mouse-move listener expected %v, but got %v", TypeMouseMove, event.Type())
-				return
-			}
-
-			handler(mme)
+			assert.IsType(event, MakeMouseMove(geometry.Point{}))
+			handler(event.(MouseMove))
 		},
 	}
 

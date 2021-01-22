@@ -1,7 +1,7 @@
 package events
 
 import (
-	"github.com/negrel/debuggo/pkg/log"
+	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/internal/geometry"
 )
 
@@ -26,14 +26,8 @@ func ClickListener(handler func(Click)) *Listener {
 	l := Listener{
 		Type: TypeClick,
 		Handle: func(event Event) {
-			ce, ok := event.(Click)
-
-			if !ok {
-				log.Warnf("\"%v\" listener expected, but got %v", TypeClick, event.Type())
-				return
-			}
-
-			handler(ce)
+			assert.IsType(event, MakeClick(geometry.Point{}, 0))
+			handler(event.(Click))
 		},
 	}
 
