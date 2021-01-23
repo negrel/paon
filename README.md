@@ -17,6 +17,8 @@
 # :peacock: - Paon
 *A framework to build efficient, thread-safe, highly composable widgets based terminal user interface.*
 
+> **NOTE**: Paon is still in development and can't be use currently.
+
 ## TODO
 - [ ] Composable widgets
 - [ ] Thread-safe widgets update
