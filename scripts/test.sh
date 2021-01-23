@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+go test -tags assert -v -timeout 30s ./...
