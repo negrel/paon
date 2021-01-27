@@ -1,7 +1,7 @@
 package styles
 
 import (
-	"github.com/negrel/debuggo/pkg/log"
+	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/pkg/pdk/events"
 	"github.com/negrel/paon/pkg/pdk/styles/property"
 )
@@ -11,14 +11,8 @@ func PropertyChangeListener(handler func(setProperty EventPropertyChange)) *even
 	l := events.Listener{
 		Type: eventTypeSetProperty,
 		Handle: func(event events.Event) {
-			spe, ok := event.(EventPropertyChange)
-
-			if !ok {
-				log.Warnf("click listener expected %v, but got %v", EventTypePropertyChange, event.Type())
-				return
-			}
-
-			handler(spe)
+			assert.IsType(event, makeEventSetProperty(nil, nil))
+			handler(event.(EventPropertyChange))
 		},
 	}
 
