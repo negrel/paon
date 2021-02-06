@@ -7,34 +7,26 @@ import (
 
 // Canvas define a rectangle area to draw on.
 type Canvas struct {
-	geometry.Rectangle
-	grid map[int]map[int]*Cell
+	Bounds geometry.Rectangle
+	grid   map[int]map[int]*Cell
 }
 
 func NewCanvas(bound geometry.Rectangle) *Canvas {
 	return &Canvas{
-		Rectangle: bound,
-		grid:      make(map[int]map[int]*Cell, bound.Height()),
+		Bounds: bound,
+		grid:   make(map[int]map[int]*Cell, bound.Height()),
 	}
 }
 
 func (c *Canvas) Clear() {
-	c.grid = make(map[int]map[int]*Cell, c.Height())
-}
-
-func (c *Canvas) Origin() geometry.Point {
-	return c.Min
-}
-
-func (c *Canvas) Bounds() geometry.Rectangle {
-	return c.Rectangle
+	c.grid = make(map[int]map[int]*Cell, c.Bounds.Height())
 }
 
 func (c *Canvas) Get(pt geometry.Point) *Cell {
-	if c.Contain(pt) {
+	if c.Bounds.Contains(pt) {
 		// Make position relative to the top-left corner
 		// of the patch.
-		pt = pt.Add(c.Rectangle.Min)
+		pt = pt.Add(c.Bounds.Min)
 
 		if row, ok := c.grid[pt.Y()]; ok {
 			if cell, ok := row[pt.X()]; ok {
@@ -55,10 +47,10 @@ func (c *Canvas) Get(pt geometry.Point) *Cell {
 }
 
 func (c *Canvas) ForEach(fn func(point geometry.Point, cell *Cell)) {
-	for y := c.Rectangle.Min.Y(); y <= c.Rectangle.Max.Y(); y++ {
-		for x := c.Rectangle.Min.X(); x <= c.Rectangle.Max.X(); x++ {
+	for y := c.Bounds.Min.Y(); y <= c.Bounds.Max.Y(); y++ {
+		for x := c.Bounds.Min.X(); x <= c.Bounds.Max.X(); x++ {
 			pt := geometry.Pt(x, y)
-			if c.Contain(pt) {
+			if c.Bounds.Contains(pt) {
 				fn(pt, c.Get(pt))
 			}
 		}
@@ -69,5 +61,5 @@ func (c *Canvas) Resize(size geometry.Size) {
 	assert.GreaterOrEqual(size.Width(), 0, "canvas can't have a negative width")
 	assert.GreaterOrEqual(size.Height(), 0, "canvas can't have a negative height")
 
-	c.Rectangle.Max = c.Rectangle.Min.Add(geometry.Point(size))
+	c.Bounds.Max = c.Bounds.Min.Add(geometry.Point(size))
 }
