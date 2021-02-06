@@ -9,6 +9,7 @@
 	<a href="https://goreportcard.com/report/github.com/negrel/paon">
 		<img src="https://goreportcard.com/badge/github.com/negrel/paon">
 	</a>
+<a href="https://app.fossa.com/projects/git%2Bgithub.com%2Fnegrel%2Fpaon?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2Fnegrel%2Fpaon.svg?type=shield"/></a>
 	<a href="https://github.com/negrel/paon/raw/master/LICENSE">
 		<img src="https://img.shields.io/github/license/negrel/paon">
 	</a>
@@ -17,7 +18,7 @@
 # :peacock: - Paon
 *A framework to build efficient, thread-safe, highly composable widgets based terminal user interface.*
 
-> **NOTE**: Paon is still in development and can't be use currently.
+> **NOTE**: Paon is still under active development and is not ready yet.
 
 ## TODO
 - [ ] Composable widgets
@@ -47,3 +48,6 @@ Please give a :star: if this project helped you!
 ## :scroll: License
 
 MIT © [Alexandre Negrel](https://www.negrel.dev/)
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fnegrel%2Fpaon.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fnegrel%2Fpaon?ref=badge_large)
