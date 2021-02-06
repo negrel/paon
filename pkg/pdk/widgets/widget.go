@@ -2,14 +2,10 @@ package widgets
 
 import (
 	"fmt"
-	"github.com/negrel/paon/internal/geometry"
-	"github.com/negrel/paon/internal/math"
 	"github.com/negrel/paon/internal/render"
 	"github.com/negrel/paon/internal/tree"
 	"github.com/negrel/paon/pkg/pdk/events"
 	"github.com/negrel/paon/pkg/pdk/styles"
-	"github.com/negrel/paon/pkg/pdk/styles/property"
-	"github.com/negrel/paon/pkg/pdk/styles/value"
 	"github.com/negrel/paon/pkg/pdk/widgets/themes"
 )
 
@@ -19,7 +15,6 @@ type Widget interface {
 	fmt.Stringer
 	tree.Node
 	events.Target
-	render.Object
 	styles.Stylised
 	themes.Themed
 
@@ -44,7 +39,6 @@ var _ Widget = &widget{}
 type widget struct {
 	tree.Node
 	events.Target
-	cache
 
 	theme themes.Theme
 	id    string
