@@ -82,12 +82,18 @@ func (b *Base) Draw(canvas draw.Canvas, from, to geometry.Point, fn func(point g
 
 // ApplyMarginLeft applies the given left margin of the canvas.
 func (b *Base) ApplyMarginLeft(canvas draw.Canvas, size int) {
-	canvas.Bounds.Min = canvas.Bounds.Min.Add(geometry.Pt(size, 0))
+	b.Margin.Outer.Min = canvas.Bounds.Min
+	b.Margin.Inner.Min = canvas.Bounds.Min.Add(geometry.Pt(size, 0))
+
+	canvas.Bounds.Min = b.Margin.Inner.Min
 }
 
 // ApplyMarginRight applies the given right margin of the canvas.
 func (b *Base) ApplyMarginRight(canvas draw.Canvas, size int) {
-	canvas.Bounds.Max = canvas.Bounds.Max.Add(geometry.Pt(-size, 0))
+	b.Margin.Outer.Max = canvas.Bounds.Max
+	b.Margin.Inner.Max = canvas.Bounds.Max.Add(geometry.Pt(-size, 0))
+
+	canvas.Bounds.Max = b.Margin.Inner.Max
 }
 
 // ApplyMarginX applies the given margin on the left and the right of the canvas.
@@ -98,12 +104,19 @@ func (b *Base) ApplyMarginX(canvas draw.Canvas, size int) {
 
 // ApplyMarginTop applies the given top margin of the canvas.
 func (b *Base) ApplyMarginTop(canvas draw.Canvas, size int) {
-	canvas.Bounds.Min = canvas.Bounds.Max.Add(geometry.Pt(0, size))
+	b.Margin.Outer.Min = canvas.Bounds.Min
+	b.Margin.Inner.Min = canvas.Bounds.Max.Add(geometry.Pt(0, size))
+
+	canvas.Bounds.Min = b.Margin.Inner.Min
 }
 
 // ApplyMarginBottom applies the given bottom margin of the canvas.
 func (b *Base) ApplyMarginBottom(canvas draw.Canvas, size int) {
-	canvas.Bounds.Max = canvas.Bounds.Max.Add(geometry.Pt(0, -size))
+	b.Margin.Outer.Max = canvas.Bounds.Max
+	b.Margin.Inner.Max = canvas.Bounds.Max.Add(geometry.Pt(0, -size))
+
+	canvas.Bounds.Max = b.Margin.Inner.Max
+
 }
 
 // ApplyMarginY applies the given margin on the top and the bottom of the canvas.
