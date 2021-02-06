@@ -39,12 +39,6 @@ func RectFromCenter(center Point, size Size) Rectangle {
 	}
 }
 
-// Contain return whether or not the given Point is contained in the Rectangle.
-func (r Rectangle) Contain(point Point) bool {
-	return point.x >= r.Min.x && point.x <= r.Max.x &&
-		point.y >= r.Min.y && point.y <= r.Max.y
-}
-
 // Bottom return offset of the bottom edge from the
 // y axis.
 func (r Rectangle) Bottom() int {
@@ -86,24 +80,10 @@ func (r Rectangle) CenterRight() Point {
 	return Pt(r.Max.x, r.Min.y+r.Height()/2)
 }
 
-// Height return the height of the rectangle
-func (r Rectangle) Height() int {
-	return r.Max.y - r.Min.y
-}
-
 // Left return the offset of the left edge of this
 // rectangle from the x axis.
 func (r Rectangle) Left() int {
 	return r.Min.x
-}
-
-// Size return the rectangle width and height in a
-// Size object.
-func (r Rectangle) Size() Size {
-	return Size{
-		x: r.Width(),
-		y: r.Height(),
-	}
 }
 
 // Right return the offset of the right edge of
@@ -139,4 +119,44 @@ func (r Rectangle) TopRight() Point {
 // Width return the width of the rectangle
 func (r Rectangle) Width() int {
 	return r.Max.x - r.Min.x
+}
+
+// Height return the height of the rectangle
+func (r Rectangle) Height() int {
+	return r.Max.y - r.Min.y
+}
+
+// Size return the rectangle width and height in a
+// Size object.
+func (r Rectangle) Size() Size {
+	return Size{
+		x: r.Width(),
+		y: r.Height(),
+	}
+}
+
+// Add returns a new Rectangle with the given offset.
+func (r Rectangle) Add(offset Point) Rectangle {
+	return Rectangle{
+		Min: r.Min.Add(offset),
+		Max: r.Max.Add(offset),
+	}
+}
+
+// Empty return true if the width or the height of the rectangle is 0.
+func (r Rectangle) Empty() bool {
+	return r.Min.X() == r.Max.X() || r.Min.Y() == r.Max.Y()
+}
+
+// Contains return whether or not the given Point is contained in the Rectangle.
+func (r Rectangle) Contains(point Point) bool {
+	return point.x >= r.Min.x && point.x <= r.Max.x &&
+		point.y >= r.Min.y && point.y <= r.Max.y
+}
+
+// Overlaps return true if the other Rectangle overlap this one.
+func (r Rectangle) Overlaps(other Rectangle) bool {
+	return !r.Empty() && !other.Empty() &&
+		r.Min.X() < other.Max.X() && other.Min.X() < r.Max.X() &&
+		r.Min.Y() < other.Max.Y() && other.Min.Y() < r.Max.Y()
 }
