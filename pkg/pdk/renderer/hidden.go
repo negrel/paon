@@ -10,6 +10,6 @@ func makeHidden() render.Renderer {
 	return hidden{}
 }
 
-func (h hidden) Layout(ctx *render.Context) {}
+func (h hidden) Layout(ctx render.Context) {}
 
-func (h hidden) Draw(ctx *render.Context) {}
+func (h hidden) Draw(ctx render.Context) {}

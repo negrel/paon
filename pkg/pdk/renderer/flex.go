@@ -10,6 +10,6 @@ func makeFlex() render.Renderer {
 	return flex{}
 }
 
-func (f flex) Layout(ctx *render.Context) {}
+func (f flex) Layout(ctx render.Context) {}
 
-func (f flex) Draw(ctx *render.Context) {}
+func (f flex) Draw(ctx render.Context) {}
