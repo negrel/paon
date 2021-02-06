@@ -7,15 +7,17 @@ import (
 
 var _ render.Renderer = block{}
 
-type block struct{}
+type block struct {
+	Base
+}
 
 func makeBlock() render.Renderer {
 	return block{}
 }
 
 func (b block) Layout(ctx render.Context) {
-	width := ComputeWidth(ctx)
-	height := ComputeHeight(ctx)
+	width := b.ComputeWidth(ctx)
+	height := b.ComputeHeight(ctx)
 
 	assert.GreaterOrEqual(width, 0, "widget width can't be a negative number")
 	assert.GreaterOrEqual(height, 0, "widget height can't be a negative number")
