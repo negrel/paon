@@ -1,14 +1,19 @@
 package render
 
+import "github.com/negrel/paon/internal/draw"
+
 // Context is the rendering context passed to Object for the layout step and the draw step.
 type Context struct {
-	Object Object
-	Layer  *Layer
+	Object       Object
+	ParentObject Object
+	Canvas       *draw.Canvas
+	Constraint   Constraint
 }
 
-func NewContext(obj Object) *Context {
-	return &Context{
-		Object: obj,
-		Layer:  NewLayer(),
+func MakeContext(parent Object, constraint Constraint) Context {
+	return Context{
+		ParentObject: parent,
+		Canvas:       draw.NewCanvas(constraint.Max),
+		Constraint:   constraint,
 	}
 }
