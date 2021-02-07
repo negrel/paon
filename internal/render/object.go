@@ -6,7 +6,7 @@ import (
 
 // Object define any object that can be rendered.
 type Object interface {
-	pdkstyle.Style
+	pdkstyle.Stylised
 
-	ParentObject() Object
+	Render(ctx Context)
 }

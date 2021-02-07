@@ -23,17 +23,18 @@ type Base struct {
 
 func (b *Base) computeObjectHeightOrWidth(obj render.Object, p, min, max property.ID) int {
 	result := -1
+	style := obj.Style()
 
-	if p := obj.Get(p); p != nil {
+	if p := style.Get(p); p != nil {
 		result = p.(property.Unit).Value
 	}
 
-	if max := obj.Get(min); max != nil {
+	if max := style.Get(min); max != nil {
 		maxR := max.(property.Unit).Value
 		result = math.Min(result, maxR)
 	}
 
-	if min := obj.Get(max); min != nil {
+	if min := style.Get(max); min != nil {
 		minR := min.(property.Unit).Value
 		result = math.Max(result, minR)
 	}
