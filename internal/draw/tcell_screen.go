@@ -71,11 +71,11 @@ func (t *tcellScreen) Apply(patch Canvas) {
 	log.Traceln("applying patch", patch)
 
 	for i, row := range patch.grid {
-		y := patch.Origin().Y() + i
+		y := patch.Bounds.TopLeft().Y() + i
 		for j, cell := range row {
-			x := patch.Origin().X() + j
+			x := patch.Bounds.TopLeft().X() + j
 
-			t.SetContent(x, y, cell.Content, []rune{}, tcell.Style(cell.Style))
+			t.SetContent(x, y, cell.Content, []rune{}, cell.Style.toTcellStyle())
 		}
 	}
 }
@@ -90,7 +90,7 @@ func (t *tcellScreen) PollEvent(send chan<- events.Event) {
 			oldSize := t.size
 
 			w, h := event.Size()
-			newSize := geometry.NewSize(w, h)
+			newSize := geometry.MakeSize(w, h)
 			t.size = newSize
 
 			send <- events.MakeResize(newSize, oldSize)
