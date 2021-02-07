@@ -13,8 +13,7 @@ const (
 )
 
 func Display(value int) property.Int {
-	assert.GreaterOrEqualf(value, 0, "display value %v must be greater than 0", value)
-	assert.LessOrEqualf(value, renderer.Map.Len(), "display value %v must be less than %v", value, renderer.Map.Len())
+	assert.True(renderer.IsValidRendererID(value))
 
 	return property.MakeInt(property.IDDisplay, value)
 }
