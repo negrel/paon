@@ -106,7 +106,7 @@ func (b *Base) ApplyMarginX(canvas draw.Canvas, size int) {
 // ApplyMarginTop applies the given top margin of the canvas.
 func (b *Base) ApplyMarginTop(canvas draw.Canvas, size int) {
 	b.Margin.Outer.Min = canvas.Bounds.Min
-	b.Margin.Inner.Min = canvas.Bounds.Max.Add(geometry.Pt(0, size))
+	b.Margin.Inner.Min = canvas.Bounds.Min.Add(geometry.Pt(0, size))
 
 	canvas.Bounds.Min = b.Margin.Inner.Min
 }
