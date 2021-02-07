@@ -11,6 +11,7 @@ type RenderMap struct {
 const (
 	Hidden = iota
 	Block
+	Inline
 	Flex
 )
 
@@ -18,6 +19,7 @@ var Map = RenderMap{
 	renderers: map[int]func() render.Renderer{
 		Hidden: makeHidden,
 		Block:  makeBlock,
+		Inline: makeInline,
 		Flex:   makeFlex,
 	},
 }
