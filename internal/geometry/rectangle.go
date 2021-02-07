@@ -9,7 +9,7 @@ type Rectangle struct {
 	Min, Max Point
 }
 
-// Rect return always a well-formed rectangle with the
+// Rect returns always a well-formed rectangle with the
 // given dimension.
 func Rect(x0, y0, x1, y1 int) Rectangle {
 	if x0 > x1 {
@@ -24,8 +24,8 @@ func Rect(x0, y0, x1, y1 int) Rectangle {
 	}
 }
 
-// RectFromCenter return a rectangle with the given
-// size and the given center.
+// RectFromCenter returns a Rectangle with the given
+// Size and the given center Point.
 func RectFromCenter(center Point, size Size) Rectangle {
 	return Rectangle{
 		Min: Pt(
@@ -39,54 +39,54 @@ func RectFromCenter(center Point, size Size) Rectangle {
 	}
 }
 
-// Bottom return offset of the bottom edge from the
+// Bottom returns offset of the bottom edge from the
 // y axis.
 func (r Rectangle) Bottom() int {
 	return r.Max.y
 }
 
-// BottomCenter return the offset to the center of the
+// BottomCenter returns the offset to the center of the
 // bottom center of this rectangle.
 func (r Rectangle) BottomCenter() Point {
 	return Pt(r.Width()/2, r.Max.y)
 }
 
-// BottomLeft return the offset to the bottom left
+// BottomLeft returns the offset to the bottom left
 // corner of the bottom center of this rectangle.
 func (r Rectangle) BottomLeft() Point {
 	return Pt(r.Max.y, r.Max.x)
 }
 
-// BottomRight return the offset to the bottom right
+// BottomRight returns the offset to the bottom right
 // corner of the bottom center of this rectangle.
 func (r Rectangle) BottomRight() Point {
 	return Pt(r.Right(), r.Bottom())
 }
 
-// Center return the center of the rectangle.
+// Center returns the center of the rectangle.
 func (r Rectangle) Center() Point {
 	return Pt(r.Min.x+r.Width()/2, r.Min.y+r.Height()/2)
 }
 
-// CenterLeft The offset to the center of the left edge
+// CenterLeft returns the offset to the center of the left edge
 // of this rectangle.
 func (r Rectangle) CenterLeft() Point {
 	return Pt(r.Min.x, r.Min.y+r.Height()/2)
 }
 
-// CenterRight The offset to the center of the roght edge
+// CenterRight returns the offset to the center of the right edge
 // of this rectangle.
 func (r Rectangle) CenterRight() Point {
 	return Pt(r.Max.x, r.Min.y+r.Height()/2)
 }
 
-// Left return the offset of the left edge of this
+// Left returns the offset of the left edge of this
 // rectangle from the x axis.
 func (r Rectangle) Left() int {
 	return r.Min.x
 }
 
-// Right return the offset of the right edge of
+// Right returns the offset of the right edge of
 // this rectangle from the x axis.
 func (r Rectangle) Right() int {
 	return r.Max.x
@@ -98,35 +98,35 @@ func (r Rectangle) Top() int {
 	return r.Min.y
 }
 
-// TopCenter return the offset to the center of the
+// TopCenter returns the offset to the center of the
 // top center of this rectangle.
 func (r Rectangle) TopCenter() Point {
 	return Pt(r.Width()/2, r.Min.y)
 }
 
-// TopLeft return the offset to the bottom left
+// TopLeft returns the offset to the bottom left
 // corner of the top center of this rectangle.
 func (r Rectangle) TopLeft() Point {
 	return Pt(r.Left(), r.Top())
 }
 
-// TopRight return the offset to the bottom right
+// TopRight returns the offset to the bottom right
 // corner of the bottom center of this rectangle.
 func (r Rectangle) TopRight() Point {
 	return r.Max
 }
 
-// Width return the width of the rectangle
+// Width returns the width of the rectangle
 func (r Rectangle) Width() int {
 	return r.Max.x - r.Min.x
 }
 
-// Height return the height of the rectangle
+// Height returns the height of the rectangle
 func (r Rectangle) Height() int {
 	return r.Max.y - r.Min.y
 }
 
-// Size return the rectangle width and height in a
+// Size returns the rectangle width and height in a
 // Size object.
 func (r Rectangle) Size() Size {
 	return Size{
@@ -143,18 +143,18 @@ func (r Rectangle) Add(offset Point) Rectangle {
 	}
 }
 
-// Empty return true if the width or the height of the rectangle is 0.
+// Empty returns true if the width or the height of the rectangle is 0.
 func (r Rectangle) Empty() bool {
 	return r.Min.X() == r.Max.X() || r.Min.Y() == r.Max.Y()
 }
 
-// Contains return whether or not the given Point is contained in the Rectangle.
+// Contains returns whether or not the given Point is contained in the Rectangle.
 func (r Rectangle) Contains(point Point) bool {
 	return point.x >= r.Min.x && point.x <= r.Max.x &&
 		point.y >= r.Min.y && point.y <= r.Max.y
 }
 
-// Overlaps return true if the other Rectangle overlap this one.
+// Overlaps returns true if the other Rectangle overlap this one.
 func (r Rectangle) Overlaps(other Rectangle) bool {
 	return !r.Empty() && !other.Empty() &&
 		r.Min.X() < other.Max.X() && other.Min.X() < r.Max.X() &&

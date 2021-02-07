@@ -14,7 +14,7 @@ type Point struct {
 	x, y int
 }
 
-// Pt is a shortcut for Point.
+// Pt returns a new Point using the given X and Y value.
 func Pt(x, y int) Point {
 	assert.GreaterOrEqual(x, 0)
 	assert.GreaterOrEqual(y, 0)
@@ -25,16 +25,17 @@ func Pt(x, y int) Point {
 	}
 }
 
+// X returns the location of the point on the X axis.
 func (p Point) X() int {
 	return p.x
 }
 
+// Y returns the location of the point on the Y axis.
 func (p Point) Y() int {
 	return p.y
 }
 
-// Add translate the point coordinate by adding the
-// given point.
+// Add returns a new Point translated by adding the given point.
 func (p Point) Add(other Point) Point {
 
 	p.x += other.x
@@ -43,8 +44,7 @@ func (p Point) Add(other Point) Point {
 	return p
 }
 
-// Sub translate the point coordinate by substracting
-// the given point.
+// Sub returns a new Point translated by subtracting the given point.
 func (p Point) Sub(other Point) Point {
 	p.x -= other.x
 	p.y -= other.y

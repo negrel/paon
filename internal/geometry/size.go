@@ -6,13 +6,15 @@ var _ Sized = Size{}
 // object.
 type Size Point
 
-func NewSize(width int, height int) Size {
+// MakeSize return a new Size using the given width and height.
+func MakeSize(width int, height int) Size {
 	return Size{
 		x: width,
 		y: height,
 	}
 }
 
+// Size implements the Sized interface.
 func (s Size) Size() Size {
 	return s
 }
