@@ -136,10 +136,42 @@ func (r Rectangle) Size() Size {
 }
 
 // Add returns a new Rectangle with the given offset.
-func (r Rectangle) Add(offset Point) Rectangle {
+func (r Rectangle) Add(n Point) Rectangle {
 	return Rectangle{
-		Min: r.Min.Add(offset),
-		Max: r.Max.Add(offset),
+		Min: r.Min.Add(n),
+		Max: r.Max.Add(n),
+	}
+}
+
+// GrowLeft returns a new rectangle growing by n to the left.
+func (r Rectangle) GrowLeft(n int) Rectangle {
+	return Rectangle{
+		Min: r.Min.Add(Pt(-n, 0)),
+		Max: r.Max,
+	}
+}
+
+// GrowTop returns a new rectangle growing by n to the top.
+func (r Rectangle) GrowTop(n int) Rectangle {
+	return Rectangle{
+		Min: r.Min.Add(Pt(0, -n)),
+		Max: r.Max,
+	}
+}
+
+// GrowRight returns a new rectangle growing by n to the right.
+func (r Rectangle) GrowRight(n int) Rectangle {
+	return Rectangle{
+		Min: r.Min,
+		Max: r.Max.Add(Pt(n, 0)),
+	}
+}
+
+// GrowBottom returns a new rectangle growing by n to the bottom.
+func (r Rectangle) GrowBottom(n int) Rectangle {
+	return Rectangle{
+		Min: r.Min,
+		Max: r.Max.Add(Pt(0, n)),
 	}
 }
 
