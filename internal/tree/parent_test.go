@@ -6,12 +6,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestParent_New(t *testing.T) {
+func TestParentNode_New(t *testing.T) {
 	parent := newParent()
 	assert.NotNil(t, parent)
 }
 
-func TestParent_AppendChild_Success(t *testing.T) {
+func TestParentNode_AppendChildNode_EmptyParent_Success(t *testing.T) {
 	parent := newParent()
 	child := newNode()
 
@@ -21,46 +21,35 @@ func TestParent_AppendChild_Success(t *testing.T) {
 	assert.Equal(t, child, parent.firstChild)
 	assert.Equal(t, child, parent.lastChild)
 	assert.Equal(t, parent, child.parent)
+}
 
-	// Appending another child
-	child = newNode()
-	err = parent.AppendChildNode(child)
+func TestParentNode_AppendChildNode_NonEmptyParent_Success(t *testing.T) {
+	parent := newParent()
+	child := newNode()
+
+	// Appending it
+	_ = parent.AppendChildNode(child)
+
+	err := parent.AppendChildNode(child)
 	assert.Nil(t, err)
 	assert.Equal(t, child, parent.lastChild)
 	assert.Equal(t, parent.firstChild, child.previous)
 	assert.Equal(t, parent.firstChild.NextNode(), child)
 	assert.Equal(t, parent, child.parent)
-
-	// Re appending the last child
-	err = parent.AppendChildNode(child)
-	assert.Nil(t, err)
-	assert.Equal(t, child, parent.lastChild)
-	assert.Equal(t, parent.firstChild, child.previous) // Still only two elements
-	assert.Equal(t, parent.firstChild.NextNode(), child)
-	assert.Equal(t, parent, child.parent)
 }
 
-func TestParent_AppendChild_AncestorOfParent(t *testing.T) {
+func TestParentNode_AppendChildNode_AncestorOfParent(t *testing.T) {
 	parent := newParent()
-	fakeChild := newParent()
+	ancestor := newParent()
 
-	err := fakeChild.AppendChildNode(parent)
-	assert.Nil(t, err)
+	_ = ancestor.AppendChildNode(parent)
 
-	// should return an error, fakeChild is the parentNode
-	err = parent.AppendChildNode(fakeChild)
-	assert.NotNil(t, err)
-
-	// Try again with ParentNode of fake child
-	fakeChildParent := newParent()
-	err = fakeChildParent.AppendChildNode(fakeChild)
-	assert.Nil(t, err)
-
-	err = parent.AppendChildNode(fakeChildParent)
+	// should return an error, ancestor is the parentNode
+	err := parent.AppendChildNode(ancestor)
 	assert.NotNil(t, err)
 }
 
-func TestParent_AppendChild_NilChild(t *testing.T) {
+func TestParentNode_AppendChildNode_NilChild(t *testing.T) {
 	parent := newParent()
 
 	assert.Panics(t, func() {
@@ -68,29 +57,45 @@ func TestParent_AppendChild_NilChild(t *testing.T) {
 	}, "appending a nil child should panic. (\"assert\" build tag must be enabled)")
 }
 
-func TestParent_AppendChild_WithParent(t *testing.T) {
+func TestParentNode_AppendChildNode_WithParent(t *testing.T) {
 	parent := newParent()
-	prev := newNode()
-	next := newNode()
-	_ = parent.AppendChildNode(prev)
-	_ = parent.AppendChildNode(next)
-	child := newNode()
-	_ = parent.AppendChildNode(child)
+	child1 := newNode()
+	child2 := newNode()
+	_ = parent.AppendChildNode(child1)
+	_ = parent.AppendChildNode(child2)
 
 	otherParent := newParent()
-	err := otherParent.AppendChildNode(child)
-	assert.Nil(t, err)
-	assert.Equal(t, otherParent, child.parent)
-	assert.Nil(t, child.previous)
-	assert.Nil(t, child.next)
+	node := newNode()
+	_ = otherParent.AppendChildNode(node)
 
-	err = parent.AppendChildNode(child)
+	err := parent.AppendChildNode(node)
 	assert.Nil(t, err)
-	assert.Equal(t, parent, child.parent)
-	assert.Equal(t, next, child.previous)
+	assert.Equal(t, parent, node.parent)
+	assert.Equal(t, child2, node.previous)
+	assert.Equal(t, nil, node.next)
 }
 
-func TestParent_InsertBefore_Success(t *testing.T) {
+func TestParentNode_AppendChildNode_Itself(t *testing.T) {
+	parent := NewParent()
+
+	err := parent.AppendChildNode(parent)
+	assert.NotNil(t, err)
+}
+
+func TestParentNode_InsertBeforeNode_EmptyParent_Success(t *testing.T) {
+	parent := newParent()
+	child := newNode()
+
+	err := parent.InsertBeforeNode(nil, child)
+	assert.Nil(t, err)
+	assert.Equal(t, parent.firstChild, child)
+	assert.Equal(t, parent.lastChild, child)
+	assert.Equal(t, child.parent, parent)
+	assert.Equal(t, nil, child.next)
+	assert.Equal(t, nil, child.previous)
+}
+
+func TestParentNode_InsertBeforeNode_NonEmptyParent_Success(t *testing.T) {
 	parent := newParent()
 	prev := newNode()
 	next := newNode()
@@ -109,12 +114,11 @@ func TestParent_InsertBefore_Success(t *testing.T) {
 	assert.Equal(t, prev, child.previous)
 }
 
-func TestParent_InsertBefore_NilChild(t *testing.T) {
+func TestParentNode_InsertBeforeNode_NilChild(t *testing.T) {
 	parent := newParent()
 
 	reference := newNode()
-	err := parent.AppendChildNode(reference)
-	assert.Nil(t, err)
+	_ = parent.AppendChildNode(reference)
 
 	// Nil child
 	assert.Panics(t, func() {
@@ -122,7 +126,7 @@ func TestParent_InsertBefore_NilChild(t *testing.T) {
 	}, "inserting a nil child should panic. (\"assert\" build tag must be enabled)")
 }
 
-func TestParent_InsertBefore_NilReference(t *testing.T) {
+func TestParentNode_InsertBeforeNode_EmptyParent_NilReference(t *testing.T) {
 	// Inserting before a nil reference is same as appending
 
 	parent := newParent()
@@ -133,72 +137,69 @@ func TestParent_InsertBefore_NilReference(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, child, parent.firstChild)
 	assert.Equal(t, child, parent.lastChild)
-
-	// Appending another child
-	child = newNode()
-	err = parent.InsertBeforeNode(nil, child)
-	assert.Nil(t, err)
-	assert.Equal(t, child, parent.lastChild)
-	assert.Equal(t, parent.firstChild, child.previous)
-	assert.Equal(t, parent.firstChild.NextNode(), child)
-
-	// Re appending the last child
-	err = parent.InsertBeforeNode(nil, child)
-	assert.Nil(t, err)
-	assert.Equal(t, child, parent.lastChild)
-	assert.Equal(t, parent.firstChild, child.previous) // Still only two elements
-	assert.Equal(t, parent.firstChild.NextNode(), child)
 }
 
-func TestParent_InsertBefore_AncestorOfParent(t *testing.T) {
+func TestParentNode_InsertBeforeNode_NonEmptyParent_NilReference(t *testing.T) {
+	parent := newParent()
+	child := newNode()
+	_ = parent.InsertBeforeNode(nil, child)
+
+	// appending another child
+	otherChild := newNode()
+	err := parent.InsertBeforeNode(nil, otherChild)
+	assert.Nil(t, err)
+	assert.Equal(t, parent.lastChild, otherChild)
+	assert.Equal(t, child, otherChild.previous)
+	assert.Equal(t, child.next, otherChild)
+}
+
+func TestParentNode_InsertBeforeNode_AncestorOfParent(t *testing.T) {
+	// Setting up the parent node
 	parent := newParent()
 	reference := newParent()
 	_ = parent.AppendChildNode(reference)
 
-	fakeChild := newParent()
-	_ = fakeChild.InsertBeforeNode(nil, parent)
+	// Inserting the parent in the ancestor node
+	ancestor := newParent()
+	_ = ancestor.InsertBeforeNode(nil, parent)
 
-	err := parent.InsertBeforeNode(reference, fakeChild)
-	assert.NotNil(t, err)
-
-	// Try again with ParentNode of fake child
-	fakeChildParent := newParent()
-	err = fakeChildParent.AppendChildNode(fakeChild)
-	assert.Nil(t, err)
-
-	err = parent.InsertBeforeNode(reference, fakeChildParent)
+	// Trying to insert the parent node in the ancestor node
+	err := parent.InsertBeforeNode(reference, ancestor)
 	assert.NotNil(t, err)
 }
 
-func TestParent_InsertBefore_ChildWithParent(t *testing.T) {
+func TestParentNode_InsertBeforeNode_ChildWithParent(t *testing.T) {
+	// Setting up the parent
 	parent := newParent()
 	prev := newNode()
 	next := newNode()
 	_ = parent.AppendChildNode(next)
 	_ = parent.InsertBeforeNode(next, prev)
-	child := newNode()
-	_ = parent.InsertBeforeNode(next, child)
 
-	otherParent := newParent()
+	// The initial parent of the child
+	initialParent := newParent()
 	reference := newNode()
-	_ = otherParent.AppendChildNode(reference)
-	err := otherParent.InsertBeforeNode(reference, child)
-	assert.Nil(t, err)
-	assert.Equal(t, otherParent, child.parent)
-	assert.Nil(t, child.previous)
-	assert.Equal(t, reference, child.next)
+	_ = initialParent.AppendChildNode(reference)
 
-	assert.Equal(t, prev.next, next)
-	assert.Equal(t, next.previous, prev)
+	child := newNode()
+	_ = initialParent.InsertBeforeNode(reference, child)
 
-	err = parent.InsertBeforeNode(next, child)
+	// Inserting the child to the new parent
+	err := parent.InsertBeforeNode(next, child)
 	assert.Nil(t, err)
 	assert.Equal(t, parent, child.parent)
 	assert.Equal(t, next, child.next)
 	assert.Equal(t, prev, child.previous)
 }
 
-func TestParent_isAncestorOf_NilChild(t *testing.T) {
+func TestParentNode_InsertBeforeNode_Itself(t *testing.T) {
+	parent := NewParent()
+
+	err := parent.InsertBeforeNode(nil, parent)
+	assert.NotNil(t, err)
+}
+
+func TestParentNode_isAncestorOf_NilChild(t *testing.T) {
 	parent := newParent()
 	assert.False(t, parent.IsAncestorOf(nil))
 }
@@ -239,5 +240,12 @@ func TestParentNode_RemoveChild_NilChild(t *testing.T) {
 }
 
 func TestParentNode_RemoveChild_ChildOfAnotherParent(t *testing.T) {
+	node := newParent()
+	parent := newParent()
+	child := newNode()
 
+	_ = parent.AppendChildNode(child)
+
+	err := node.RemoveChildNode(child)
+	assert.NotNil(t, err)
 }
