@@ -7,22 +7,48 @@ import (
 )
 
 func TestNode_New(t *testing.T) {
-	node := newNode()
+	node := NewNode()
 	assert.NotNil(t, node)
 }
 
-func TestNode_isDescendantOf(t *testing.T) {
+func TestNode_isDescendantOf_Parent(t *testing.T) {
 	parent := NewParent()
-	node := newNode()
+	node := NewNode()
 
 	err := parent.AppendChildNode(node)
 	assert.Nil(t, err)
 	assert.True(t, node.IsDescendantOf(parent))
-	err = parent.RemoveChildNode(node)
-	assert.Nil(t, err)
-	assert.False(t, node.IsDescendantOf(parent))
+}
+
+func TestNode_IsDescendantOf_NonChildNode(t *testing.T) {
+	parent := NewParent()
+
+	_ = parent.AppendChildNode(newNode())
 
 	assert.False(t, newNode().IsDescendantOf(parent))
+}
+
+func TestNode_IsDescendantOf_RemovedChild(t *testing.T) {
+	parent := NewParent()
+	node := NewNode()
+
+	_ = parent.AppendChildNode(node)
+
+	err := parent.RemoveChildNode(node)
+	assert.Nil(t, err)
+	assert.False(t, node.IsDescendantOf(parent))
+}
+
+func TestNode_IsDescendantOf_GreatParent(t *testing.T) {
+	greatParent := NewParent()
+	parent := NewParent()
+	node := NewNode()
+
+	_ = parent.AppendChildNode(node)
+	_ = greatParent.AppendChildNode(parent)
+
+	assert.True(t, node.IsDescendantOf(greatParent))
+	assert.True(t, node.IsDescendantOf(parent))
 }
 
 func TestNode_isDescendantOf_NilParent(t *testing.T) {
@@ -31,7 +57,7 @@ func TestNode_isDescendantOf_NilParent(t *testing.T) {
 }
 
 func TestNode_Root(t *testing.T) {
-	parent := newParent()
+	parent := NewParent()
 	assert.Nil(t, parent.RootNode())
 
 	root := NewRoot(parent)
