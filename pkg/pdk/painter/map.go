@@ -1,19 +1,19 @@
-package renderer
+package painter
 
 import (
 	"github.com/negrel/debuggo/pkg/assert"
-	"github.com/negrel/paon/internal/render"
+	"github.com/negrel/paon/internal/draw"
 	"github.com/negrel/paon/pkg/pdk/styles/property"
 )
 
-// AddCustomRenderer adds the given render.Renderer constructor to the render map
+// AddCustomRenderer adds the given draw.Painter constructor to the render map
 // and return its ID. This ID should be used for the Display property.
-func AddCustomRenderer(constructor func() render.Renderer) int {
+func AddCustomRenderer(constructor func() draw.Painter) int {
 	return rMap.add(constructor)
 }
 
-// GetFor returns a new render.Renderer for the given render.Object.
-func GetFor(object render.Object) render.Renderer {
+// GetFor returns a new draw.Painter for the given draw.Object.
+func GetFor(object draw.Object) draw.Painter {
 	prop := object.Style().Get(property.IDDisplay)
 	assert.NotNil(prop)
 	rendererID := prop.(property.Int)
@@ -27,7 +27,7 @@ func IsValidRendererID(rendererID int) bool {
 }
 
 type rendererMap struct {
-	renderers map[int]func() render.Renderer
+	renderers map[int]func() draw.Painter
 }
 
 const (
@@ -38,7 +38,7 @@ const (
 )
 
 var rMap = rendererMap{
-	renderers: map[int]func() render.Renderer{
+	renderers: map[int]func() draw.Painter{
 		Hidden: makeHidden,
 		Block:  makeBlock,
 		Inline: makeInline,
@@ -46,7 +46,7 @@ var rMap = rendererMap{
 	},
 }
 
-func (rm rendererMap) add(renderer func() render.Renderer) int {
+func (rm rendererMap) add(renderer func() draw.Painter) int {
 	index := rm.len()
 	rm.renderers[index] = renderer
 
