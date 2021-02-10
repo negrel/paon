@@ -3,6 +3,7 @@ package paon
 import (
 	"github.com/negrel/paon/internal/draw"
 	"github.com/negrel/paon/internal/geometry"
+	"github.com/negrel/paon/internal/render"
 	"github.com/negrel/paon/pkg/pdk/events"
 )
 
@@ -15,7 +16,7 @@ var _ Window = &window{}
 
 type window struct {
 	events.Target
-	draw.Screen
+	render.Screen
 }
 
 func newWindow() *window {

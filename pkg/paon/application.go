@@ -5,7 +5,7 @@ import (
 	"github.com/negrel/debuggo/pkg/log"
 	"time"
 
-	"github.com/negrel/paon/internal/draw"
+	"github.com/negrel/paon/internal/render"
 	"github.com/negrel/paon/pkg/pdk/events"
 	"github.com/negrel/paon/pkg/pdk/widgets"
 )
@@ -48,7 +48,7 @@ func (a *App) Start(root widgets.Widget) (err error) {
 	a.root = newRoot(root)
 
 	if a.window.Screen == nil {
-		a.window.Screen, err = draw.NewTcellScreen()
+		a.window.Screen, err = render.NewTcellScreen()
 		if err != nil {
 			return
 		}
@@ -67,7 +67,7 @@ func (a *App) Start(root widgets.Widget) (err error) {
 	go a.listenToEvents(ctx)
 
 	// Create & start the rendering engine
-	engine := draw.NewEngine(a.clock, ctx)
+	engine := render.NewEngine(a.clock, ctx)
 	go engine.Start()
 
 	// Wait until application stop
