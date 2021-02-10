@@ -1,4 +1,4 @@
-package draw
+package render
 
 import (
 	"github.com/davecgh/go-spew/spew"
@@ -67,7 +67,7 @@ func (t *tcellScreen) Update() {
 }
 
 // Apply the given patch to the Screen.
-func (t *tcellScreen) Apply(patch Canvas) {
+func (t *tcellScreen) Apply(patch Buffer) {
 	log.Traceln("applying patch", patch)
 
 	for i, row := range patch.grid {
