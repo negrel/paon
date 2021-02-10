@@ -1,6 +1,6 @@
-package render
+package draw
 
-type Renderer interface {
+type Painter interface {
 	Layout(ctx Context)
 	Draw(ctx Context)
 }

@@ -1,4 +1,4 @@
-package render
+package draw
 
 import "github.com/negrel/paon/internal/geometry"
 

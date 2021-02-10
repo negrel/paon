@@ -1,12 +1,12 @@
-package render
+package draw
 
 import (
 	pdkstyle "github.com/negrel/paon/pkg/pdk/styles"
 )
 
-// Object define any object that can be rendered.
+// Object defined any object that can be painted.
 type Object interface {
 	pdkstyle.Stylised
 
-	Render(ctx Context)
+	Paint(ctx Context)
 }
