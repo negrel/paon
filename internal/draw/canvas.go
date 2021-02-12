@@ -1,6 +1,7 @@
 package draw
 
 import (
+	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/internal/render"
 )
@@ -23,6 +24,8 @@ func MakeCanvas(bounds geometry.Rectangle) Canvas {
 // SubCanvas returns a Canvas sharing the same render.Cell grid
 // but with different bounds.
 func (c Canvas) SubCanvas(bounds geometry.Rectangle) Canvas {
+	assert.True(c.Bounds.Contains(bounds.Min) && c.Bounds.Contains(bounds.Max))
+
 	return Canvas{
 		Bounds:   bounds,
 		cellGrid: c.cellGrid,
