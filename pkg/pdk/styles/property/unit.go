@@ -8,12 +8,12 @@ var _ Property = Unit{}
 
 type Unit struct {
 	Prop
-	val.Unit
+	Value val.Unit
 }
 
 func MakeUnit(id ID, unit val.Unit) Unit {
 	return Unit{
-		Prop: MakeProp(id),
-		Unit: unit,
+		Prop:  MakeProp(id),
+		Value: unit,
 	}
 }

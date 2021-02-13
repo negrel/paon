@@ -11,5 +11,5 @@ const (
 
 type Unit struct {
 	Value int
-	ID    UnitID
+	UnitID
 }
