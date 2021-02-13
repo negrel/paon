@@ -183,7 +183,7 @@ func (r Rectangle) Empty() bool {
 // Contains returns whether or not the given Point is contained in the Rectangle.
 func (r Rectangle) Contains(point Point) bool {
 	return point.x >= r.Min.x && point.x <= r.Max.x &&
-		point.y >= r.Min.y && point.y <= r.Max.y
+		point.y > r.Min.y && point.y < r.Max.y
 }
 
 // Overlaps returns true if the other Rectangle overlap this one.
