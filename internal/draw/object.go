@@ -4,9 +4,8 @@ import (
 	pdkstyle "github.com/negrel/paon/pkg/pdk/styles"
 )
 
-// Object defined any object that can be painted.
+// Object represents thing that can be painted by a Painter.
 type Object interface {
 	pdkstyle.Stylised
-
-	Paint(ctx Context)
+	Drawable
 }
