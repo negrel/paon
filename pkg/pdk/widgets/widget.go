@@ -18,19 +18,19 @@ type Widget interface {
 	draw.Object
 	themes.Themed
 
-	// ID return the unique generated ID or the given one using the ID Option.
+	// ID returns the unique generated ID or the given one using the ID Option.
 	ID() string
 
-	// Root return the root Widget in the tree.
+	// Root returns the root Widget in the tree.
 	Root() Root
 
-	// Parent return the Layout that contain this Widget in the tree.
+	// Parent returns the Layout that contain this Widget in the tree.
 	Parent() Layout
 
-	// Next return the next sibling of the Widget.
+	// Next returns the next sibling of the Widget.
 	Next() Widget
 
-	// Previous return the previous sibling of the Widget.
+	// Previous returns the previous sibling of the Widget.
 	Previous() Widget
 }
 
@@ -44,7 +44,7 @@ type widget struct {
 	id    string
 }
 
-// NewWidget return a new Widget object customized with the given Option.
+// NewWidget returns a new Widget object customized with the given Option.
 func NewWidget(opts ...Option) Widget {
 	w := newWidget(tree.NewNode())
 
@@ -118,116 +118,12 @@ func (w *widget) Style() styles.Style {
 	return w.theme
 }
 
-// Theme return the theme of the widget.
+// Theme implements the themes.Themed interface.
 func (w *widget) Theme() themes.Theme {
 	return w.theme
 }
 
-// ParentObject implements the render.Object interface.
-func (w *widget) ParentObject() render.Object {
-	return w.Parent()
-}
-
-func (w *widget) Size() geometry.Size {
-	return geometry.NewSize(w.Width(), w.Height())
-}
-
-func (w *widget) cleanCache() {
-	w.cache = cache{}
-}
-
-func (w *widget) Width() int {
-	var width int
-	if w.cache.validWidth {
-		width = w.cache.width
-	} else {
-		width = w.width()
-		w.cache.width = width
-	}
-
-	return width
-}
-
-func (w *widget) width() int {
-	return w.computeHeightOrWidth(property.IDWidth, property.IDMinWidth, property.IDMaxWidth)
-}
-
-func (w *widget) Height() int {
-	var height int
-
-	if w.cache.validHeight {
-		height = w.cache.height
-	} else {
-		height = w.height()
-		w.cache.height = height
-	}
-
-	return height
-}
-
-func (w *widget) height() int {
-	return w.computeHeightOrWidth(property.IDHeight, property.IDMinHeight, property.IDMaxHeight)
-}
-
-func (w *widget) computeHeightOrWidth(p, min, max property.ID) int {
-	result := -1
-
-	if r := w.theme.Get(p); w != nil {
-		result = w.toCellUnitValue(r.(property.Unit).Unit, p == property.IDWidth)
-	}
-
-	if max := w.theme.Get(min); max != nil {
-		maxR := max.(property.Unit).Value
-		result = math.Min(result, maxR)
-	}
-
-	if min := w.theme.Get(max); min != nil {
-		minR := min.(property.Unit).Value
-		result = math.Max(result, minR)
-	}
-
-	return result
-}
-
-func (w *widget) toCellUnitValue(uv value.Unit, width bool) int {
-	switch uv.ID {
-	case value.CellUnit:
-		return uv.Value
-
-	case value.PercentageUnit:
-		parent := w.Parent()
-		if parent == nil {
-			return -1
-		}
-
-		if width {
-			return parent.Width() / 100 * uv.Value
-		}
-		return parent.Height() / 100 * uv.Value
-
-	case value.WindowWidthUnit:
-		return w.Root().Width() / 100 * uv.Value
-
-	case value.WindowHeightUnit:
-		return w.Root().Height() / 100 * uv.Value
-
-	default:
-		panic("can't convert unknown unit value to cell unit")
-	}
-}
-
-func (w *widget) Position() geometry.Point {
-	var position geometry.Point
-	if w.cache.validPosition {
-		position = w.cache.position
-	} else {
-		position = w.position()
-		w.cache.position = position
-	}
-
-	return position
-}
-
-func (w *widget) position() geometry.Point {
-	return geometry.Point{}
+// Draw implements the draw.Drawable interface.
+func (w *widget) Draw(canvas draw.Canvas) {
+	panic("implement me")
 }
