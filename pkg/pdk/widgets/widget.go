@@ -2,8 +2,8 @@ package widgets
 
 import (
 	"fmt"
-	"github.com/negrel/paon/internal/draw"
 	"github.com/negrel/paon/internal/tree"
+	"github.com/negrel/paon/pkg/pdk/draw"
 	"github.com/negrel/paon/pkg/pdk/events"
 	"github.com/negrel/paon/pkg/pdk/styles"
 	"github.com/negrel/paon/pkg/pdk/widgets/themes"
@@ -15,7 +15,7 @@ type Widget interface {
 	fmt.Stringer
 	tree.Node
 	events.Target
-	draw.Object
+	draw.Drawer
 	themes.Themed
 
 	// ID returns the unique generated ID or the given one using the ID Option.
