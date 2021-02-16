@@ -6,24 +6,24 @@ import (
 	"time"
 )
 
-// Engine is responsible for rendering the
+// Engine is responsible for rendering the received buffers.
 type Engine struct {
-	ch     chan Buffer
+	ch     chan Patch
 	ctx    context.Context
-	Screen Screen
+	Screen Surface
 	clock  *time.Ticker
 }
 
 // NewEngine return a new rendering engine that draw on the given surface.
 func NewEngine(clock *time.Ticker, ctx context.Context) *Engine {
 	return &Engine{
-		ch:    make(chan Buffer),
+		ch:    make(chan Patch),
 		ctx:   ctx,
 		clock: clock,
 	}
 }
 
-func (e *Engine) Draw(patch Buffer) {
+func (e *Engine) Draw(patch Patch) {
 	e.ch <- patch
 }
 
@@ -44,7 +44,7 @@ func (e *Engine) Start() {
 		case <-e.clock.C:
 			if needRefresh {
 				go func() {
-					e.Screen.Update()
+					e.Screen.Flush()
 					needRefresh = false
 				}()
 			}
