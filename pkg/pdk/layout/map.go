@@ -21,6 +21,11 @@ func GetFor(object styles.Stylised) Algorithm {
 	return algoMap.algorithms[algoID.Value]()
 }
 
+// IsValidAlgorithmID returns true if the given rendererID is valid.
+func IsValidAlgorithmID(algorithmID int) bool {
+	return algorithmID > 0 && algorithmID < algoMap.len()
+}
+
 type algorithmMap struct {
 	algorithms map[int]func() Algorithm
 }
