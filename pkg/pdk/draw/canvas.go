@@ -1,6 +1,9 @@
 package draw
 
-import "github.com/negrel/paon/internal/geometry"
+import (
+	"github.com/negrel/paon/internal/geometry"
+	"github.com/negrel/paon/pkg/pdk/render"
+)
 
 type Canvas interface {
 	// Bounds returns the bounds of this Canvas.
@@ -9,7 +12,7 @@ type Canvas interface {
 	// Get returns the cell at the given position.
 	// A nil pointer is returned if the given position is not
 	// within this Canvas bounds.
-	Get(geometry.Point) *Cell
+	Get(geometry.Point) *render.Cell
 
 	// SubCanvas returns a new Canvas sharing the same underlying
 	// Cell but with different bounds.
@@ -17,4 +20,7 @@ type Canvas interface {
 
 	// Draw applies the Drawer in this Canvas.
 	Draw(Drawer)
+
+	// Patch returns a render.Patch object ready to be renderer.
+	Patch() render.Patch
 }
