@@ -1,24 +1,35 @@
 package draw
 
-import "github.com/negrel/paon/internal/geometry"
+import (
+	"github.com/negrel/paon/internal/geometry"
+	"github.com/negrel/paon/pkg/pdk/render"
+)
 
 var _ Canvas = CellGrid{}
 
 type CellGrid struct {
 	bounds geometry.Rectangle
-	grid   [][]*Cell
+	grid   [][]*render.Cell
 }
 
-func (cg CellGrid) get(pos geometry.Point) *Cell {
+// MakeCellGrid return a new CellGrid Canvas.
+func MakeCellGrid(bounds geometry.Rectangle) CellGrid {
+	return CellGrid{
+		bounds: bounds,
+		grid:   make([][]*render.Cell, bounds.Height()),
+	}
+}
+
+func (cg CellGrid) get(pos geometry.Point) *render.Cell {
 	row := cg.grid[pos.Y()]
 	if row == nil {
-		row = make([]*Cell, cg.bounds.Width())
+		row = make([]*render.Cell, cg.bounds.Width())
 		cg.grid[pos.Y()] = row
 	}
 
 	cell := row[pos.X()]
 	if cell == nil {
-		cell = &Cell{}
+		cell = &render.Cell{}
 		row[pos.X()] = cell
 	}
 
@@ -26,7 +37,7 @@ func (cg CellGrid) get(pos geometry.Point) *Cell {
 }
 
 // Get implements the Canvas interface.
-func (cg CellGrid) Get(pos geometry.Point) *Cell {
+func (cg CellGrid) Get(pos geometry.Point) *render.Cell {
 	if !cg.bounds.Contains(pos) {
 		return nil
 	}
