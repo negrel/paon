@@ -34,6 +34,13 @@ const (
 	IDBackgroundColor
 	IDForegroundColor
 
+	IDBorderLeft
+	IDBorderTop
+	IDBorderRight
+	IDBorderBottom
+	IDBorderColor
+	IDBorderCharSet
+
 	// Used for custom property created using the pdk
 	unusedID
 )
