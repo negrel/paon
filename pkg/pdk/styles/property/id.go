@@ -11,7 +11,7 @@ var _ fmt.Stringer = ID(0)
 type ID int32
 
 const (
-	IDDisplay ID = iota + 1
+	IDFlow ID = iota + 1
 
 	IDWidth
 	IDMinWidth

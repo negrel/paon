@@ -14,7 +14,7 @@ func AddCustomAlgorithm(constructor func() Flow) int {
 
 // GetFor returns a new draw.Painter for the given draw.Object.
 func GetFor(object styles.Stylised) Flow {
-	prop := object.Style().Get(property.IDDisplay)
+	prop := object.Style().Get(property.IDFlow)
 	assert.NotNil(prop)
 	algoID := prop.(property.Int)
 
