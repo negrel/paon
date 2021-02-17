@@ -14,7 +14,7 @@ func makeBlock() Algorithm {
 	return block{}
 }
 
-func (b block) Apply(obj styles.Stylised, constraint Constraint) Result {
+func (b block) Apply(obj styles.Stylised, constraint Constraint) Box {
 	style := obj.Style()
 
 	result := newBoxModel(constraint.Max)
