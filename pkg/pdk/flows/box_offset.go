@@ -1,4 +1,4 @@
-package layout
+package flows
 
 import "github.com/negrel/paon/internal/geometry"
 

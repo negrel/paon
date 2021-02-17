@@ -1,16 +1,16 @@
-package layout
+package flows
 
 import (
 	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/pkg/pdk/styles"
 )
 
-var _ Algorithm = block{}
+var _ Flow = block{}
 
 type block struct {
 }
 
-func makeBlock() Algorithm {
+func makeBlock() Flow {
 	return block{}
 }
 
