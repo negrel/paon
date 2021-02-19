@@ -11,14 +11,13 @@ type Themed interface {
 	Theme() Theme
 }
 
-// Theme is a composition of multiple style.Style object. Each widget have a unique
-// style.Style and may have shared across multiple widgets) style.Style object.
+// Theme define a styles.Style object composed of multiple styles.Style object.
 type Theme interface {
 	pdkstyles.Style
 
-	// AddStyle add the given style.Style of the Widget style list.
+	// AddStyle adds the given style.Style of the Widget style list.
 	AddStyle(pdkstyles.Style)
-	// DelStyle delete the given style.Style of the Widget style list.
+	// DelStyle deletes the given style.Style of the Widget style list.
 	DelStyle(pdkstyles.Style)
 }
 
@@ -31,9 +30,8 @@ type theme struct {
 	styles    styleList
 }
 
-// Make return a new Theme object with the given shared style.Style and
-// a new unique style.Style object.
-func Make(getParent func() Themed) Theme {
+// New returns a new Theme object.
+func New(getParent func() Themed) Theme {
 	return theme{
 		getParent: getParent,
 		Style:     pdkstyles.MakeStyle(),

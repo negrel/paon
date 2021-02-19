@@ -3,7 +3,6 @@ package widgets
 import (
 	"fmt"
 	"github.com/negrel/paon/internal/tree"
-	"github.com/negrel/paon/pkg/pdk/draw"
 	"github.com/negrel/paon/pkg/pdk/events"
 	"github.com/negrel/paon/pkg/pdk/styles"
 	"github.com/negrel/paon/pkg/pdk/widgets/themes"
@@ -15,7 +14,6 @@ type Widget interface {
 	fmt.Stringer
 	tree.Node
 	events.Target
-	draw.Drawer
 	themes.Themed
 
 	// ID returns the unique generated ID or the given one using the ID Option.
@@ -40,8 +38,8 @@ type widget struct {
 	tree.Node
 	events.Target
 
-	theme themes.Theme
 	id    string
+	theme themes.Theme
 }
 
 // NewWidget returns a new Widget object customized with the given Option.
@@ -60,7 +58,7 @@ func newWidget(node tree.Node) *widget {
 		Node:   node,
 		Target: events.MakeTarget(),
 	}
-	w.theme = themes.Make(func() themes.Themed { return w.Parent() })
+	w.theme = themes.New(func() themes.Themed { return w.Parent() })
 	w.theme.AddEventListener(themes.ThemeChangeListener(func(_ themes.EventThemeChange) {
 
 	}))
@@ -121,9 +119,4 @@ func (w *widget) Style() styles.Style {
 // Theme implements the themes.Themed interface.
 func (w *widget) Theme() themes.Theme {
 	return w.theme
-}
-
-// Draw implements the draw.Drawable interface.
-func (w *widget) Draw(canvas draw.Canvas) {
-	panic("implement me")
 }
