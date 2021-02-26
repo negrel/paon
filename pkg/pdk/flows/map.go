@@ -18,7 +18,12 @@ func GetFor(object styles.Stylised) Flow {
 	assert.NotNil(prop)
 	algoID := prop.(property.Int)
 
-	return fMap.algorithms[algoID.Value]()
+	makeFlow, ok := fMap.algorithms[algoID.Value]
+	if !ok {
+		return fMap.algorithms[Unset]()
+	}
+
+	return makeFlow()
 }
 
 // IsValidFlowID returns true if the given rendererID is valid.
@@ -31,7 +36,8 @@ type flowMap struct {
 }
 
 const (
-	Hidden = iota
+	Unset = iota
+	Hidden
 	Block
 	Inline
 	Flex
@@ -39,6 +45,7 @@ const (
 
 var fMap = flowMap{
 	algorithms: map[int]func() Flow{
+		Unset:  func() Flow { return nil },
 		Hidden: makeHidden,
 		Block:  makeBlock,
 		Inline: makeInline,
