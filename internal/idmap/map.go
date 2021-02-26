@@ -11,7 +11,7 @@ type Map interface {
 var _ Map = &idMap{}
 
 type idMap struct {
-	sync.Mutex
+	sync.RWMutex
 	m map[int32]string
 }
 
@@ -28,8 +28,8 @@ func (im *idMap) Set(p int32, name string) {
 }
 
 func (im *idMap) Get(p int32) string {
-	im.Lock()
-	defer im.Unlock()
+	im.RLock()
+	defer im.RUnlock()
 	return im.m[p]
 }
 
