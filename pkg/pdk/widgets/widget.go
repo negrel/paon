@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/negrel/paon/internal/tree"
 	"github.com/negrel/paon/pkg/pdk/events"
+	"github.com/negrel/paon/pkg/pdk/flows"
 	"github.com/negrel/paon/pkg/pdk/styles"
 	"github.com/negrel/paon/pkg/pdk/widgets/themes"
 )
@@ -30,6 +31,10 @@ type Widget interface {
 
 	// Previous returns the previous sibling of the Widget.
 	Previous() Widget
+
+	// Flow returns the flows.Flow function used during the layout
+	// of the Widget.
+	Flow() flows.Flow
 }
 
 var _ Widget = &widget{}
@@ -119,4 +124,9 @@ func (w *widget) Style() styles.Style {
 // Theme implements the themes.Themed interface.
 func (w *widget) Theme() themes.Theme {
 	return w.theme
+}
+
+// Flow implements the Widget interface.
+func (w *widget) Flow() flows.Flow {
+	return flows.GetFor(w)
 }
