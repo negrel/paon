@@ -62,3 +62,15 @@ func (cg CellGrid) SubCanvas(bounds geometry.Rectangle) Canvas {
 func (cg CellGrid) Draw(drawer Drawer) {
 	drawer.Draw(cg)
 }
+
+// Patch implements the Canvas interface.
+func (cg CellGrid) Patch() render.Patch {
+	return render.Patch{
+		Pos:   cg.bounds.Min,
+		Cells: cg.grid,
+	}
+}
+
+func (cg CellGrid) NewContext(bounds geometry.Rectangle) Context {
+	return newContext(cg, bounds)
+}

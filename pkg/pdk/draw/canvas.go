@@ -15,7 +15,7 @@ type Canvas interface {
 	Get(geometry.Point) *render.Cell
 
 	// SubCanvas returns a new Canvas sharing the same underlying
-	// Cell but with different bounds.
+	// render.Cell but with different bounds.
 	SubCanvas(bounds geometry.Rectangle) Canvas
 
 	// Draw applies the Drawer in this Canvas.
@@ -23,4 +23,7 @@ type Canvas interface {
 
 	// Patch returns a render.Patch object ready to be renderer.
 	Patch() render.Patch
+
+	// NewContext create a new context to draw on this Canvas within the given bounds.
+	NewContext(bounds geometry.Rectangle) Context
 }
