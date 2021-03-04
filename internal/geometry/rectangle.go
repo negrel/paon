@@ -186,6 +186,30 @@ func (r Rectangle) Contains(point Point) bool {
 		point.y > r.Min.y && point.y < r.Max.y
 }
 
+// Intersect returns the largest rectangle contained by both r and s. If the
+// two rectangles do not overlap then the zero rectangle will be returned.
+func (r Rectangle) Intersect(other Rectangle) Rectangle {
+	if r.Min.x < other.Min.x {
+		r.Min.x = other.Min.x
+	}
+	if r.Min.y < other.Min.y {
+		r.Min.y = other.Min.y
+	}
+
+	if r.Max.x < other.Max.x {
+		r.Max.x = other.Max.x
+	}
+	if r.Max.y < other.Max.y {
+		r.Max.y = other.Max.y
+	}
+
+	if r.Empty() {
+		return Rectangle{}
+	}
+
+	return r
+}
+
 // Overlaps returns true if the other Rectangle overlap this one.
 func (r Rectangle) Overlaps(other Rectangle) bool {
 	return !r.Empty() && !other.Empty() &&
