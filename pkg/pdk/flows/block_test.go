@@ -9,7 +9,7 @@ import (
 
 func testBlockApply(t *testing.T, constraint Constraint, s styles.Style) {
 	width := constraint.Max.Width()
-	height := computeConstrainedHeight(s, constraint)
+	height := ComputeConstrainedHeight(s, constraint)
 	margin := marginOf(s)
 	border := borderOf(s)
 	padding := paddingOf(s)

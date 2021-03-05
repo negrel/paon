@@ -25,7 +25,7 @@ func (b block) Apply(style styles.Style, constraint Constraint) BoxModel {
 		Min: constraint.Min,
 		Max: result.ContentBox(),
 	}
-	height := computeConstrainedHeight(style, contentBoxConstraint)
+	height := ComputeConstrainedHeight(style, contentBoxConstraint)
 	heightDiff := height - result.BorderBox().Height()
 	if heightDiff < 0 {
 		result.resize(

@@ -1,6 +1,9 @@
 package flows
 
-import "github.com/negrel/paon/internal/geometry"
+import (
+	"github.com/negrel/paon/internal/geometry"
+	"github.com/negrel/paon/pkg/pdk/styles"
+)
 
 // BoxModel define a sized box with margin, border and padding in a 2D geometric plane.
 type BoxModel interface {
@@ -66,6 +69,10 @@ func (b *Box) resize(size geometry.Size) {
 	)
 }
 
+func (b *Box) ApplyMargin(style styles.Style) {
+	b.applyMargin(marginOf(style))
+}
+
 func (b *Box) applyMargin(margin boxOffset) {
 	b.borderBox.Min = b.borderBox.Min.Add(
 		geometry.Pt(b.marginBoxOffset.left(), b.marginBoxOffset.top()),
@@ -84,8 +91,16 @@ func (b *Box) applyMargin(margin boxOffset) {
 	)
 }
 
+func (b *Box) ApplyBorder(style styles.Style) {
+	b.applyBorder(borderOf(style))
+}
+
 func (b *Box) applyBorder(border boxOffset) {
 	b.paddingBoxOffset = border
+}
+
+func (b *Box) ApplyPadding(style styles.Style) {
+	b.applyPadding(paddingOf(style))
 }
 
 func (b *Box) applyPadding(padding boxOffset) {
