@@ -129,4 +129,5 @@ func (c *context) Commit() {
 	for _, op := range c.ops {
 		op(c.canvas)
 	}
+	c.ops = make([]func(Canvas), 0, 8)
 }

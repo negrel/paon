@@ -43,3 +43,29 @@ func TestContext_FillRectangle(t *testing.T) {
 		assert.Equal(t, fillColor, cell.Style.Background)
 	}
 }
+
+func TestContext_Commit(t *testing.T) {
+	ok := false
+
+	ctx := newContext(nil, geometry.Rectangle{})
+	ctx.ops = append(ctx.ops, func(Canvas) {
+		ok = true
+	})
+	assert.False(t, ok)
+
+	ctx.Commit()
+	assert.True(t, ok)
+}
+
+func TestContext_DoubleCommit(t *testing.T) {
+	counter := 0
+
+	ctx := newContext(nil, geometry.Rectangle{})
+	ctx.ops = append(ctx.ops, func(Canvas) {
+		counter++
+	})
+	ctx.Commit()
+	ctx.Commit()
+
+	assert.Equal(t, 1, counter)
+}
