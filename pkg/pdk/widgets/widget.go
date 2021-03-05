@@ -9,7 +9,7 @@ import (
 	"github.com/negrel/paon/pkg/pdk/widgets/themes"
 )
 
-// Widget define any object part of the Widget tree
+// Widget define any object part of this Widget tree
 // that can be rendered in the screen.
 type Widget interface {
 	fmt.Stringer
@@ -26,15 +26,14 @@ type Widget interface {
 	// Parent returns the Layout that contain this Widget in the tree.
 	Parent() Layout
 
-	// Next returns the next sibling of the Widget.
+	// Next returns the next sibling of this Widget.
 	Next() Widget
 
-	// Previous returns the previous sibling of the Widget.
+	// Previous returns the previous sibling of this Widget.
 	Previous() Widget
 
-	// Flow returns the flows.Flow function used during the layout
-	// of the Widget.
-	Flow() flows.Flow
+	// Flow returns the flows.Box of this Widget.
+	Flow(flows.Constraint) flows.Box
 }
 
 var _ Widget = &widget{}
@@ -127,6 +126,6 @@ func (w *widget) Theme() themes.Theme {
 }
 
 // Flow implements the Widget interface.
-func (w *widget) Flow() flows.Flow {
-	return flows.GetFor(w)
+func (w *widget) Flow(constraint flows.Constraint) flows.Box {
+	return flows.GetFor(w).Apply(w, constraint)
 }
