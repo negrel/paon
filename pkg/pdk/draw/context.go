@@ -2,6 +2,7 @@ package draw
 
 import (
 	"github.com/negrel/paon/internal/geometry"
+	"github.com/negrel/paon/pkg/pdk/render"
 	"github.com/negrel/paon/pkg/pdk/styles/value"
 )
 
@@ -17,6 +18,7 @@ type Context interface {
 	FillColor() value.Color
 
 	// FillRectangle draws a geometry.Rectangle that is filled according to the current fill color.
+	// Note that this methods overwrite text present on the Canvas.
 	FillRectangle(rectangle geometry.Rectangle)
 
 	// FillTextH draws the given text horizontally from the given origin on this Canvas.
@@ -73,7 +75,11 @@ func (c *context) FillRectangle(rectangle geometry.Rectangle) {
 	c.ops = append(c.ops, func(canvas Canvas) {
 		for i := rectangle.Min.X(); i < rectangle.Max.X(); i++ {
 			for j := rectangle.Min.Y(); j < rectangle.Max.Y(); j++ {
-				canvas.Get(geometry.Pt(i, j)).Style.Background = fillColor
+				cell := canvas.Get(geometry.Pt(i, j))
+				cell.Style = render.CellStyle{}
+				cell.Style.Background = fillColor
+				cell.Style.Foreground = fillColor
+				cell.Content = 0
 			}
 		}
 	})
