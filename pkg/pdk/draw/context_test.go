@@ -73,6 +73,36 @@ func TestContext_FillTextH(t *testing.T) {
 	}
 }
 
+func TestContext_FillTextV(t *testing.T) {
+	fillRect := geometry.Rect(0, 0, 20, 20)
+	fillColor := value.ColorFromRGB(255, 0, 0)
+
+	ctrl := gomock.NewController(t)
+	canvas := NewMockCanvas(ctrl)
+	canvas.EXPECT().Bounds().Return(fillRect).AnyTimes()
+
+	cells := make([]*render.Cell, 0, fillRect.Height()*fillRect.Width())
+	for i := fillRect.Min.Y(); i < fillRect.Max.Y(); i++ {
+		for j := fillRect.Min.X(); j < fillRect.Max.X(); j++ {
+			cell := &render.Cell{}
+			cells = append(cells, cell)
+			canvas.EXPECT().Get(gomock.Eq(geometry.Pt(j, i))).Return(cell).AnyTimes()
+		}
+	}
+
+	ctx := newContext(canvas, canvas.Bounds())
+	ctx.SetFillColor(fillColor)
+	textOrigin := geometry.Pt(9, 5)
+	text := "Hello world"
+	ctx.FillTextV(textOrigin, text)
+	ctx.Commit()
+
+	for i, char := range text {
+		index := (textOrigin.Y()+i)*fillRect.Width() + textOrigin.X()
+		assert.Equal(t, char, cells[index].Content)
+	}
+}
+
 func TestContext_FillRectangle(t *testing.T) {
 	fillRect := geometry.Rect(5, 7, 7, 9)
 	fillColor := value.ColorFromRGB(255, 0, 0)
