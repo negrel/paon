@@ -18,9 +18,6 @@ type Canvas interface {
 	// render.Cell but with different bounds.
 	SubCanvas(bounds geometry.Rectangle) Canvas
 
-	// Draw applies the Drawer in this Canvas.
-	Draw(Drawer)
-
 	// Patch returns a render.Patch object ready to be renderer.
 	Patch() render.Patch
 
