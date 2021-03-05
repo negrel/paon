@@ -123,6 +123,11 @@ func TestContext_FillRectangle(t *testing.T) {
 	ctx := newContext(canvas, canvas.Bounds())
 	ctx.SetFillColor(fillColor)
 	ctx.FillRectangle(fillRect)
+
+	for _, cell := range cells {
+		assert.NotEqual(t, fillColor, cell.Style.Background)
+	}
+
 	ctx.Commit()
 
 	for _, cell := range cells {
@@ -131,5 +136,29 @@ func TestContext_FillRectangle(t *testing.T) {
 }
 
 func TestContext_FillRectangle_OverText(t *testing.T) {
+	fillRect := geometry.Rect(5, 7, 7, 9)
+	fillColor := value.ColorFromRGB(255, 0, 0)
 
+	ctrl := gomock.NewController(t)
+	canvas := NewMockCanvas(ctrl)
+	canvas.EXPECT().Bounds().Return(fillRect).AnyTimes()
+
+	cells := make([]*render.Cell, 0, fillRect.Height()*fillRect.Width())
+	for i := fillRect.Min.Y(); i < fillRect.Max.Y(); i++ {
+		for j := fillRect.Min.X(); j < fillRect.Max.X(); j++ {
+			cell := &render.Cell{Content: rune(i + j)}
+			cells = append(cells, cell)
+			canvas.EXPECT().Get(gomock.Eq(geometry.Pt(j, i))).Return(cell)
+		}
+	}
+
+	ctx := newContext(canvas, canvas.Bounds())
+	ctx.SetFillColor(fillColor)
+	ctx.FillRectangle(fillRect)
+	ctx.Commit()
+
+	for _, cell := range cells {
+		assert.Equal(t, fillColor, cell.Style.Background)
+		assert.Equal(t, rune(0), cell.Content)
+	}
 }
