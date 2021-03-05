@@ -3,6 +3,7 @@ package widgets
 import (
 	"fmt"
 	"github.com/negrel/paon/internal/tree"
+	"github.com/negrel/paon/pkg/pdk/draw"
 	"github.com/negrel/paon/pkg/pdk/events"
 	"github.com/negrel/paon/pkg/pdk/flows"
 	"github.com/negrel/paon/pkg/pdk/styles"
@@ -32,8 +33,11 @@ type Widget interface {
 	// Previous returns the previous sibling of this Widget.
 	Previous() Widget
 
-	// Flow returns the flows.Box of this Widget.
-	Flow(flows.Constraint) flows.Box
+	// Flow returns the flows.BoxModel of this Widget.
+	Flow(flows.Constraint) flows.BoxModel
+
+	// Draw draws this widget using the given draw.Context.
+	Draw(draw.Context)
 }
 
 var _ Widget = &widget{}
@@ -63,9 +67,6 @@ func newWidget(node tree.Node) *widget {
 		Target: events.MakeTarget(),
 	}
 	w.theme = themes.New(func() themes.Themed { return w.Parent() })
-	w.theme.AddEventListener(themes.ThemeChangeListener(func(_ themes.EventThemeChange) {
-
-	}))
 
 	return w
 }
@@ -126,6 +127,11 @@ func (w *widget) Theme() themes.Theme {
 }
 
 // Flow implements the Widget interface.
-func (w *widget) Flow(constraint flows.Constraint) flows.Box {
-	return flows.GetFor(w).Apply(w, constraint)
+func (w *widget) Flow(constraint flows.Constraint) flows.BoxModel {
+	return flows.GetFor(w.Theme()).Apply(w.Theme(), constraint)
+}
+
+// Draw implements the Widget interface.
+func (w *widget) Draw(context draw.Context) {
+	panic("implement me")
 }
