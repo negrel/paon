@@ -8,7 +8,6 @@ import (
 )
 
 func testBlockApply(t *testing.T, constraint Constraint, s styles.Style) {
-	stylised := makeMockStylised(s)
 	width := constraint.Max.Width()
 	height := computeConstrainedHeight(s, constraint)
 	margin := marginOf(s)
@@ -16,7 +15,7 @@ func testBlockApply(t *testing.T, constraint Constraint, s styles.Style) {
 	padding := paddingOf(s)
 
 	b := makeBlock()
-	actual := b.Apply(stylised, constraint)
+	actual := b.Apply(s, constraint)
 
 	expectedMarginBox := geometry.Rectangle{
 		Min: constraint.Min.Min,

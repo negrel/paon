@@ -2,7 +2,8 @@ package flows
 
 import "github.com/negrel/paon/internal/geometry"
 
-type Box interface {
+// BoxModel define a sized box with margin, border and padding in a 2D geometric plane.
+type BoxModel interface {
 	geometry.Sized
 
 	MarginBox() geometry.Rectangle
@@ -11,82 +12,82 @@ type Box interface {
 	ContentBox() geometry.Rectangle
 }
 
-type boxModel struct {
+type Box struct {
 	borderBox geometry.Rectangle
 	marginBoxOffset,
 	paddingBoxOffset,
 	contentBoxOffset boxOffset
 }
 
-func newBoxModel(bounds geometry.Rectangle) *boxModel {
-	return &boxModel{
+func NewBox(bounds geometry.Rectangle) *Box {
+	return &Box{
 		borderBox: bounds,
 	}
 }
 
-// MarginBox implements the Box interface.
-func (bm *boxModel) MarginBox() geometry.Rectangle {
-	return bm.marginBoxOffset.applyOn(bm.borderBox)
+// MarginBox implements the BoxModel interface.
+func (b *Box) MarginBox() geometry.Rectangle {
+	return b.marginBoxOffset.applyOn(b.borderBox)
 }
 
-// BorderBox implements the Box interface.
-func (bm *boxModel) BorderBox() geometry.Rectangle {
-	return bm.borderBox
+// BorderBox implements the BoxModel interface.
+func (b *Box) BorderBox() geometry.Rectangle {
+	return b.borderBox
 }
 
-// PaddingBox implements the Box interface.
-func (bm *boxModel) PaddingBox() geometry.Rectangle {
-	return bm.paddingBoxOffset.applyOn(bm.BorderBox())
+// PaddingBox implements the BoxModel interface.
+func (b *Box) PaddingBox() geometry.Rectangle {
+	return b.paddingBoxOffset.applyOn(b.BorderBox())
 }
 
-// ContentBox implements the Box interface.
-func (bm *boxModel) ContentBox() geometry.Rectangle {
-	return bm.contentBoxOffset.applyOn(bm.PaddingBox())
+// ContentBox implements the BoxModel interface.
+func (b *Box) ContentBox() geometry.Rectangle {
+	return b.contentBoxOffset.applyOn(b.PaddingBox())
 }
 
 // Size implements the geometry.Sized interface.
-func (bm *boxModel) Size() geometry.Size {
-	return bm.BorderBox().Size()
+func (b *Box) Size() geometry.Size {
+	return b.BorderBox().Size()
 }
 
 // Width implements the geometry.Sized interface.
-func (bm *boxModel) Width() int {
-	return bm.BorderBox().Width()
+func (b *Box) Width() int {
+	return b.BorderBox().Width()
 }
 
 // Height implements the geometry.Sized interface.
-func (bm *boxModel) Height() int {
-	return bm.BorderBox().Height()
+func (b *Box) Height() int {
+	return b.BorderBox().Height()
 }
 
-func (bm *boxModel) resize(size geometry.Size) {
-	bm.borderBox.Max = bm.borderBox.Min.Add(
+func (b *Box) resize(size geometry.Size) {
+	b.borderBox.Max = b.borderBox.Min.Add(
 		geometry.Point(size),
 	)
 }
 
-func (bm *boxModel) applyMargin(margin boxOffset) {
-	bm.borderBox.Min = bm.borderBox.Min.Add(
-		geometry.Pt(bm.marginBoxOffset.left(), bm.marginBoxOffset.top()),
+func (b *Box) applyMargin(margin boxOffset) {
+	b.borderBox.Min = b.borderBox.Min.Add(
+		geometry.Pt(b.marginBoxOffset.left(), b.marginBoxOffset.top()),
 	)
-	bm.borderBox.Max = bm.borderBox.Max.Add(
-		geometry.Pt(bm.marginBoxOffset.left(), bm.marginBoxOffset.top()),
+	b.borderBox.Max = b.borderBox.Max.Add(
+		geometry.Pt(b.marginBoxOffset.left(), b.marginBoxOffset.top()),
 	)
 
-	bm.marginBoxOffset = margin.reverse()
+	b.marginBoxOffset = margin.reverse()
 
-	bm.borderBox.Min = bm.borderBox.Min.Add(
+	b.borderBox.Min = b.borderBox.Min.Add(
 		geometry.Pt(margin.left(), margin.top()),
 	)
-	bm.borderBox.Max = bm.borderBox.Max.Add(
+	b.borderBox.Max = b.borderBox.Max.Add(
 		geometry.Pt(margin.left(), margin.top()),
 	)
 }
 
-func (bm *boxModel) applyBorder(border boxOffset) {
-	bm.paddingBoxOffset = border
+func (b *Box) applyBorder(border boxOffset) {
+	b.paddingBoxOffset = border
 }
 
-func (bm *boxModel) applyPadding(padding boxOffset) {
-	bm.contentBoxOffset = padding
+func (b *Box) applyPadding(padding boxOffset) {
+	b.contentBoxOffset = padding
 }

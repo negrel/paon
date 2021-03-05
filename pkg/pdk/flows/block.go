@@ -14,10 +14,9 @@ func makeBlock() Flow {
 	return block{}
 }
 
-func (b block) Apply(obj styles.Stylised, constraint Constraint) Box {
-	style := obj.Style()
-
-	result := newBoxModel(constraint.Max)
+// Apply implements the Flow interface.
+func (b block) Apply(style styles.Style, constraint Constraint) BoxModel {
+	result := NewBox(constraint.Max)
 	result.applyMargin(marginOf(style))
 	result.applyBorder(borderOf(style))
 	result.applyPadding(paddingOf(style))

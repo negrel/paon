@@ -7,20 +7,6 @@ import (
 	"github.com/negrel/paon/pkg/pdk/styles/value"
 )
 
-type mockStylised struct {
-	style styles.Style
-}
-
-func makeMockStylised(style styles.Style) mockStylised {
-	return mockStylised{
-		style: style,
-	}
-}
-
-func (ms mockStylised) Style() styles.Style {
-	return ms.style
-}
-
 func applyBoxOffset(s styles.Style, offsets boxOffset, props [4]property.ID) {
 	s.Set(property.MakeUnit(props[0], value.Unit{Value: offsets[0], UnitID: value.CellUnit}))
 	s.Set(property.MakeUnit(props[1], value.Unit{Value: offsets[1], UnitID: value.CellUnit}))
