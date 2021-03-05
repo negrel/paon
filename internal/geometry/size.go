@@ -29,7 +29,7 @@ func (s Size) Width() int {
 	return s.x
 }
 
-// Equal return whether the given size is equal.
-func (s Size) Equal(other Size) bool {
+// Equals returns true if the given Size is equal to this Size.
+func (s Size) Equals(other Size) bool {
 	return s.x == other.x && s.y == other.y
 }

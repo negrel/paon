@@ -51,3 +51,8 @@ func (p Point) Sub(other Point) Point {
 
 	return p
 }
+
+// Equals returns true if the given Point is equal to this Point.
+func (p Point) Equals(other Point) bool {
+	return p.X() == other.X() && p.Y() == other.Y()
+}

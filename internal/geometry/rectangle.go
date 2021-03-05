@@ -180,6 +180,11 @@ func (r Rectangle) Empty() bool {
 	return r.Min.X() == r.Max.X() || r.Min.Y() == r.Max.Y()
 }
 
+// Equals returns true if the given Rectangle is equal to this Rectangle.
+func (r Rectangle) Equals(other Rectangle) bool {
+	return r.Min.Equals(other.Min) && r.Max.Equals(other.Max)
+}
+
 // Contains returns whether or not the given Point is contained in the Rectangle.
 func (r Rectangle) Contains(point Point) bool {
 	return point.x >= r.Min.x && point.x <= r.Max.x &&
