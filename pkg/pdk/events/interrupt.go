@@ -12,7 +12,7 @@ type Interrupt struct {
 // MakeInterrupt return a new Interrupt events.Event.
 func MakeInterrupt(data interface{}) Interrupt {
 	return Interrupt{
-		Event: MakeEvent(TypeInterrupt),
+		Event: MakeEvent(TypeInterrupt()),
 		Data:  data,
 	}
 }

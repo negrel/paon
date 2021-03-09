@@ -10,7 +10,7 @@ var _ Event = Resize{}
 // ResizeListener convert the given event handler as a generic Listener.
 func ResizeListener(handler func(Resize)) *Listener {
 	l := Listener{
-		Type: TypeMouseMove,
+		Type: TypeMouseMove(),
 		Handle: func(event Event) {
 			assert.IsType(event, MakeResize(geometry.Size{}, geometry.Size{}))
 			handler(event.(Resize))
@@ -31,7 +31,7 @@ type Resize struct {
 // MakeResize return a new Resize events.Event.
 func MakeResize(newSize, oldSize geometry.Size) Resize {
 	return Resize{
-		Event:     MakeEvent(TypeResize),
+		Event:     MakeEvent(TypeResize()),
 		Size:      newSize,
 		IsWider:   newSize.Width() > oldSize.Width(),
 		IsGreater: newSize.Height() > oldSize.Height(),

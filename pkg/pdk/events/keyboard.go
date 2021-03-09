@@ -16,7 +16,7 @@ type Keyboard struct {
 // MakeKeyboard returns a new Keyboard events.Event.
 func MakeKeyboard(key, modifier int16, name string, r rune) Keyboard {
 	return Keyboard{
-		Event:    MakeEvent(TypeKeyboard),
+		Event:    MakeEvent(TypeKeyboard()),
 		Key:      key,
 		Modifier: modifier,
 		Name:     name,

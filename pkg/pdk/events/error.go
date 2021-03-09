@@ -11,10 +11,10 @@ type Error struct {
 // MakeError returns a new Error object.
 func MakeError(msg string) Error {
 	return Error{
-		event: makeEvent(TypeError),
+		event: makeEvent(TypeError()),
 		msg:   msg,
 	}
 }
-func (ee Error) Error() string {
-	return ee.msg
+func (e Error) Error() string {
+	return e.msg
 }

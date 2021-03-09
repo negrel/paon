@@ -9,7 +9,7 @@ type Unsupported struct {
 // MakeUnsupported return a new Unsupported object.
 func MakeUnsupported(content string) Unsupported {
 	return Unsupported{
-		event: makeEvent(TypeUnsupported),
+		event: makeEvent(TypeUnsupported()),
 		str:   content,
 	}
 }

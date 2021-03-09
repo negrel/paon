@@ -24,7 +24,7 @@ const (
 // ClickListener convert the given event handler as a generic Listener.
 func ClickListener(handler func(Click)) *Listener {
 	l := Listener{
-		Type: TypeClick,
+		Type: TypeClick(),
 		Handle: func(event Event) {
 			assert.IsType(event, MakeClick(geometry.Point{}, 0))
 			handler(event.(Click))
@@ -46,7 +46,7 @@ type Click struct {
 // MakeClick returns a new Click events.Event.
 func MakeClick(position geometry.Point, clickType ClickType) Click {
 	return Click{
-		Event:     MakeEvent(TypeClick),
+		Event:     MakeEvent(TypeClick()),
 		Position:  position,
 		ClickType: clickType,
 	}

@@ -8,7 +8,7 @@ import (
 // MouseMoveListener convert the given event handler as a generic Listener.
 func MouseMoveListener(handler func(MouseMove)) *Listener {
 	l := Listener{
-		Type: TypeMouseMove,
+		Type: TypeMouseMove(),
 		Handle: func(event Event) {
 			assert.IsType(event, MakeMouseMove(geometry.Point{}))
 			handler(event.(MouseMove))
@@ -29,7 +29,7 @@ type MouseMove struct {
 // MakeMouseMove returns a new MouseMove events.Event.
 func MakeMouseMove(position geometry.Point) MouseMove {
 	return MouseMove{
-		Event:    MakeEvent(TypeMouseMove),
+		Event:    MakeEvent(TypeMouseMove()),
 		Position: position,
 	}
 }

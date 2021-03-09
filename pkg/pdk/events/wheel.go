@@ -10,6 +10,6 @@ type Wheel struct {
 // MakeWheel returns a new Wheel object.
 func MakeWheel() Wheel {
 	return Wheel{
-		Event: MakeEvent(TypeWheel),
+		Event: MakeEvent(TypeWheel()),
 	}
 }
