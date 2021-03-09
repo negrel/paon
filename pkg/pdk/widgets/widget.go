@@ -2,24 +2,28 @@ package widgets
 
 import (
 	"fmt"
+	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/internal/tree"
 	"github.com/negrel/paon/pkg/pdk/draw"
 	"github.com/negrel/paon/pkg/pdk/events"
 	"github.com/negrel/paon/pkg/pdk/flows"
-	"github.com/negrel/paon/pkg/pdk/styles"
-	"github.com/negrel/paon/pkg/pdk/widgets/themes"
+	"github.com/negrel/paon/pkg/pdk/id"
+	pdkstyles "github.com/negrel/paon/pkg/pdk/styles"
 )
 
 // Widget define any object part of this Widget tree
 // that can be rendered in the screen.
 type Widget interface {
 	fmt.Stringer
+	id.Identifiable
 	tree.Node
 	events.Target
-	themes.Themed
+	pdkstyles.Stylable
+	flows.Flowable
+	draw.Drawable
 
-	// ID returns the unique generated ID or the given one using the ID Option.
-	ID() string
+	// Box returns the current flows.BoxModel of this Widget.
+	Box() flows.BoxModel
 
 	// Root returns the root Widget in the tree.
 	Root() Root
@@ -32,12 +36,6 @@ type Widget interface {
 
 	// Previous returns the previous sibling of this Widget.
 	Previous() Widget
-
-	// Flow returns the flows.BoxModel of this Widget.
-	Flow(flows.Constraint) flows.BoxModel
-
-	// Draw draws this widget using the given draw.Context.
-	Draw(draw.Context)
 }
 
 var _ Widget = &widget{}
@@ -45,9 +43,12 @@ var _ Widget = &widget{}
 type widget struct {
 	tree.Node
 	events.Target
+	flows.Flowable
+	draw.Drawable
 
-	id    string
-	theme themes.Theme
+	box   flows.BoxModel
+	id    id.ID
+	theme pdkstyles.Theme
 }
 
 // NewWidget returns a new Widget object customized with the given Option.
@@ -65,20 +66,20 @@ func newWidget(node tree.Node) *widget {
 	w := &widget{
 		Node:   node,
 		Target: events.MakeTarget(),
+		theme:  pdkstyles.NewTheme(nil),
 	}
-	w.theme = themes.New(func() themes.Themed { return w.Parent() })
 
 	return w
 }
 
 // ID implements the Widget interface.
-func (w *widget) ID() string {
+func (w *widget) ID() id.ID {
 	return w.id
 }
 
 // String implements fmt.Stringer interface.
 func (w *widget) String() string {
-	return w.ID()
+	return string(w.ID())
 }
 
 // Root implements the Widget interface.
@@ -116,22 +117,36 @@ func (w *widget) Previous() Widget {
 	return nil
 }
 
-// Style implements the styles.Stylised interface.
-func (w *widget) Style() styles.Style {
-	return w.theme
+// ParentStyle implements the styles.Stylable interface.
+func (w *widget) ParentStyle() pdkstyles.Style {
+	if parent := w.Parent(); parent != nil {
+		return parent.Style()
+	}
+
+	return nil
 }
 
-// Theme implements the themes.Themed interface.
-func (w *widget) Theme() themes.Theme {
+// Style implements the styles.Stylable interface.
+func (w *widget) Style() pdkstyles.Style {
 	return w.theme
 }
 
 // Flow implements the Widget interface.
 func (w *widget) Flow(constraint flows.Constraint) flows.BoxModel {
-	return flows.GetFor(w.Theme()).Apply(w.Theme(), constraint)
+	assert.NotNil(w.Flowable)
+	w.box = w.Flowable.Flow(constraint)
+
+	return w.box
+}
+
+// Box implements the Widget interface.
+func (w *widget) Box() flows.BoxModel {
+	return w.box
 }
 
 // Draw implements the Widget interface.
-func (w *widget) Draw(context draw.Context) {
-	panic("implement me")
+func (w *widget) Draw(ctx draw.Context) {
+	assert.NotNil(w.Drawable)
+	DrawBoxOf(w, ctx)
+	w.Drawable.Draw(ctx)
 }
