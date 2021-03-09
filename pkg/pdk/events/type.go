@@ -2,55 +2,69 @@ package events
 
 import (
 	"fmt"
-	"github.com/negrel/paon/internal/idmap"
-	"strings"
-	"sync/atomic"
+	"github.com/negrel/paon/pkg/pdk/id"
 )
 
 // Type is the type of an Event
-type Type int32
-
-// List of existing event type.
-const (
-	TypeError Type = iota - 2
-	TypeUnsupported
-	TypeInterrupt
-	TypeClick
-	TypeMouseMove
-	TypeKeyboard
-	TypeResize
-	TypeWheel
-
-	// Used for custom property created using the pdk
-	unusedType
-)
+type Type id.ID
 
 func (t Type) name() string {
-	return typeName.Get(int32(t))
+	return typeName.Get(id.ID(t))
 }
 
 func (t Type) String() string {
 	return fmt.Sprintf("%v (%d)", t.name(), t)
 }
 
-var typeName = idmap.New(int(unusedType))
-
-func init() {
-	typeName.Set(int32(TypeError), "error")
-	typeName.Set(int32(TypeUnsupported), "unsupported")
-	typeName.Set(int32(TypeInterrupt), "interrupt")
-	typeName.Set(int32(TypeClick), "click")
-	typeName.Set(int32(TypeMouseMove), "mouse-move")
-	typeName.Set(int32(TypeKeyboard), "keyboard")
-	typeName.Set(int32(TypeResize), "resize")
-	typeName.Set(int32(TypeWheel), "wheel")
-}
-
-var eventTypeCounter int32 = int32(unusedType - 1)
+var typeName = id.NewMap()
 
 func MakeType(name string) Type {
-	t := atomic.AddInt32(&eventTypeCounter, 1)
-	typeName.Set(t, strings.ToLower(name))
+	t := id.Make()
+	typeName.Set(t, name)
 
 	return Type(t)
+}
+
+// List of existing event type.
+var (
+	_TypeError       = MakeType("error")
+	_TypeUnsupported = MakeType("unsupported")
+	_TypeInterrupt   = MakeType("interrupt")
+	_TypeClick       = MakeType("click")
+	_TypeMouseMove   = MakeType("mouse-move")
+	_TypeKeyboard    = MakeType("keyboard")
+	_TypeResize      = MakeType("resize")
+	_TypeWheel       = MakeType("wheel")
+)
+
+func TypeError() Type {
+	return _TypeError
+}
+
+func TypeUnsupported() Type {
+	return _TypeUnsupported
+}
+
+func TypeInterrupt() Type {
+	return _TypeInterrupt
+}
+
+func TypeClick() Type {
+	return _TypeClick
+}
+
+func TypeMouseMove() Type {
+	return _TypeMouseMove
+}
+
+func TypeKeyboard() Type {
+	return _TypeKeyboard
+}
+
+func TypeResize() Type {
+	return _TypeResize
+}
+
+func TypeWheel() Type {
+	return _TypeWheel
 }

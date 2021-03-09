@@ -6,7 +6,7 @@ import (
 )
 
 func BgColor(color value.Color) property.Color {
-	return property.MakeColor(property.IDBackgroundColor, color)
+	return property.MakeColor(property.BackgroundColor(), color)
 }
 
 // TODO: add BgGradient property constructor

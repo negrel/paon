@@ -6,5 +6,5 @@ import (
 )
 
 func FgColor(color value.Color) property.Color {
-	return property.MakeColor(property.IDForegroundColor, color)
+	return property.MakeColor(property.ForegroundColor(), color)
 }

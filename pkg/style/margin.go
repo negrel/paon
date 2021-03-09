@@ -9,23 +9,23 @@ import (
 func MarginLeft(unit value.Unit) property.Unit {
 	assert.GreaterOrEqual(unit.Value, 0, "margin-left value must have a positive value")
 
-	return property.MakeUnit(property.IDMarginLeft, unit)
+	return property.MakeUnit(property.MarginLeft(), unit)
 }
 
 func MarginTop(unit value.Unit) property.Unit {
 	assert.GreaterOrEqual(unit.Value, 0, "margin-top value must have a positive value")
 
-	return property.MakeUnit(property.IDMarginTop, unit)
+	return property.MakeUnit(property.MarginTop(), unit)
 }
 
 func MarginRight(unit value.Unit) property.Unit {
 	assert.GreaterOrEqual(unit.Value, 0, "margin-right value must have a positive value")
 
-	return property.MakeUnit(property.IDMarginRight, unit)
+	return property.MakeUnit(property.MarginRight(), unit)
 }
 
 func MarginBottom(unit value.Unit) property.Unit {
 	assert.GreaterOrEqual(unit.Value, 0, "margin-bottom value must have a positive value")
 
-	return property.MakeUnit(property.IDMarginBottom, unit)
+	return property.MakeUnit(property.MarginBottom(), unit)
 }
