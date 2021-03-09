@@ -1,11 +1,21 @@
 package widgets
 
 import (
+	"github.com/negrel/paon/pkg/pdk/draw"
+	"github.com/negrel/paon/pkg/pdk/flows"
 	pdkstyle "github.com/negrel/paon/pkg/pdk/styles"
 	"github.com/negrel/paon/pkg/pdk/styles/property"
 )
 
 type Option func(widget *widget)
+
+func MergeOptions(opts []Option, extension ...Option) []Option {
+	for _, opt := range extension {
+		opts = append(opts, opt)
+	}
+
+	return opts
+}
 
 // Bind binds the given variable to the widget.
 func Bind(variable *Widget) Option {
@@ -14,10 +24,23 @@ func Bind(variable *Widget) Option {
 	}
 }
 
-// ID sets the widget id (must be unique across your entire application).
-func ID(id string) Option {
+func Algo(algorithm func(flows.Constraint) flows.BoxModel) Option {
+	return Flowable(flows.Algorithm(algorithm))
+}
+
+func Flowable(flowable flows.Flowable) Option {
 	return func(widget *widget) {
-		widget.id = id
+		widget.Flowable = flowable
+	}
+}
+
+func Script(script draw.Script) Option {
+	return Drawable(script)
+}
+
+func Drawable(drawable draw.Drawable) Option {
+	return func(widget *widget) {
+		widget.Drawable = drawable
 	}
 }
 
