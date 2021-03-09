@@ -16,12 +16,12 @@ func ColorFromRGB(r, g, b uint8) Color {
 
 func ColorFromHex(rgb int32) Color {
 	return Color{
-		R: uint8(rgb & 0xFF0000),
-		G: uint8(rgb & 0xFF00),
+		R: uint8((rgb & 0xFF0000) >> 16),
+		G: uint8((rgb & 0xFF00) >> 8),
 		B: uint8(rgb & 0xFF),
 	}
 }
 
 func (c Color) Int32() int32 {
-	return int32(c.R) << 16 & int32(c.G) << 8 & int32(c.B)
+	return int32(c.R)<<16 | int32(c.G)<<8 | int32(c.B)
 }
