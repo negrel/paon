@@ -8,6 +8,9 @@ import (
 
 // Context define a drawing context on a Canvas.
 type Context interface {
+	// Canvas returns the canvas that is tied to this Context.
+	Canvas() Canvas
+
 	// Bounds returns the bounds of the underlying Canvas of this Context.
 	Bounds() geometry.Rectangle
 
@@ -48,8 +51,14 @@ type context struct {
 func newContext(canvas Canvas, bounds geometry.Rectangle) *context {
 	return &context{
 		canvas: canvas,
+		bounds: bounds,
 		ops:    make([]func(Canvas), 0, 8),
 	}
+}
+
+// Canvas implements the Context interface.
+func (c *context) Canvas() Canvas {
+	return c.canvas
 }
 
 // Bounds implements the Context interface.
@@ -69,7 +78,7 @@ func (c *context) FillColor() value.Color {
 
 // FillRectangle implements the Context interface.
 func (c *context) FillRectangle(rectangle geometry.Rectangle) {
-	rectangle = c.bounds.Intersect(rectangle)
+	rectangle = c.bounds.Mask(rectangle)
 	fillColor := c.fillColor
 
 	c.ops = append(c.ops, func(canvas Canvas) {
@@ -89,6 +98,7 @@ func (c *context) FillRectangle(rectangle geometry.Rectangle) {
 func (c *context) FillTextH(origin geometry.Point, text string) {
 	origin = origin.Add(c.bounds.Min)
 	rectangle := geometry.Rect(origin.X(), origin.Y(), origin.X()+len(text), origin.Y()+1)
+	rectangle = c.bounds.Mask(rectangle)
 	if rectangle.Empty() {
 		return
 	}
@@ -97,10 +107,11 @@ func (c *context) FillTextH(origin geometry.Point, text string) {
 	c.ops = append(c.ops, func(canvas Canvas) {
 		for i := rectangle.Min.X(); i < rectangle.Max.X(); i++ {
 			cell := c.canvas.Get(geometry.Pt(i, origin.Y()))
-			if cell != nil {
-				cell.Content = rune(text[i-origin.X()])
-				cell.Style.Foreground = fillColor
+			if cell == nil {
+				return
 			}
+			cell.Content = rune(text[i-origin.X()])
+			cell.Style.Foreground = fillColor
 		}
 	})
 }
@@ -109,6 +120,7 @@ func (c *context) FillTextH(origin geometry.Point, text string) {
 func (c *context) FillTextV(origin geometry.Point, text string) {
 	origin = origin.Add(c.bounds.Min)
 	rectangle := geometry.Rect(origin.X(), origin.Y(), origin.X()+1, origin.Y()+len(text))
+	rectangle = c.bounds.Mask(rectangle)
 	if rectangle.Empty() {
 		return
 	}
@@ -132,6 +144,9 @@ func (c *context) FillLine(from, to geometry.Point) {
 
 // Commit implements the Context interface.
 func (c *context) Commit() {
+	c.canvas.Lock()
+	c.canvas.Unlock()
+
 	for _, op := range c.ops {
 		op(c.canvas)
 	}

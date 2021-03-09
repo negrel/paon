@@ -3,9 +3,12 @@ package draw
 import (
 	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/pkg/pdk/render"
+	"sync"
 )
 
 type Canvas interface {
+	sync.Locker
+
 	// Bounds returns the bounds of this Canvas.
 	Bounds() geometry.Rectangle
 

@@ -3,11 +3,13 @@ package draw
 import (
 	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/pkg/pdk/render"
+	"sync"
 )
 
 var _ Canvas = CellGrid{}
 
 type CellGrid struct {
+	*sync.Mutex
 	bounds geometry.Rectangle
 	grid   [][]*render.Cell
 }
@@ -15,12 +17,16 @@ type CellGrid struct {
 // MakeCellGrid return a new CellGrid Canvas.
 func MakeCellGrid(bounds geometry.Rectangle) CellGrid {
 	return CellGrid{
+		Mutex:  &sync.Mutex{},
 		bounds: bounds,
 		grid:   make([][]*render.Cell, bounds.Height()),
 	}
 }
 
 func (cg CellGrid) get(pos geometry.Point) *render.Cell {
+	cg.Mutex.Lock()
+	defer cg.Mutex.Unlock()
+
 	row := cg.grid[pos.Y()]
 	if row == nil {
 		row = make([]*render.Cell, cg.bounds.Width())
@@ -60,10 +66,13 @@ func (cg CellGrid) SubCanvas(bounds geometry.Rectangle) Canvas {
 
 // Patch implements the Canvas interface.
 func (cg CellGrid) Patch() render.Patch {
-	return render.Patch{
+	patch := render.Patch{
 		Pos:   cg.bounds.Min,
-		Cells: cg.grid,
+		Cells: cg.grid[:cg.bounds.Height()],
 	}
+	cg.grid = make([][]*render.Cell, cg.bounds.Height())
+
+	return patch
 }
 
 func (cg CellGrid) NewContext(bounds geometry.Rectangle) Context {
