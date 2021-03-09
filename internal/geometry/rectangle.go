@@ -187,11 +187,11 @@ func (r Rectangle) Equals(other Rectangle) bool {
 
 // Contains returns whether or not the given Point is contained in the Rectangle.
 func (r Rectangle) Contains(point Point) bool {
-	return point.x >= r.Min.x && point.x <= r.Max.x &&
-		point.y > r.Min.y && point.y < r.Max.y
+	return point.x >= r.Min.x && point.x < r.Max.x &&
+		point.y >= r.Min.y && point.y < r.Max.y
 }
 
-// Intersect returns the largest rectangle contained by both r and s. If the
+// Intersect returns the largest rectangle contained by both this rectangle and the other. If the
 // two rectangles do not overlap then the zero rectangle will be returned.
 func (r Rectangle) Intersect(other Rectangle) Rectangle {
 	if r.Min.x < other.Min.x {
@@ -212,6 +212,49 @@ func (r Rectangle) Intersect(other Rectangle) Rectangle {
 		return Rectangle{}
 	}
 
+	return r
+}
+
+// Mask returns a new rectangle of the overlapped part between this rectangle and
+// the given one.
+func (r Rectangle) Mask(other Rectangle) Rectangle {
+	if r.Min.x < other.Min.x {
+		r.Min.x = other.Min.x
+	}
+	if r.Min.y < other.Min.y {
+		r.Min.y = other.Min.y
+	}
+
+	if r.Max.x > other.Max.x {
+		r.Max.x = other.Max.x
+	}
+	if r.Max.y > other.Max.y {
+		r.Max.y = other.Max.y
+	}
+
+	return r
+}
+
+// Union returns the smallest rectangle that contains both r and s.
+func (r Rectangle) Union(other Rectangle) Rectangle {
+	if r.Empty() {
+		return other
+	}
+	if other.Empty() {
+		return r
+	}
+	if r.Min.x > other.Min.x {
+		r.Min.x = other.Min.x
+	}
+	if r.Min.y > other.Min.y {
+		r.Min.y = other.Min.y
+	}
+	if r.Max.x < other.Max.x {
+		r.Max.x = other.Max.x
+	}
+	if r.Max.y < other.Max.y {
+		r.Max.y = other.Max.y
+	}
 	return r
 }
 
