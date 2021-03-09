@@ -1,85 +1,106 @@
 package flows
 
 import (
-	"github.com/negrel/paon/internal/math"
+	"github.com/negrel/paon/pkg/pdk/math"
 	"github.com/negrel/paon/pkg/pdk/styles"
 	"github.com/negrel/paon/pkg/pdk/styles/property"
 )
 
-func GetUnitProp(style styles.Style, id property.ID) property.Unit {
+func GetUnitProp(style styles.Style, id property.ID) (property.Unit, bool) {
 	prop := style.Get(id)
 	if prop != nil {
 		if unitProp, isUnitProp := prop.(property.Unit); isUnitProp {
-			return unitProp
+			return unitProp, true
 		}
 	}
 
-	return property.Unit{}
+	return property.Unit{}, false
 }
 
-func Constrain(value, min, max int) int {
-	value = math.Max(value, min)
-	value = math.Min(value, max)
+func ComputeMinMaxWidth(style styles.Style, constraint Constraint) (int, int) {
+	minWidth := constraint.Min.Width()
+	maxWidth := constraint.Max.Width()
 
-	return value
+	minWidthProp, ok := GetUnitProp(style, property.MinWidth())
+	if ok {
+		minWidth = math.Max(minWidth, constraint.ToCellUnit(minWidthProp.Value))
+	}
+	maxWidthProp, ok := GetUnitProp(style, property.MaxWidth())
+	if ok {
+		maxWidth = math.Min(maxWidth, constraint.ToCellUnit(maxWidthProp.Value))
+	}
+
+	return minWidth, maxWidth
 }
 
-func ComputeWidth(style styles.Style) int {
-	width := GetUnitProp(style, property.IDWidth).Value.Value
-	min := GetUnitProp(style, property.IDMinWidth).Value.Value
-	max := GetUnitProp(style, property.IDMaxWidth).Value.Value
+func ComputeMinMaxHeight(style styles.Style, constraint Constraint) (int, int) {
+	minHeight := constraint.Min.Height()
+	maxHeight := constraint.Max.Height()
 
-	return Constrain(width, min, max)
-}
+	minHeightProp, ok := GetUnitProp(style, property.MinHeight())
+	if ok {
+		minHeight = math.Max(minHeight, constraint.ToCellUnit(minHeightProp.Value))
+	}
+	maxHeightProp, ok := GetUnitProp(style, property.MaxHeight())
+	if ok {
+		maxHeight = math.Min(maxHeight, constraint.ToCellUnit(maxHeightProp.Value))
+	}
 
-func ComputeConstrainedWidth(style styles.Style, constraint Constraint) int {
-	return Constrain(ComputeWidth(style), constraint.Min.Width(), constraint.Max.Width())
-}
-
-func ComputeHeight(style styles.Style) int {
-	height := GetUnitProp(style, property.IDHeight).Value.Value
-	min := GetUnitProp(style, property.IDMinHeight).Value.Value
-	max := GetUnitProp(style, property.IDMaxHeight).Value.Value
-
-	return Constrain(height, min, max)
-}
-
-func ComputeConstrainedHeight(style styles.Style, constraint Constraint) int {
-	return Constrain(ComputeHeight(style), constraint.Min.Height(), constraint.Max.Height())
+	return minHeight, maxHeight
 }
 
 func boxOf(style styles.Style, props [4]property.ID) boxOffset {
-	left := GetUnitProp(style, props[0]).Value.Value
-	top := GetUnitProp(style, props[1]).Value.Value
-	right := GetUnitProp(style, props[2]).Value.Value
-	bottom := GetUnitProp(style, props[3]).Value.Value
+
+	left := 0
+	leftProp, ok := GetUnitProp(style, props[0])
+	if ok {
+		left = leftProp.Value.Value
+	}
+
+	top := 0
+	topProp, ok := GetUnitProp(style, props[1])
+	if ok {
+		top = topProp.Value.Value
+	}
+
+	right := 0
+	rightProp, ok := GetUnitProp(style, props[2])
+	if ok {
+		right = rightProp.Value.Value
+	}
+
+	bottom := 0
+	bottomProp, ok := GetUnitProp(style, props[3])
+	if ok {
+		bottom = bottomProp.Value.Value
+	}
 
 	return makeBoxOffset(left, top, right, bottom)
 }
 
 func marginOf(style styles.Style) boxOffset {
 	return boxOf(style, [4]property.ID{
-		property.IDMarginLeft,
-		property.IDMarginTop,
-		property.IDMarginRight,
-		property.IDMarginBottom,
+		property.MarginLeft(),
+		property.MarginTop(),
+		property.MarginRight(),
+		property.MarginBottom(),
 	})
 }
 
 func borderOf(style styles.Style) boxOffset {
 	return boxOf(style, [4]property.ID{
-		property.IDBorderLeft,
-		property.IDBorderTop,
-		property.IDBorderRight,
-		property.IDBorderBottom,
+		property.BorderLeft(),
+		property.BorderTop(),
+		property.BorderRight(),
+		property.BorderBottom(),
 	})
 }
 
 func paddingOf(style styles.Style) boxOffset {
 	return boxOf(style, [4]property.ID{
-		property.IDPaddingLeft,
-		property.IDPaddingTop,
-		property.IDPaddingRight,
-		property.IDPaddingBottom,
+		property.PaddingLeft(),
+		property.PaddingTop(),
+		property.PaddingRight(),
+		property.PaddingBottom(),
 	})
 }

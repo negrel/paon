@@ -1,13 +1,63 @@
 package flows
 
-import "github.com/negrel/paon/internal/geometry"
+import (
+	"github.com/negrel/paon/internal/geometry"
+	"github.com/negrel/paon/pkg/pdk/styles/value"
+)
 
-// Constraint define the constraint an Flow must respect.
+// Constraint define the constraint an flow must respect.
 type Constraint struct {
-	Min, Max geometry.Rectangle
+	Min, Max   geometry.Rectangle
+	parentSize geometry.Size
+	rootSize   geometry.Size
+}
+
+// MakeConstraint returns a new Constraint object.
+func MakeConstraint(min, max geometry.Rectangle, parent, root geometry.Size) Constraint {
+	return Constraint{
+		Min:        min,
+		Max:        max,
+		parentSize: parent,
+		rootSize:   root,
+	}
+}
+
+// SetMin ...
+func (c Constraint) SetMin(min geometry.Rectangle) Constraint {
+	c.Min = min
+	return c
+}
+
+// SetMax ...
+func (c Constraint) SetMax(max geometry.Rectangle) Constraint {
+	c.Max = max
+	return c
 }
 
 // Equals returns true if the given Constraint is equal to this Constraint.
 func (c Constraint) Equals(other Constraint) bool {
-	return c.Min.Equals(other.Min) && c.Max.Equals(other.Max)
+	return c.Min.Equals(other.Min) && c.Max.Equals(other.Max) &&
+		c.parentSize.Equals(other.parentSize) && c.rootSize.Equals(other.rootSize)
+}
+
+func (c Constraint) ToCellUnit(unit value.Unit) int {
+	switch unit.UnitID {
+	case value.CellUnit:
+		return unit.Value
+
+	case value.PercentageWidthUnit:
+		return c.parentSize.Width() / 100 * unit.Value
+
+	case value.PercentageHeightUnit:
+		return c.parentSize.Height() / 100 * unit.Value
+
+	case value.WindowWidthUnit:
+		return c.rootSize.Width() / 100 * unit.Value
+
+	case value.WindowHeightUnit:
+		return c.rootSize.Height() / 100 * unit.Value
+
+	default:
+		panic("invalid unit")
+	}
 }

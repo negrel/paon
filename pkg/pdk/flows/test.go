@@ -16,19 +16,19 @@ func applyBoxOffset(s styles.Style, offsets boxOffset, props [4]property.ID) {
 
 func applyMargin(s styles.Style, margin boxOffset) {
 	applyBoxOffset(s, margin, [4]property.ID{
-		property.IDMarginLeft, property.IDMarginTop, property.IDMarginRight, property.IDMarginBottom,
+		property.MarginLeft(), property.MarginTop(), property.MarginRight(), property.MarginBottom(),
 	})
 }
 
 func applyBorder(s styles.Style, border boxOffset) {
 	applyBoxOffset(s, border, [4]property.ID{
-		property.IDBorderLeft, property.IDBorderTop, property.IDBorderRight, property.IDBorderBottom,
+		property.BorderLeft(), property.BorderTop(), property.BorderRight(), property.BorderBottom(),
 	})
 }
 
 func applyPadding(s styles.Style, padding boxOffset) {
 	applyBoxOffset(s, padding, [4]property.ID{
-		property.IDPaddingLeft, property.IDPaddingTop, property.IDPaddingRight, property.IDPaddingBottom,
+		property.PaddingLeft(), property.PaddingTop(), property.PaddingRight(), property.PaddingBottom(),
 	})
 }
 

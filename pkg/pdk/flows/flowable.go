@@ -1,0 +1,66 @@
+package flows
+
+import (
+	"github.com/negrel/paon/internal/geometry"
+	"github.com/negrel/paon/pkg/pdk/math"
+	"github.com/negrel/paon/pkg/pdk/styles"
+	"github.com/negrel/paon/pkg/pdk/styles/property"
+)
+
+// Flowable ...
+type Flowable interface {
+	Flow(Constraint) BoxModel
+}
+
+type Algorithm func(Constraint) BoxModel
+
+// Flow implements the Flowable interface.
+func (a Algorithm) Flow(constraint Constraint) BoxModel {
+	return a(constraint)
+}
+
+func Block(style styles.Style, constraint Constraint, fallback Algorithm) BoxModel {
+	minWidth, maxWidth := ComputeMinMaxWidth(style, constraint)
+	minHeight, maxHeight := ComputeMinMaxWidth(style, constraint)
+
+	widthProp, hasWidth := GetUnitProp(style, property.Width())
+	if hasWidth {
+		width := constraint.ToCellUnit(widthProp.Value)
+		minWidth = math.Max(minWidth, width)
+		maxWidth = math.Min(maxWidth, width)
+	}
+
+	heightProp, hasHeight := GetUnitProp(style, property.Height())
+	if hasHeight {
+		height := constraint.ToCellUnit(heightProp.Value)
+		minHeight = math.Max(minHeight, height)
+		maxHeight = math.Min(maxHeight, height)
+	}
+
+	if isNotSized := !hasHeight || !hasWidth; isNotSized {
+		constraint = constraint.SetMin(
+			geometry.Rectangle{
+				Min: constraint.Min.Min,
+				Max: constraint.Min.Min.Add(geometry.Pt(minWidth, minHeight)),
+			},
+		).SetMax(
+			geometry.Rectangle{
+				Min: constraint.Max.Min,
+				Max: constraint.Max.Min.Add(geometry.Pt(maxWidth, maxHeight)),
+			},
+		)
+
+		return fallback(constraint)
+	}
+
+	// At this stage minWidth == maxWidth && minHeight == maxHeight
+	box := NewBox(geometry.Rectangle{
+		Min: constraint.Min.Min,
+		Max: constraint.Min.Min.Add(geometry.Pt(minWidth, maxWidth)),
+	})
+	box.ApplyMargin(style)
+	box.ApplyBorder(style)
+	box.ApplyPadding(style)
+
+	return box
+}

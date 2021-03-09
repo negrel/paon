@@ -7,6 +7,7 @@ import (
 
 // BoxModel define a sized box with margin, border and padding in a 2D geometric plane.
 type BoxModel interface {
+	// The size of the outer box (the margin box).
 	geometry.Sized
 
 	MarginBox() geometry.Rectangle
@@ -22,9 +23,10 @@ type Box struct {
 	contentBoxOffset boxOffset
 }
 
-func NewBox(bounds geometry.Rectangle) *Box {
+// NewBox return a new Box with the given content box.
+func NewBox(rectangle geometry.Rectangle) *Box {
 	return &Box{
-		borderBox: bounds,
+		borderBox: rectangle,
 	}
 }
 
@@ -50,22 +52,26 @@ func (b *Box) ContentBox() geometry.Rectangle {
 
 // Size implements the geometry.Sized interface.
 func (b *Box) Size() geometry.Size {
-	return b.BorderBox().Size()
+	return b.MarginBox().Size()
 }
 
 // Width implements the geometry.Sized interface.
 func (b *Box) Width() int {
-	return b.BorderBox().Width()
+	return b.MarginBox().Width()
 }
 
 // Height implements the geometry.Sized interface.
 func (b *Box) Height() int {
-	return b.BorderBox().Height()
+	return b.MarginBox().Height()
 }
 
-func (b *Box) resize(size geometry.Size) {
-	b.borderBox.Max = b.borderBox.Min.Add(
-		geometry.Point(size),
+// Resize change the size of the margin box.
+func (b *Box) Resize(size geometry.Size) {
+	diffW := size.Width() - b.Width()
+	diffH := size.Height() - b.Height()
+
+	b.borderBox.Max = b.borderBox.Max.Add(
+		geometry.Pt(diffW, diffH),
 	)
 }
 
