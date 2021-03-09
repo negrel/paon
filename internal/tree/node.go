@@ -1,8 +1,10 @@
 package tree
 
+import "github.com/negrel/paon/pkg/pdk/id"
+
 // Node define an element in a Node tree.
 type Node interface {
-	nodeID() NodeID
+	id.Identifiable
 
 	// Return true if the given Node is the same as this.
 	IsSame(Node) bool
@@ -29,7 +31,7 @@ type Node interface {
 var _ Node = &node{}
 
 type node struct {
-	id NodeID
+	id id.ID
 
 	next     Node
 	previous Node
@@ -42,16 +44,16 @@ func NewNode() Node {
 
 func newNode() *node {
 	return &node{
-		id: makeNodeID(),
+		id: id.Make(),
 	}
 }
 
-func (n *node) nodeID() NodeID {
+func (n *node) ID() id.ID {
 	return n.id
 }
 
 func (n *node) IsSame(other Node) bool {
-	return n.nodeID() == other.nodeID()
+	return n.ID() == other.ID()
 }
 
 func (n *node) IsDescendantOf(parent Node) bool {
