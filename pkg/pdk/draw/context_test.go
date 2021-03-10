@@ -12,7 +12,12 @@ import (
 func TestContext_Commit(t *testing.T) {
 	ok := false
 
-	ctx := newContext(nil, geometry.Rectangle{})
+	ctrl := gomock.NewController(t)
+	canvas := NewMockCanvas(ctrl)
+	canvas.EXPECT().Lock()
+	canvas.EXPECT().Unlock()
+
+	ctx := newContext(canvas, geometry.Rectangle{})
 	ctx.ops = append(ctx.ops, func(Canvas) {
 		ok = true
 	})
@@ -25,7 +30,12 @@ func TestContext_Commit(t *testing.T) {
 func TestContext_Commit_Twice(t *testing.T) {
 	counter := 0
 
-	ctx := newContext(nil, geometry.Rectangle{})
+	ctrl := gomock.NewController(t)
+	canvas := NewMockCanvas(ctrl)
+	canvas.EXPECT().Lock().Times(2)
+	canvas.EXPECT().Unlock().Times(2)
+
+	ctx := newContext(canvas, geometry.Rectangle{})
 	ctx.ops = append(ctx.ops, func(Canvas) {
 		counter++
 	})
@@ -50,6 +60,8 @@ func TestContext_FillTextH(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	canvas := NewMockCanvas(ctrl)
 	canvas.EXPECT().Bounds().Return(fillRect).AnyTimes()
+	canvas.EXPECT().Lock()
+	canvas.EXPECT().Unlock()
 
 	cells := make([]*render.Cell, 0, fillRect.Height()*fillRect.Width())
 	for i := fillRect.Min.Y(); i < fillRect.Max.Y(); i++ {
@@ -80,6 +92,8 @@ func TestContext_FillTextV(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	canvas := NewMockCanvas(ctrl)
 	canvas.EXPECT().Bounds().Return(fillRect).AnyTimes()
+	canvas.EXPECT().Lock()
+	canvas.EXPECT().Unlock()
 
 	cells := make([]*render.Cell, 0, fillRect.Height()*fillRect.Width())
 	for i := fillRect.Min.Y(); i < fillRect.Max.Y(); i++ {
@@ -110,6 +124,8 @@ func TestContext_FillRectangle(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	canvas := NewMockCanvas(ctrl)
 	canvas.EXPECT().Bounds().Return(fillRect).AnyTimes()
+	canvas.EXPECT().Lock()
+	canvas.EXPECT().Unlock()
 
 	cells := make([]*render.Cell, 0, fillRect.Height()*fillRect.Width())
 	for i := fillRect.Min.Y(); i < fillRect.Max.Y(); i++ {
@@ -142,6 +158,8 @@ func TestContext_FillRectangle_OverText(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	canvas := NewMockCanvas(ctrl)
 	canvas.EXPECT().Bounds().Return(fillRect).AnyTimes()
+	canvas.EXPECT().Lock()
+	canvas.EXPECT().Unlock()
 
 	cells := make([]*render.Cell, 0, fillRect.Height()*fillRect.Width())
 	for i := fillRect.Min.Y(); i < fillRect.Max.Y(); i++ {
