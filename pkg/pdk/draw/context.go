@@ -32,8 +32,11 @@ type Context interface {
 	// If the text overflow this canvas, the overflowing chars are dropped.
 	FillTextV(origin geometry.Point, text string)
 
-	// DrawLine draws a line between the two given geometry.Point.
+	// FillLine draws a line between the two given geometry.Point.
 	FillLine(from, to geometry.Point)
+
+	// SubContext returns a new Context that target a rectangle contained within this Context.
+	SubContext(mask geometry.Rectangle) Context
 
 	// Commit applies all the change of the context to the Canvas.
 	Commit()
@@ -85,6 +88,10 @@ func (c *context) FillRectangle(rectangle geometry.Rectangle) {
 		for i := rectangle.Min.X(); i < rectangle.Max.X(); i++ {
 			for j := rectangle.Min.Y(); j < rectangle.Max.Y(); j++ {
 				cell := canvas.Get(geometry.Pt(i, j))
+				if cell == nil {
+					continue
+				}
+
 				cell.Style = render.CellStyle{}
 				cell.Style.Background = fillColor
 				cell.Style.Foreground = fillColor
@@ -151,4 +158,11 @@ func (c *context) Commit() {
 		op(c.canvas)
 	}
 	c.ops = make([]func(Canvas), 0, 8)
+}
+
+// SubContext implements the Context interface.
+func (c *context) SubContext(mask geometry.Rectangle) Context {
+	bounds := c.bounds.Mask(mask)
+
+	return c.canvas.NewContext(bounds)
 }
