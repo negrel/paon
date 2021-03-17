@@ -30,7 +30,7 @@ func Algo(algorithm func(flows.Constraint) flows.BoxModel) Option {
 
 func Flowable(flowable flows.Flowable) Option {
 	return func(widget *widget) {
-		widget.Flowable = flowable
+		widget.Cache = flows.NewCache(flowable)
 	}
 }
 

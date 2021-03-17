@@ -43,10 +43,9 @@ var _ Widget = &widget{}
 type widget struct {
 	tree.Node
 	events.Target
-	flows.Flowable
+	*flows.Cache
 	draw.Drawable
 
-	box   flows.BoxModel
 	theme pdkstyles.Theme
 }
 
@@ -124,19 +123,6 @@ func (w *widget) ParentStyle() pdkstyles.Style {
 // Style implements the styles.Stylable interface.
 func (w *widget) Style() pdkstyles.Style {
 	return w.theme
-}
-
-// Flow implements the Widget interface.
-func (w *widget) Flow(constraint flows.Constraint) flows.BoxModel {
-	assert.NotNil(w.Flowable)
-	w.box = w.Flowable.Flow(constraint)
-
-	return w.box
-}
-
-// Box implements the Widget interface.
-func (w *widget) Box() flows.BoxModel {
-	return w.box
 }
 
 // Draw implements the Widget interface.
