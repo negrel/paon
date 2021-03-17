@@ -11,7 +11,7 @@ import (
 	pdkstyles "github.com/negrel/paon/pkg/pdk/styles"
 )
 
-// Widget define any object part of this Widget tree
+// Widget define any object part of the Widget tree
 // that can be rendered in the screen.
 type Widget interface {
 	fmt.Stringer
@@ -47,34 +47,29 @@ type widget struct {
 	draw.Drawable
 
 	box   flows.BoxModel
-	id    id.ID
 	theme pdkstyles.Theme
 }
 
 // NewWidget returns a new Widget object customized with the given Option.
 func NewWidget(opts ...Option) Widget {
-	w := newWidget(tree.NewNode())
+	return newWidget(tree.NewNode(), opts...)
+}
+
+func newWidget(node tree.Node, opts ...Option) *widget {
+	w := &widget{
+		Node:   node,
+		Target: events.MakeTarget(),
+	}
 
 	for _, opt := range opts {
 		opt(w)
 	}
 
-	return w
-}
-
-func newWidget(node tree.Node) *widget {
-	w := &widget{
-		Node:   node,
-		Target: events.MakeTarget(),
-		theme:  pdkstyles.NewTheme(nil),
+	if w.theme == nil {
+		w.theme = pdkstyles.NewTheme(pdkstyles.NewStyle())
 	}
 
 	return w
-}
-
-// ID implements the Widget interface.
-func (w *widget) ID() id.ID {
-	return w.id
 }
 
 // String implements fmt.Stringer interface.

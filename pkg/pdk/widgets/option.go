@@ -9,12 +9,12 @@ import (
 
 type Option func(widget *widget)
 
-func MergeOptions(opts []Option, extension ...Option) []Option {
-	for _, opt := range extension {
-		opts = append(opts, opt)
+func PrependOptions(opts []Option, toPrepend ...Option) []Option {
+	for _, opt := range opts {
+		toPrepend = append(toPrepend, opt)
 	}
 
-	return opts
+	return toPrepend
 }
 
 // Bind binds the given variable to the widget.
@@ -44,14 +44,10 @@ func Drawable(drawable draw.Drawable) Option {
 	}
 }
 
-// Styles applies the given styles to the widget. Those theme can be shared across multiple
-// widget and won't be modified by any theme modifier method. You can still remove styles
-// m widgets using the DelStyle method.
-func Styles(styles ...pdkstyle.Style) Option {
+// DefaultStyle applies the given styles to the widget.
+func DefaultStyle(style pdkstyle.Style) Option {
 	return func(widget *widget) {
-		for _, style := range styles {
-			widget.theme.AddStyle(style)
-		}
+		widget.theme = pdkstyle.NewTheme(style)
 	}
 }
 
@@ -59,6 +55,10 @@ func Styles(styles ...pdkstyle.Style) Option {
 // and can only be modified using Set/Del method on the theme of the widget.
 func Props(props ...property.Property) Option {
 	return func(widget *widget) {
+		if widget.theme == nil {
+			widget.theme = pdkstyle.NewTheme(pdkstyle.NewStyle())
+		}
+
 		for _, prop := range props {
 			widget.theme.Set(prop)
 		}

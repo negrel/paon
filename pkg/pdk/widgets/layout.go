@@ -44,18 +44,12 @@ type layout struct {
 }
 
 func NewLayout(opts ...Option) Layout {
-	l := newLayout(tree.NewParent())
-
-	for _, opt := range opts {
-		opt(l.widget)
-	}
-
-	return l
+	return newLayout(tree.NewParent(), opts...)
 }
 
-func newLayout(node tree.ParentNode) *layout {
+func newLayout(node tree.ParentNode, opts ...Option) *layout {
 	return &layout{
-		widget:     newWidget(node),
+		widget:     newWidget(node, opts...),
 		parentNode: node,
 	}
 }
