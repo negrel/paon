@@ -1,6 +1,7 @@
 package flows
 
 import (
+	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/pkg/pdk/math"
 	"github.com/negrel/paon/pkg/pdk/styles"
@@ -20,6 +21,8 @@ func (a Algorithm) Flow(constraint Constraint) BoxModel {
 }
 
 func Block(style styles.Style, constraint Constraint, fallback Algorithm) BoxModel {
+	assert.NotNil(style)
+
 	minWidth, maxWidth := ComputeMinMaxWidth(style, constraint)
 	minHeight, maxHeight := ComputeMinMaxWidth(style, constraint)
 
