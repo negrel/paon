@@ -4,7 +4,8 @@ type UnitID uint8
 
 const (
 	CellUnit UnitID = iota
-	PercentageUnit
+	PercentageWidthUnit
+	PercentageHeightUnit
 	WindowWidthUnit
 	WindowHeightUnit
 )

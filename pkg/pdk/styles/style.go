@@ -35,7 +35,7 @@ type style struct {
 	props map[property.ID]property.Property
 }
 
-func MakeStyle() Style {
+func NewStyle() Style {
 	return style{
 		id:     id.Make(),
 		Target: events.MakeTarget(),
