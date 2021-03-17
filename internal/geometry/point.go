@@ -1,9 +1,5 @@
 package geometry
 
-import (
-	"github.com/negrel/debuggo/pkg/assert"
-)
-
 // Infinite represent an infinite value.
 const Infinite int = -1
 
@@ -16,9 +12,6 @@ type Point struct {
 
 // Pt returns a new Point using the given X and Y value.
 func Pt(x, y int) Point {
-	assert.GreaterOrEqual(x, 0)
-	assert.GreaterOrEqual(y, 0)
-
 	return Point{
 		x: x,
 		y: y,
