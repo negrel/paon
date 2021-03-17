@@ -1,5 +1,7 @@
 package styles
 
+import "github.com/negrel/paon/pkg/pdk/styles/property"
+
 type _style Style
 
 // Theme define a composition of style.
@@ -24,24 +26,40 @@ type theme struct {
 // NewTheme return a new Theme object with the given internal Style.
 func NewTheme(defaultStyle Style) Theme {
 	shared := make([]Style, 0, 8)
-	if defaultStyle != nil {
-		shared[0] = defaultStyle
-	}
+	shared = append(shared, defaultStyle)
 
 	return &theme{
-		_style: MakeStyle(),
+		_style: NewStyle(),
 		shared: shared,
 	}
 }
 
+// Get implements the Style interface.
+func (t *theme) Get(id property.ID) property.Property {
+	if prop := t._style.Get(id); prop != nil {
+		return prop
+	}
+
+	for i := len(t.shared) - 1; i >= 0; i-- {
+		if prop := t.shared[i].Get(id); prop != nil {
+			return prop
+		}
+	}
+
+	return nil
+}
+
+// Styles implements the Theme interface.
 func (t *theme) Styles() []Style {
 	return t.shared
 }
 
+// AddStyle implements the Theme interface.
 func (t *theme) AddStyle(s Style) {
 	panic("implement me")
 }
 
+// DelStyle implements the Theme interface.
 func (t *theme) DelStyle(s Style) {
 	panic("implement me")
 }
