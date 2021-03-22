@@ -4,6 +4,7 @@ import (
 	"github.com/negrel/paon/pkg/pdk/styles/value"
 )
 
+// CellStyle define the style of a single terminal Cell.
 type CellStyle struct {
 	Foreground value.Color
 	Background value.Color

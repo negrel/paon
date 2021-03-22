@@ -6,14 +6,8 @@ import (
 )
 
 func tcellStyle(cs render.CellStyle) tcell.Style {
-	var foreground, background tcell.Color
-
-	if cs.Foreground.IsSet() {
-		foreground = tcell.NewHexColor(cs.Foreground.Int32())
-	}
-	if cs.Background.IsSet() {
-		background = tcell.NewHexColor(cs.Background.Int32())
-	}
+	foreground := tcell.NewHexColor(cs.Foreground.Int32())
+	background := tcell.NewHexColor(cs.Background.Int32())
 
 	return tcell.StyleDefault.
 		Foreground(foreground).
