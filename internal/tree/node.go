@@ -2,6 +2,13 @@ package tree
 
 import "github.com/negrel/paon/pkg/pdk/id"
 
+// SetParentOf is an exported function that sets the parent of a given Node.
+// This function should be used to change the ParentNode of a Node after a call
+// to an insertion method if it didn't return an error.
+func SetParentOf(node Node, parent ParentNode) {
+	node.setParentNode(parent)
+}
+
 // Node define an element in a Node tree.
 type Node interface {
 	id.Identifiable
@@ -22,7 +29,7 @@ type Node interface {
 	setParentNode(ParentNode)
 
 	// RootNode define the root of the Node tree.
-	RootNode() Root
+	RootNode() ParentNode
 
 	// IsDescendantOf return true if this is a descendant of the given Node.
 	IsDescendantOf(node Node) bool
@@ -97,10 +104,15 @@ func (n *node) setParentNode(parent ParentNode) {
 	n.parent = parent
 }
 
-func (n *node) RootNode() Root {
+func (n *node) RootNode() ParentNode {
 	if n.parent != nil {
 		return n.parent.RootNode()
 	}
 
 	return nil
+}
+
+// String implements the fmt.Stringer interface.
+func (n *node) String() string {
+	return string(n.id)
 }

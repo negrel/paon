@@ -71,10 +71,6 @@ func (pn *parentNode) LastChildNode() Node {
 	return pn.lastChild
 }
 
-func (pn *parentNode) adopt(child Node) {
-	child.setParentNode(pn)
-}
-
 func (pn *parentNode) AppendChildNode(newChild Node) (err error) {
 	assert.NotNil(newChild, "child must be non-nil to be appended")
 
@@ -87,8 +83,6 @@ func (pn *parentNode) AppendChildNode(newChild Node) (err error) {
 }
 
 func (pn *parentNode) appendChildNode(newChild Node) {
-	log.Debugln("appending", newChild, "in", pn)
-
 	pn.prepareChildForInsertion(newChild)
 
 	if pn.lastChild != nil {
@@ -99,7 +93,6 @@ func (pn *parentNode) appendChildNode(newChild Node) {
 	}
 
 	pn.lastChild = newChild
-	pn.adopt(newChild)
 }
 
 func (pn *parentNode) ensurePreInsertionValidity(child Node) error {
@@ -155,7 +148,6 @@ func (pn *parentNode) InsertBeforeNode(reference, newChild Node) error {
 }
 
 func (pn *parentNode) insertBeforeNode(reference, newChild Node) {
-	log.Debugln("inserting", newChild, "before", reference, "in", pn)
 	pn.prepareChildForInsertion(newChild)
 
 	if previous := reference.PreviousNode(); previous != nil {
@@ -166,13 +158,10 @@ func (pn *parentNode) insertBeforeNode(reference, newChild Node) {
 	}
 	newChild.setNextNode(reference)
 	reference.setPreviousNode(newChild)
-
-	pn.adopt(newChild)
 }
 
 func (pn *parentNode) RemoveChildNode(child Node) error {
 	assert.NotNil(child, "child must be non-nil to be removed")
-	log.Debugln("removing", child, "from", pn)
 
 	// if not a child of pn
 	if !pn.IsSame(child.ParentNode()) {
