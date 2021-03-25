@@ -2,13 +2,6 @@ package tree
 
 import "github.com/negrel/paon/pkg/pdk/id"
 
-// SetParentOf is an exported function that sets the parent of a given Node.
-// This function should be used to change the ParentNode of a Node after a call
-// to an insertion method if it didn't return an error.
-func SetParentOf(node Node, parent ParentNode) {
-	node.setParentNode(parent)
-}
-
 // Node define an element in a Node tree.
 type Node interface {
 	id.Identifiable

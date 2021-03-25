@@ -3,7 +3,6 @@ package tree
 import (
 	"errors"
 	"fmt"
-
 	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/debuggo/pkg/log"
 )
@@ -40,18 +39,37 @@ var _ ParentNode = &parentNode{}
 type parentNode struct {
 	*node
 
-	firstChild Node
-	lastChild  Node
+	ptr2Composite ParentNode
+	firstChild    Node
+	lastChild     Node
 }
 
-// NewParent returns a ParentNode Node with zero child.
+// NewParent returns a ParentNode Node with no child.
 func NewParent() ParentNode {
 	return newParent()
 }
 
 func newParent() *parentNode {
-	return &parentNode{
+	p := &parentNode{
 		node: newNode(),
+	}
+	p.ptr2Composite = p
+
+	return p
+}
+
+// NewCompositeParent returns a new ParentNode object with no child. Unlike NewParent,
+// this function returns a ParentNode object that can be used in composite struct. The ptr argument
+// must be a pointer to the composite struct. Therefore, inserted Node will receives a pointer to the
+// composite struct as a parent.
+func NewCompositeParent(ptr ParentNode) ParentNode {
+	return newCompositeParent(ptr)
+}
+
+func newCompositeParent(ptr ParentNode) *parentNode {
+	return &parentNode{
+		node:          newNode(),
+		ptr2Composite: ptr,
 	}
 }
 
@@ -93,6 +111,8 @@ func (pn *parentNode) appendChildNode(newChild Node) {
 	}
 
 	pn.lastChild = newChild
+
+	newChild.setParentNode(pn.ptr2Composite)
 }
 
 func (pn *parentNode) ensurePreInsertionValidity(child Node) error {
@@ -158,6 +178,8 @@ func (pn *parentNode) insertBeforeNode(reference, newChild Node) {
 	}
 	newChild.setNextNode(reference)
 	reference.setPreviousNode(newChild)
+
+	newChild.setParentNode(pn.ptr2Composite)
 }
 
 func (pn *parentNode) RemoveChildNode(child Node) error {

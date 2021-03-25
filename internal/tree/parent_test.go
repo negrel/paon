@@ -6,43 +6,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var _ ParentNode = &testParent{}
-
-type testParent struct {
-	*parentNode
-}
-
-func newTestParent() *testParent {
-	return &testParent{
-		parentNode: newParent(),
-	}
-}
-
-func (tp *testParent) AppendChildNode(newChild Node) (err error) {
-	err = tp.parentNode.AppendChildNode(newChild)
-	if err == nil {
-		SetParentOf(newChild, tp)
-	}
-
-	return err
-}
-
-func (tp *testParent) InsertBeforeNode(reference, newChild Node) (err error) {
-	err = tp.parentNode.InsertBeforeNode(reference, newChild)
-	if err == nil {
-		SetParentOf(newChild, tp)
-	}
-
-	return err
-}
-
 func TestParentNode_New(t *testing.T) {
-	parent := newTestParent()
+	parent := newParent()
 	assert.NotNil(t, parent)
 }
 
 func TestParentNode_AppendChildNode_EmptyParent_Success(t *testing.T) {
-	parent := newTestParent()
+	parent := newParent()
 	child := newNode()
 
 	// Appending it
@@ -54,7 +24,7 @@ func TestParentNode_AppendChildNode_EmptyParent_Success(t *testing.T) {
 }
 
 func TestParentNode_AppendChildNode_NonEmptyParent_Success(t *testing.T) {
-	parent := newTestParent()
+	parent := newParent()
 	child := newNode()
 	newChild := newNode()
 
@@ -71,8 +41,8 @@ func TestParentNode_AppendChildNode_NonEmptyParent_Success(t *testing.T) {
 }
 
 func TestParentNode_AppendChildNode_AncestorOfParent(t *testing.T) {
-	parent := newTestParent()
-	ancestor := newTestParent()
+	parent := newParent()
+	ancestor := newParent()
 
 	_ = ancestor.AppendChildNode(parent)
 
@@ -82,7 +52,7 @@ func TestParentNode_AppendChildNode_AncestorOfParent(t *testing.T) {
 }
 
 func TestParentNode_AppendChildNode_NilChild(t *testing.T) {
-	parent := newTestParent()
+	parent := newParent()
 
 	assert.Panics(t, func() {
 		_ = parent.AppendChildNode(nil)
@@ -90,13 +60,13 @@ func TestParentNode_AppendChildNode_NilChild(t *testing.T) {
 }
 
 func TestParentNode_AppendChildNode_WithParent(t *testing.T) {
-	parent := newTestParent()
+	parent := newParent()
 	child1 := newNode()
 	child2 := newNode()
 	_ = parent.AppendChildNode(child1)
 	_ = parent.AppendChildNode(child2)
 
-	otherParent := newTestParent()
+	otherParent := newParent()
 	node := newNode()
 	_ = otherParent.AppendChildNode(node)
 
@@ -115,7 +85,7 @@ func TestParentNode_AppendChildNode_Itself(t *testing.T) {
 }
 
 func TestParentNode_InsertBeforeNode_EmptyParent_Success(t *testing.T) {
-	parent := newTestParent()
+	parent := newParent()
 	child := newNode()
 
 	err := parent.InsertBeforeNode(nil, child)
@@ -128,7 +98,7 @@ func TestParentNode_InsertBeforeNode_EmptyParent_Success(t *testing.T) {
 }
 
 func TestParentNode_InsertBeforeNode_NonEmptyParent_Success(t *testing.T) {
-	parent := newTestParent()
+	parent := newParent()
 	prev := newNode()
 	next := newNode()
 	child := newNode()
@@ -147,7 +117,7 @@ func TestParentNode_InsertBeforeNode_NonEmptyParent_Success(t *testing.T) {
 }
 
 func TestParentNode_InsertBeforeNode_NilChild(t *testing.T) {
-	parent := newTestParent()
+	parent := newParent()
 
 	reference := newNode()
 	_ = parent.AppendChildNode(reference)
@@ -161,7 +131,7 @@ func TestParentNode_InsertBeforeNode_NilChild(t *testing.T) {
 func TestParentNode_InsertBeforeNode_EmptyParent_NilReference(t *testing.T) {
 	// Inserting before a nil reference is same as appending
 
-	parent := newTestParent()
+	parent := newParent()
 	child := newNode()
 
 	// Appending it
@@ -172,7 +142,7 @@ func TestParentNode_InsertBeforeNode_EmptyParent_NilReference(t *testing.T) {
 }
 
 func TestParentNode_InsertBeforeNode_NonEmptyParent_NilReference(t *testing.T) {
-	parent := newTestParent()
+	parent := newParent()
 	child := newNode()
 	_ = parent.InsertBeforeNode(nil, child)
 
@@ -187,12 +157,12 @@ func TestParentNode_InsertBeforeNode_NonEmptyParent_NilReference(t *testing.T) {
 
 func TestParentNode_InsertBeforeNode_AncestorOfParent(t *testing.T) {
 	// Setting up the parent node
-	parent := newTestParent()
-	reference := newTestParent()
+	parent := newParent()
+	reference := newParent()
 	_ = parent.AppendChildNode(reference)
 
 	// Inserting the parent in the ancestor node
-	ancestor := newTestParent()
+	ancestor := newParent()
 	_ = ancestor.InsertBeforeNode(nil, parent)
 
 	// Trying to insert the parent node in the ancestor node
@@ -202,14 +172,14 @@ func TestParentNode_InsertBeforeNode_AncestorOfParent(t *testing.T) {
 
 func TestParentNode_InsertBeforeNode_ChildWithParent(t *testing.T) {
 	// Setting up the parent
-	parent := newTestParent()
+	parent := newParent()
 	prev := newNode()
 	next := newNode()
 	_ = parent.AppendChildNode(next)
 	_ = parent.InsertBeforeNode(next, prev)
 
 	// The initial parent of the child
-	initialParent := newTestParent()
+	initialParent := newParent()
 	reference := newNode()
 	_ = initialParent.AppendChildNode(reference)
 
@@ -232,12 +202,12 @@ func TestParentNode_InsertBeforeNode_Itself(t *testing.T) {
 }
 
 func TestParentNode_isAncestorOf_NilChild(t *testing.T) {
-	parent := newTestParent()
+	parent := newParent()
 	assert.False(t, parent.IsAncestorOf(nil))
 }
 
 func TestParentNode_RemoveChild_Success(t *testing.T) {
-	parent := newTestParent()
+	parent := newParent()
 
 	node := newNode()
 	_ = parent.AppendChildNode(node)
@@ -255,7 +225,7 @@ func TestParentNode_RemoveChild_Success(t *testing.T) {
 }
 
 func TestParentNode_RemoveChild_NilChild(t *testing.T) {
-	parent := newTestParent()
+	parent := newParent()
 
 	// Remove child from parent with no child
 	assert.Panics(t, func() {
@@ -272,8 +242,8 @@ func TestParentNode_RemoveChild_NilChild(t *testing.T) {
 }
 
 func TestParentNode_RemoveChild_ChildOfAnotherParent(t *testing.T) {
-	node := newTestParent()
-	parent := newTestParent()
+	node := newParent()
+	parent := newParent()
 	child := newNode()
 
 	_ = parent.AppendChildNode(child)
