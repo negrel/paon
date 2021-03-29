@@ -15,6 +15,8 @@ type VBoxLayout struct {
 func VBox(children []widgets.Widget, opts ...widgets.Option) *VBoxLayout {
 	vbox := &VBoxLayout{}
 	vbox.Layout = widgets.NewLayout(
+		"vbox",
+		vbox,
 		widgets.PrependOptions(opts,
 			widgets.Algo(vbox.flow), widgets.Script(vbox.draw),
 		)...,
@@ -45,7 +47,7 @@ func (vbl *VBoxLayout) flow(constraint flows.Constraint) flows.BoxModel {
 		}
 
 		width = math.Constrain(width, constraint.Min.Width(), constraint.Max.Width())
-		height = math.Constrain(width, constraint.Min.Height(), constraint.Max.Height())
+		height = math.Constrain(height, constraint.Min.Height(), constraint.Max.Height())
 
 		return flows.NewBox(geometry.Rectangle{
 			Min: constraint.Min.Min,
@@ -77,15 +79,10 @@ func (vbl *VBoxLayout) flowChildren(constraint flows.Constraint) []flows.BoxMode
 
 // draw implements the widgets.Widget interface.
 func (vbl *VBoxLayout) draw(ctx draw.Context) {
-	canvas := ctx.Canvas()
-
 	child := vbl.FirstChild()
 	for child != nil {
 		childBox := child.Box()
-		childCtx := canvas.NewContext(childBox.MarginBox())
-		widgets.DrawBoxOf(child, childCtx)
-
-		childCtx = childCtx.SubContext(childBox.ContentBox())
+		childCtx := ctx.SubContext(childBox.MarginBox())
 		child.Draw(childCtx)
 
 		child = child.Next()

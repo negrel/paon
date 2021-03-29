@@ -24,7 +24,7 @@ func Block(style styles.Style, constraint Constraint, fallback Algorithm) BoxMod
 	assert.NotNil(style)
 
 	minWidth, maxWidth := ComputeMinMaxWidth(style, constraint)
-	minHeight, maxHeight := ComputeMinMaxWidth(style, constraint)
+	minHeight, maxHeight := ComputeMinMaxHeight(style, constraint)
 
 	widthProp, hasWidth := GetUnitProp(style, property.Width())
 	if hasWidth {

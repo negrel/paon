@@ -13,21 +13,23 @@ type HBoxLayout struct {
 }
 
 func HBox(children []widgets.Widget, opts ...widgets.Option) *HBoxLayout {
-	vbox := &HBoxLayout{}
-	vbox.Layout = widgets.NewLayout(
+	hbox := &HBoxLayout{}
+	hbox.Layout = widgets.NewLayout(
+		"hbox",
+		hbox,
 		widgets.PrependOptions(opts,
-			widgets.Algo(vbox.flow), widgets.Script(vbox.draw),
+			widgets.Algo(hbox.flow), widgets.Script(hbox.draw),
 		)...,
 	)
 
 	for _, child := range children {
-		_, err := vbox.AppendChild(child)
+		_, err := hbox.AppendChild(child)
 		if err != nil {
 			panic(err)
 		}
 	}
 
-	return vbox
+	return hbox
 }
 
 func (hbl *HBoxLayout) flow(constraint flows.Constraint) flows.BoxModel {
@@ -77,15 +79,10 @@ func (hbl *HBoxLayout) flowChildren(constraint flows.Constraint) []flows.BoxMode
 
 // draw implements the widgets.Widget interface.
 func (hbl *HBoxLayout) draw(ctx draw.Context) {
-	canvas := ctx.Canvas()
-
 	child := hbl.FirstChild()
 	for child != nil {
 		childBox := child.Box()
-		childCtx := canvas.NewContext(childBox.MarginBox())
-		widgets.DrawBoxOf(child, childCtx)
-
-		childCtx = childCtx.SubContext(childBox.ContentBox())
+		childCtx := ctx.SubContext(childBox.MarginBox())
 		child.Draw(childCtx)
 
 		child = child.Next()
