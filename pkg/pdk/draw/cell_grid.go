@@ -6,7 +6,8 @@ import (
 	"sync"
 )
 
-var _ Canvas = CellGrid{}
+var _ Canvas = &CellGrid{}
+var _ render.Patch = &CellGrid{}
 
 type CellGrid struct {
 	*sync.Mutex
@@ -14,16 +15,22 @@ type CellGrid struct {
 	grid   [][]*render.Cell
 }
 
-// MakeCellGrid return a new CellGrid Canvas.
-func MakeCellGrid(bounds geometry.Rectangle) CellGrid {
-	return CellGrid{
-		Mutex:  &sync.Mutex{},
+// NewCellGrid return a new CellGrid Canvas.
+func NewCellGrid(bounds geometry.Rectangle) *CellGrid {
+	cg := &CellGrid{
+		Mutex:  new(sync.Mutex),
 		bounds: bounds,
 		grid:   make([][]*render.Cell, bounds.Height()),
 	}
+
+	for i := 0; i < bounds.Height(); i++ {
+		cg.grid[i] = make([]*render.Cell, bounds.Width())
+	}
+
+	return cg
 }
 
-func (cg CellGrid) get(pos geometry.Point) *render.Cell {
+func (cg *CellGrid) get(pos geometry.Point) *render.Cell {
 	cg.Mutex.Lock()
 	defer cg.Mutex.Unlock()
 
@@ -43,7 +50,7 @@ func (cg CellGrid) get(pos geometry.Point) *render.Cell {
 }
 
 // Get implements the Canvas interface.
-func (cg CellGrid) Get(pos geometry.Point) *render.Cell {
+func (cg *CellGrid) Get(pos geometry.Point) *render.Cell {
 	if !cg.bounds.Contains(pos) {
 		return nil
 	}
@@ -52,29 +59,34 @@ func (cg CellGrid) Get(pos geometry.Point) *render.Cell {
 }
 
 // Bounds implements the Canvas interface.
-func (cg CellGrid) Bounds() geometry.Rectangle {
+func (cg *CellGrid) Bounds() geometry.Rectangle {
 	return cg.bounds
 }
 
 // SubCanvas implements the Canvas interface.
-func (cg CellGrid) SubCanvas(bounds geometry.Rectangle) Canvas {
-	return CellGrid{
-		bounds: bounds,
+func (cg *CellGrid) SubCanvas(bounds geometry.Rectangle) Canvas {
+	return &CellGrid{
+		Mutex:  cg.Mutex,
+		bounds: cg.bounds.Mask(bounds),
 		grid:   cg.grid,
 	}
 }
 
 // Patch implements the Canvas interface.
-func (cg CellGrid) Patch() render.Patch {
-	patch := render.Patch{
-		Pos:   cg.bounds.Min,
-		Cells: cg.grid[:cg.bounds.Height()],
-	}
-	cg.grid = make([][]*render.Cell, cg.bounds.Height())
-
-	return patch
+func (cg *CellGrid) Patch() render.Patch {
+	return cg
 }
 
-func (cg CellGrid) NewContext(bounds geometry.Rectangle) Context {
+// ForEachCell implements the render.Patch interface.
+func (cg *CellGrid) ForEachCell(fn func(pos geometry.Point, cell *render.Cell)) {
+	for i := cg.bounds.Min.Y(); i < cg.bounds.Max.Y(); i++ {
+		for j := cg.bounds.Min.X(); j < cg.bounds.Max.X(); j++ {
+			pos := geometry.Pt(j, i)
+			fn(pos, cg.get(pos))
+		}
+	}
+}
+
+func (cg *CellGrid) NewContext(bounds geometry.Rectangle) Context {
 	return newContext(cg, bounds)
 }

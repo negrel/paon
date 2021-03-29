@@ -164,5 +164,5 @@ func (c *context) Commit() {
 func (c *context) SubContext(mask geometry.Rectangle) Context {
 	bounds := c.bounds.Mask(mask)
 
-	return c.canvas.NewContext(bounds)
+	return c.canvas.SubCanvas(bounds).NewContext(bounds)
 }
