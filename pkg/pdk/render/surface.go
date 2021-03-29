@@ -7,6 +7,6 @@ type Surface interface {
 	// Clear clears this Surface.
 	Clear()
 
-	// Flush flushes all the Patch in this Surface buffer.
+	// Flush flushes all the Patch of the Surface buffer.
 	Flush()
 }
