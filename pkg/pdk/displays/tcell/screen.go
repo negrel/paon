@@ -1,6 +1,7 @@
 package tcell
 
 import (
+	"context"
 	"github.com/gdamore/tcell/v2"
 	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/debuggo/pkg/log"
@@ -29,14 +30,15 @@ func MakeScreen() (displays.Screen, error) {
 
 	return &Screen{
 		Screen: screen,
+		Target: events.MakeTarget(),
 	}, nil
 }
 
 // Start implements the displays.Screen interface.
-func (s *Screen) Start() error {
+func (s *Screen) Start(ctx context.Context) error {
 	defer func() {
 		if r := recover(); r != nil {
-			s.Stop()
+			s.stop()
 			panic(r)
 		}
 	}()
@@ -46,17 +48,12 @@ func (s *Screen) Start() error {
 		return err
 	}
 
-	go s.eventLoop()
+	go s.eventLoop(ctx)
 
 	width, height := s.Screen.Size()
-	s.canvas = draw.MakeCellGrid(geometry.Rect(0, 0, width, height))
+	s.canvas = draw.NewCellGrid(geometry.Rect(0, 0, width, height))
 
 	return nil
-}
-
-// Stop implements the displays.Screen interface.
-func (s *Screen) Stop() {
-	s.Screen.Fini()
 }
 
 // Canvas implements the displays.Screen interface.
@@ -64,15 +61,32 @@ func (s *Screen) Canvas() draw.Canvas {
 	return s.canvas
 }
 
-func (s *Screen) eventLoop() {
-	for rawEvent := s.Screen.PollEvent(); rawEvent != nil; s.Screen.PollEvent() {
+func (s *Screen) pollEvent(ch chan<- events.Event) {
+	for rawEvent := s.Screen.PollEvent(); rawEvent != nil; rawEvent = s.Screen.PollEvent() {
 		event := s.adaptEvent(rawEvent)
+		// TODO remove nil event safety
 		if event == nil {
 			continue
 		}
-		log.Info(event)
+		log.Infof("%+v\n", event)
 
-		s.Target.DispatchEvent(event)
+		ch <- event
+	}
+}
+
+func (s *Screen) eventLoop(ctx context.Context) {
+	ch := make(chan events.Event)
+	go s.pollEvent(ch)
+
+	for {
+		select {
+		case <-ctx.Done():
+			s.stop()
+			return
+
+		case event := <-ch:
+			s.Target.DispatchEvent(event)
+		}
 	}
 }
 
@@ -89,9 +103,10 @@ func (s *Screen) adaptEvent(event tcell.Event) events.Event {
 	case *tcell.EventResize:
 		width, height := ev.Size()
 		size := geometry.MakeSize(width, height)
-		s.canvas = draw.MakeCellGrid(geometry.Rect(0, 0, width, height))
+		oldSize := s.canvas.Bounds().Size()
 
-		return events.MakeResize(size, s.canvas.Bounds().Size())
+		s.canvas = draw.NewCellGrid(geometry.Rect(0, 0, width, height))
+		return events.MakeResize(size, oldSize)
 
 	default:
 		assert.Nil(event)
@@ -102,6 +117,7 @@ func (s *Screen) adaptEvent(event tcell.Event) events.Event {
 
 // Apply implements the render.Surface interface.
 func (s *Screen) Apply(patch render.Patch) {
+	log.Info("applying patch")
 	patch.ForEachCell(func(pos geometry.Point, cell *render.Cell) {
 		if cell == nil {
 			return
@@ -118,4 +134,14 @@ func (s *Screen) Apply(patch render.Patch) {
 // Flush implements the render.Surface interface.
 func (s *Screen) Flush() {
 	s.Screen.Show()
+}
+
+func (s *Screen) stop() {
+	s.Screen.Fini()
+}
+
+// Bounds implements the displays.Screen interface.
+func (s *Screen) Bounds() geometry.Rectangle {
+	w, h := s.Screen.Size()
+	return geometry.Rect(0, 0, w, h)
 }

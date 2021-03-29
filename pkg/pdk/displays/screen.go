@@ -1,6 +1,8 @@
 package displays
 
 import (
+	"context"
+	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/pkg/pdk/draw"
 	"github.com/negrel/paon/pkg/pdk/events"
 	"github.com/negrel/paon/pkg/pdk/render"
@@ -12,11 +14,11 @@ type Screen interface {
 	render.Surface
 
 	// Start starts the screen so it can produce events, display things and more.
-	Start() error
+	Start(ctx context.Context) error
 
 	// Canvas returns a draw.Canvas object.
 	Canvas() draw.Canvas
 
-	// Stop stops the screen and makes it unusable.
-	Stop()
+	// Bounds returns the current Screen bounds.
+	Bounds() geometry.Rectangle
 }
