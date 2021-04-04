@@ -117,7 +117,7 @@ func (c *context) FillTextH(origin geometry.Point, text string) {
 			if cell == nil {
 				return
 			}
-			cell.Content = rune(text[i-origin.X()])
+			cell.Content = rune(text[i-rectangle.Min.X()])
 			cell.Style.Foreground = fillColor
 		}
 	})
@@ -137,7 +137,7 @@ func (c *context) FillTextV(origin geometry.Point, text string) {
 		for i := rectangle.Min.Y(); i < rectangle.Max.Y(); i++ {
 			cell := c.canvas.Get(geometry.Pt(origin.X(), i))
 			if cell != nil {
-				cell.Content = rune(text[i-origin.Y()])
+				cell.Content = rune(text[i-rectangle.Min.Y()])
 				cell.Style.Foreground = fillColor
 			}
 		}
