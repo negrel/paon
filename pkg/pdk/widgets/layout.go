@@ -1,6 +1,7 @@
 package widgets
 
 import (
+	"github.com/negrel/debuggo/pkg/log"
 	"github.com/negrel/paon/internal/tree"
 	"github.com/negrel/paon/pkg/pdk/id"
 )
@@ -15,20 +16,20 @@ type Layout interface {
 	// Returns the last child Widget of this Layout.
 	LastChild() Widget
 
-	// Add the given Widget at the end of the children list.
+	// Adds the given Widget at the end of the child list.
 	// An error is returned if the given Widget is an ancestor
 	// of this Layout.
 	// This function panic if a nil value is given.
 	AppendChild(child Widget) (Widget, error)
 
-	// Insert the given Widget before the reference Widget in the children list.
+	// Inserts the given Widget before the reference Widget in the child list.
 	// If the reference is nil the child is appended.
 	// An error is returned if the given Widget is an ancestor
 	// of this Layout.
 	// This function panic if a nil child value is given.
 	InsertBefore(reference, child Widget) (Widget, error)
 
-	// Remove the given Widget of the children list of this Layout.
+	// Removes the given Widget of the child list of this Layout.
 	// An error is returned if the Widget is not a direct child of
 	// this Layout.
 	RemoveChild(child Widget) error
@@ -43,15 +44,18 @@ type layout struct {
 	parentNode
 }
 
-func NewLayout(opts ...Option) Layout {
-	return newLayout(tree.NewParent(), opts...)
+func NewLayout(name string, ptr tree.ParentNode, opts ...Option) Layout {
+	return newLayout(name, ptr, opts...)
 }
 
-func newLayout(node tree.ParentNode, opts ...Option) *layout {
-	return &layout{
-		widget:     newWidget(node, opts...),
-		parentNode: node,
+func newLayout(name string, ptr tree.ParentNode, opts ...Option) *layout {
+	parent := tree.NewCompositeParent(ptr)
+	l := &layout{
+		widget:     newWidget(name, parent, opts...),
+		parentNode: parent,
 	}
+
+	return l
 }
 
 // ID implements the id.Identifiable interface.
@@ -79,63 +83,36 @@ func (l *layout) LastChild() Widget {
 
 // AppendChild implements the Layout interface.
 func (l *layout) AppendChild(child Widget) (Widget, error) {
+	log.Debugln("appending", child, "in", l, "child list")
 	err := l.AppendChildNode(child)
+
+	if err == nil {
+		l.needRender()
+	}
 
 	return child, err
 }
 
 // InsertBefore implements the Layout interface.
 func (l *layout) InsertBefore(reference, child Widget) (Widget, error) {
+	log.Debugln("inserting", child, "before", reference, "in", l)
 	err := l.InsertBeforeNode(reference, child)
+
+	if err == nil {
+		l.needRender()
+	}
 
 	return child, err
 }
 
 // RemoveChild implements the Layout interface.
 func (l *layout) RemoveChild(child Widget) error {
-	return l.RemoveChildNode(child)
-}
+	log.Debugln("removing", child, "from", l)
+	err := l.RemoveChildNode(child)
 
-//var _ Widget = &childWidget{}
-//
-//type childWidget struct {
-//	Widget
-//	box        *flows.Box
-//	constraint flows.Constraint
-//}
-//
-//func wrapWidget(widget Widget) *childWidget {
-//	cw, ok := widget.(*childWidget)
-//	if ok {
-//		return cw
-//	}
-//
-//	return &childWidget{
-//		Widget:     widget,
-//		box:        nil,
-//		constraint: flows.Constraint{},
-//	}
-//}
-//
-//// flow implements the Widget interface.
-//func (cw *childWidget) flow(constraint flows.Constraint) *flows.Box {
-//	if cw.constraint.Equals(constraint) && cw.box != nil {
-//		return cw.box
-//	}
-//
-//	cw.constraint = constraint
-//	box := cw.Widget.flow(constraint)
-//	cw.box = box
-//
-//	assert.True(box.Width() > constraint.Min.Width())
-//	assert.True(box.Width() < constraint.Max.Width())
-//	assert.True(box.Height() > constraint.Min.Height())
-//	assert.True(box.Height() < constraint.Max.Height())
-//
-//	return box
-//}
-//
-//// Box implements the Widget interface.
-//func (cw *childWidget) Box() flows.BoxModel {
-//	return cw.box
-//}
+	if err == nil {
+		l.needRender()
+	}
+
+	return err
+}
