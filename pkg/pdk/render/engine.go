@@ -2,7 +2,6 @@ package render
 
 import (
 	"context"
-	"github.com/negrel/debuggo/pkg/log"
 	"sync"
 	"time"
 )
@@ -55,7 +54,6 @@ func (s *engine) Start(ctx context.Context) {
 		case <-s.clock.C:
 			s.Lock()
 			for _, renderable := range s.queue {
-				log.Info("rendering", renderable)
 				if renderable.NeedRendering() {
 					patch := renderable.Render()
 					s.surface.Apply(patch)
