@@ -33,10 +33,10 @@ func VBox(children []widgets.Widget, opts ...widgets.Option) *VBoxLayout {
 }
 
 func (vbl *VBoxLayout) flow(constraint flows.Constraint) flows.BoxModel {
-	childrenOk := true
+	childrenNeedFlow := true
 
 	result := flows.Block(vbl.Style(), constraint, func(constraint flows.Constraint) flows.BoxModel {
-		childrenOk = false
+		childrenNeedFlow = false
 		childrenBoxes := vbl.flowChildren(constraint)
 
 		width := 0
@@ -55,7 +55,7 @@ func (vbl *VBoxLayout) flow(constraint flows.Constraint) flows.BoxModel {
 		})
 	})
 
-	if childrenOk {
+	if childrenNeedFlow {
 		vbl.flowChildren(constraint)
 	}
 

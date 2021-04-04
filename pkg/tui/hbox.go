@@ -33,10 +33,10 @@ func HBox(children []widgets.Widget, opts ...widgets.Option) *HBoxLayout {
 }
 
 func (hbl *HBoxLayout) flow(constraint flows.Constraint) flows.BoxModel {
-	childrenOk := true
+	childrenNeedFlow := true
 
 	result := flows.Block(hbl.Style(), constraint, func(constraint flows.Constraint) flows.BoxModel {
-		childrenOk = false
+		childrenNeedFlow = false
 		childrenBoxes := hbl.flowChildren(constraint)
 
 		width := 0
@@ -47,7 +47,7 @@ func (hbl *HBoxLayout) flow(constraint flows.Constraint) flows.BoxModel {
 		}
 
 		width = math.Constrain(width, constraint.Min.Width(), constraint.Max.Width())
-		height = math.Constrain(width, constraint.Min.Height(), constraint.Max.Height())
+		height = math.Constrain(height, constraint.Min.Height(), constraint.Max.Height())
 
 		return flows.NewBox(geometry.Rectangle{
 			Min: constraint.Min.Min,
@@ -55,7 +55,7 @@ func (hbl *HBoxLayout) flow(constraint flows.Constraint) flows.BoxModel {
 		})
 	})
 
-	if childrenOk {
+	if childrenNeedFlow {
 		hbl.flowChildren(constraint)
 	}
 
@@ -82,6 +82,7 @@ func (hbl *HBoxLayout) draw(ctx draw.Context) {
 	child := hbl.FirstChild()
 	for child != nil {
 		childBox := child.Box()
+
 		childCtx := ctx.SubContext(childBox.MarginBox())
 		child.Draw(childCtx)
 
