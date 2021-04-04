@@ -1,23 +1,12 @@
 package paon
 
-import (
-	"github.com/negrel/paon/internal/render"
-	"time"
-)
+import "github.com/negrel/paon/pkg/pdk/displays"
 
-type Option func(*App)
+type Option func(app *Application)
 
-// Clock is an option to set the internal clock used in the App for
-// rendering.
-func Clock(ticker *time.Ticker) Option {
-	return func(app *App) {
-		app.clock = ticker
-	}
-}
-
-// Screen is an option to use a different screen backend (default is tcell)
-func Screen(screen render.Screen) Option {
-	return func(app *App) {
-		app.window.Screen = screen
+// Screen sets the underlying displays.Screen to use.
+func Screen(screen displays.Screen) Option {
+	return func(app *Application) {
+		app.screen = screen
 	}
 }
