@@ -3,7 +3,14 @@ package events
 import (
 	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/internal/geometry"
+	"github.com/negrel/paon/pkg/pdk/events"
 )
+
+var _TypeClick = events.MakeType("click")
+
+func TypeClick() events.Type {
+	return _TypeClick
+}
 
 type ClickType int16
 
@@ -22,10 +29,10 @@ const (
 )
 
 // ClickListener convert the given event handler as a generic Listener.
-func ClickListener(handler func(Click)) *Listener {
-	l := Listener{
-		Type: TypeClick(),
-		Handle: func(event Event) {
+func ClickListener(handler func(Click)) *events.Listener {
+	l := events.Listener{
+		Type: _TypeClick,
+		Handle: func(event events.Event) {
 			assert.IsType(event, MakeClick(geometry.Point{}, 0))
 			handler(event.(Click))
 		},
@@ -34,11 +41,11 @@ func ClickListener(handler func(Click)) *Listener {
 	return &l
 }
 
-var _ Event = Click{}
+var _ events.Event = Click{}
 
 // Click is triggered when the user click inside the rendering surface.
 type Click struct {
-	Event
+	events.Event
 	Position  geometry.Point
 	ClickType ClickType
 }
@@ -46,7 +53,7 @@ type Click struct {
 // MakeClick returns a new Click events.Event.
 func MakeClick(position geometry.Point, clickType ClickType) Click {
 	return Click{
-		Event:     MakeEvent(TypeClick()),
+		Event:     events.MakeEvent(_TypeClick),
 		Position:  position,
 		ClickType: clickType,
 	}
