@@ -81,7 +81,7 @@ func (o observable) isValid() bool {
 {{ $type := . -}}
 {{- $Type :=  . | title -}}
 
-{{ if eq $type "unsafe.Pointer" }}
+{{ if eq $type "interface{}" }}
 {{ $Type = "Object" }}
 {{ end }}
 
@@ -198,9 +198,9 @@ type {{ $TypeBinding }} interface {
 	Unbind(...{{ $ObservableType }})
 }
 
-{{ $typeBinding := printf "%sBinding" $type -}}
-{{ if eq $type "unsafe.Pointer" }}
-{{ $typeBinding = "objectBinding" -}}
+{{- $typeBinding := printf "%sBinding" $type -}}
+{{ if eq $type "interface{}" }}
+{{- $typeBinding = "objectBinding" -}}
 {{ end }}
 
 var _ {{ $TypeBinding }} = &{{ $typeBinding }}{}

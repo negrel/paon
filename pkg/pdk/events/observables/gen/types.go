@@ -28,7 +28,7 @@ var types = [...]string{
 	"rune",
 	"bool",
 
-	"unsafe.Pointer",
+	"interface{}",
 }
 
 var integers []string = types[:5]

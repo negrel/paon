@@ -2,7 +2,6 @@ package observables
 
 import (
 	"github.com/negrel/debuggo/pkg/assert"
-	"unsafe"
 )
 
 // InvalidationHandler is called whenever an Observable becomes invalid.
@@ -3372,14 +3371,14 @@ func (ob *boolBinding) Unbind(observables ...ObservableBool) {
 }
 
 // ObjectChangeHandler is called whenever the value of an ObservableObject change.
-type ObjectChangeHandler *func(observable ObservableObject, old, new unsafe.Pointer)
+type ObjectChangeHandler *func(observable ObservableObject, old, new interface{})
 
-// ObservableObject is an entity that wraps a value of type unsafe.Pointer and allows to observe value changes.
+// ObservableObject is an entity that wraps a value of type interface{} and allows to observe value changes.
 type ObservableObject interface {
 	Observable
 
-	Get() unsafe.Pointer
-	Set(unsafe.Pointer)
+	Get() interface{}
+	Set(interface{})
 
 	AddChangeHandler(...ObjectChangeHandler)
 	RemoveChangeHandler(...ObjectChangeHandler)
@@ -3390,12 +3389,12 @@ var _ ObservableObject = &observableObject{}
 type observableObject struct {
 	*observable
 
-	data     unsafe.Pointer
+	data     interface{}
 	handlers map[ObjectChangeHandler]struct{}
 }
 
 // NewObservableObject returns a new instantiated ObservableObject.
-func NewObservableObject(data unsafe.Pointer) ObservableObject {
+func NewObservableObject(data interface{}) ObservableObject {
 	oo := newCompositeObservableObject(nil, data)
 	oo.ptr = oo
 
@@ -3406,14 +3405,14 @@ func NewObservableObject(data unsafe.Pointer) ObservableObject {
 // this function returns an ObservableObject object that can be used in composite struct. The ptr argument
 // must be a pointer to the composite struct. Therefore, invalid handler will receive a pointer to the composite
 // struct when this ObservableObject will become invalid.
-func NewCompositeObservableObject(data unsafe.Pointer) ObservableObject {
+func NewCompositeObservableObject(data interface{}) ObservableObject {
 	oo := newCompositeObservableObject(nil, data)
 	oo.ptr = oo
 
 	return oo
 }
 
-func newCompositeObservableObject(ptr ObservableObject, data unsafe.Pointer) *observableObject {
+func newCompositeObservableObject(ptr ObservableObject, data interface{}) *observableObject {
 	return &observableObject{
 		observable: newCompositeObservable(ptr),
 		data:       data,
@@ -3422,14 +3421,14 @@ func newCompositeObservableObject(ptr ObservableObject, data unsafe.Pointer) *ob
 }
 
 // Get implements the ObservableObject interface.
-func (oo *observableObject) Get() unsafe.Pointer {
+func (oo *observableObject) Get() interface{} {
 	assert.True(oo.isValid())
 
 	return oo.data
 }
 
 // Set implements the ObservableObject interface.
-func (oo *observableObject) Set(newValue unsafe.Pointer) {
+func (oo *observableObject) Set(newValue interface{}) {
 	assert.True(oo.isValid())
 
 	old := oo.data
@@ -3460,7 +3459,7 @@ func (oo *observableObject) RemoveChangeHandler(handlers ...ObjectChangeHandler)
 	}
 }
 
-// ObjectBinding define the minimum required to implement a binding to unsafe.Pointer.
+// ObjectBinding define the minimum required to implement a binding to interface{}.
 type ObjectBinding interface {
 	ObservableObject
 
@@ -3486,18 +3485,18 @@ type objectBinding struct {
 	dependencies []ObservableObject
 }
 
-func NewObjectBinding(data unsafe.Pointer) ObjectBinding {
+func NewObjectBinding(data interface{}) ObjectBinding {
 	ob := newCompositeObjectBinding(nil, data)
 	ob.ptr = ob
 
 	return ob
 }
 
-func NewCompositeObjectBinding(ptr ObjectBinding, data unsafe.Pointer) ObjectBinding {
+func NewCompositeObjectBinding(ptr ObjectBinding, data interface{}) ObjectBinding {
 	return newCompositeObjectBinding(ptr, data)
 }
 
-func newCompositeObjectBinding(ptr ObjectBinding, data unsafe.Pointer) *objectBinding {
+func newCompositeObjectBinding(ptr ObjectBinding, data interface{}) *objectBinding {
 	return &objectBinding{
 		observableObject: newCompositeObservableObject(ptr, data),
 		dependencies:     make([]ObservableObject, 0, 8),
@@ -3529,7 +3528,7 @@ func (ob *objectBinding) Bind(observables ...ObservableObject) {
 
 		observable.AddInvalidationHandler(&invalidationHandler)
 
-		changeHandler := func(_ ObservableObject, oldValue, newValue unsafe.Pointer) {
+		changeHandler := func(_ ObservableObject, oldValue, newValue interface{}) {
 			if newValue == ob.Get() {
 				return
 			}
