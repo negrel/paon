@@ -2,7 +2,6 @@ package observables
 
 import (
 	"github.com/negrel/debuggo/pkg/assert"
-	"unsafe"
 )
 
 // InvalidationHandler is called whenever an Observable becomes invalid.
