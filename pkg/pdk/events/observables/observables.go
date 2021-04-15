@@ -80,7 +80,7 @@ func (o observable) isValid() bool {
 // IntChangeHandler is called whenever the value of an ObservableInt change.
 type IntChangeHandler *func(observable ObservableInt, old, new int)
 
-// ObservableInt is an entity that wraps a value and allows to observe value changes.
+// ObservableInt is an entity that wraps a value of type int and allows to observe value changes.
 type ObservableInt interface {
 	Observable
 
@@ -263,7 +263,7 @@ func (ob *intBinding) Unbind(observables ...ObservableInt) {
 // Int8ChangeHandler is called whenever the value of an ObservableInt8 change.
 type Int8ChangeHandler *func(observable ObservableInt8, old, new int8)
 
-// ObservableInt8 is an entity that wraps a value and allows to observe value changes.
+// ObservableInt8 is an entity that wraps a value of type int8 and allows to observe value changes.
 type ObservableInt8 interface {
 	Observable
 
@@ -446,7 +446,7 @@ func (ob *int8Binding) Unbind(observables ...ObservableInt8) {
 // Int16ChangeHandler is called whenever the value of an ObservableInt16 change.
 type Int16ChangeHandler *func(observable ObservableInt16, old, new int16)
 
-// ObservableInt16 is an entity that wraps a value and allows to observe value changes.
+// ObservableInt16 is an entity that wraps a value of type int16 and allows to observe value changes.
 type ObservableInt16 interface {
 	Observable
 
@@ -629,7 +629,7 @@ func (ob *int16Binding) Unbind(observables ...ObservableInt16) {
 // Int32ChangeHandler is called whenever the value of an ObservableInt32 change.
 type Int32ChangeHandler *func(observable ObservableInt32, old, new int32)
 
-// ObservableInt32 is an entity that wraps a value and allows to observe value changes.
+// ObservableInt32 is an entity that wraps a value of type int32 and allows to observe value changes.
 type ObservableInt32 interface {
 	Observable
 
@@ -812,7 +812,7 @@ func (ob *int32Binding) Unbind(observables ...ObservableInt32) {
 // Int64ChangeHandler is called whenever the value of an ObservableInt64 change.
 type Int64ChangeHandler *func(observable ObservableInt64, old, new int64)
 
-// ObservableInt64 is an entity that wraps a value and allows to observe value changes.
+// ObservableInt64 is an entity that wraps a value of type int64 and allows to observe value changes.
 type ObservableInt64 interface {
 	Observable
 
@@ -995,7 +995,7 @@ func (ob *int64Binding) Unbind(observables ...ObservableInt64) {
 // UintChangeHandler is called whenever the value of an ObservableUint change.
 type UintChangeHandler *func(observable ObservableUint, old, new uint)
 
-// ObservableUint is an entity that wraps a value and allows to observe value changes.
+// ObservableUint is an entity that wraps a value of type uint and allows to observe value changes.
 type ObservableUint interface {
 	Observable
 
@@ -1178,7 +1178,7 @@ func (ob *uintBinding) Unbind(observables ...ObservableUint) {
 // Uint8ChangeHandler is called whenever the value of an ObservableUint8 change.
 type Uint8ChangeHandler *func(observable ObservableUint8, old, new uint8)
 
-// ObservableUint8 is an entity that wraps a value and allows to observe value changes.
+// ObservableUint8 is an entity that wraps a value of type uint8 and allows to observe value changes.
 type ObservableUint8 interface {
 	Observable
 
@@ -1361,7 +1361,7 @@ func (ob *uint8Binding) Unbind(observables ...ObservableUint8) {
 // Uint16ChangeHandler is called whenever the value of an ObservableUint16 change.
 type Uint16ChangeHandler *func(observable ObservableUint16, old, new uint16)
 
-// ObservableUint16 is an entity that wraps a value and allows to observe value changes.
+// ObservableUint16 is an entity that wraps a value of type uint16 and allows to observe value changes.
 type ObservableUint16 interface {
 	Observable
 
@@ -1544,7 +1544,7 @@ func (ob *uint16Binding) Unbind(observables ...ObservableUint16) {
 // Uint32ChangeHandler is called whenever the value of an ObservableUint32 change.
 type Uint32ChangeHandler *func(observable ObservableUint32, old, new uint32)
 
-// ObservableUint32 is an entity that wraps a value and allows to observe value changes.
+// ObservableUint32 is an entity that wraps a value of type uint32 and allows to observe value changes.
 type ObservableUint32 interface {
 	Observable
 
@@ -1727,7 +1727,7 @@ func (ob *uint32Binding) Unbind(observables ...ObservableUint32) {
 // Uint64ChangeHandler is called whenever the value of an ObservableUint64 change.
 type Uint64ChangeHandler *func(observable ObservableUint64, old, new uint64)
 
-// ObservableUint64 is an entity that wraps a value and allows to observe value changes.
+// ObservableUint64 is an entity that wraps a value of type uint64 and allows to observe value changes.
 type ObservableUint64 interface {
 	Observable
 
@@ -1910,7 +1910,7 @@ func (ob *uint64Binding) Unbind(observables ...ObservableUint64) {
 // Float32ChangeHandler is called whenever the value of an ObservableFloat32 change.
 type Float32ChangeHandler *func(observable ObservableFloat32, old, new float32)
 
-// ObservableFloat32 is an entity that wraps a value and allows to observe value changes.
+// ObservableFloat32 is an entity that wraps a value of type float32 and allows to observe value changes.
 type ObservableFloat32 interface {
 	Observable
 
@@ -2093,7 +2093,7 @@ func (ob *float32Binding) Unbind(observables ...ObservableFloat32) {
 // Float64ChangeHandler is called whenever the value of an ObservableFloat64 change.
 type Float64ChangeHandler *func(observable ObservableFloat64, old, new float64)
 
-// ObservableFloat64 is an entity that wraps a value and allows to observe value changes.
+// ObservableFloat64 is an entity that wraps a value of type float64 and allows to observe value changes.
 type ObservableFloat64 interface {
 	Observable
 
@@ -2276,7 +2276,7 @@ func (ob *float64Binding) Unbind(observables ...ObservableFloat64) {
 // Complex64ChangeHandler is called whenever the value of an ObservableComplex64 change.
 type Complex64ChangeHandler *func(observable ObservableComplex64, old, new complex64)
 
-// ObservableComplex64 is an entity that wraps a value and allows to observe value changes.
+// ObservableComplex64 is an entity that wraps a value of type complex64 and allows to observe value changes.
 type ObservableComplex64 interface {
 	Observable
 
@@ -2459,7 +2459,7 @@ func (ob *complex64Binding) Unbind(observables ...ObservableComplex64) {
 // Complex128ChangeHandler is called whenever the value of an ObservableComplex128 change.
 type Complex128ChangeHandler *func(observable ObservableComplex128, old, new complex128)
 
-// ObservableComplex128 is an entity that wraps a value and allows to observe value changes.
+// ObservableComplex128 is an entity that wraps a value of type complex128 and allows to observe value changes.
 type ObservableComplex128 interface {
 	Observable
 
@@ -2642,7 +2642,7 @@ func (ob *complex128Binding) Unbind(observables ...ObservableComplex128) {
 // StringChangeHandler is called whenever the value of an ObservableString change.
 type StringChangeHandler *func(observable ObservableString, old, new string)
 
-// ObservableString is an entity that wraps a value and allows to observe value changes.
+// ObservableString is an entity that wraps a value of type string and allows to observe value changes.
 type ObservableString interface {
 	Observable
 
@@ -2825,7 +2825,7 @@ func (ob *stringBinding) Unbind(observables ...ObservableString) {
 // ByteChangeHandler is called whenever the value of an ObservableByte change.
 type ByteChangeHandler *func(observable ObservableByte, old, new byte)
 
-// ObservableByte is an entity that wraps a value and allows to observe value changes.
+// ObservableByte is an entity that wraps a value of type byte and allows to observe value changes.
 type ObservableByte interface {
 	Observable
 
@@ -3008,7 +3008,7 @@ func (ob *byteBinding) Unbind(observables ...ObservableByte) {
 // RuneChangeHandler is called whenever the value of an ObservableRune change.
 type RuneChangeHandler *func(observable ObservableRune, old, new rune)
 
-// ObservableRune is an entity that wraps a value and allows to observe value changes.
+// ObservableRune is an entity that wraps a value of type rune and allows to observe value changes.
 type ObservableRune interface {
 	Observable
 
@@ -3191,7 +3191,7 @@ func (ob *runeBinding) Unbind(observables ...ObservableRune) {
 // BoolChangeHandler is called whenever the value of an ObservableBool change.
 type BoolChangeHandler *func(observable ObservableBool, old, new bool)
 
-// ObservableBool is an entity that wraps a value and allows to observe value changes.
+// ObservableBool is an entity that wraps a value of type bool and allows to observe value changes.
 type ObservableBool interface {
 	Observable
 
@@ -3374,7 +3374,7 @@ func (ob *boolBinding) Unbind(observables ...ObservableBool) {
 // ObjectChangeHandler is called whenever the value of an ObservableObject change.
 type ObjectChangeHandler *func(observable ObservableObject, old, new unsafe.Pointer)
 
-// ObservableObject is an entity that wraps a value and allows to observe value changes.
+// ObservableObject is an entity that wraps a value of type unsafe.Pointer and allows to observe value changes.
 type ObservableObject interface {
 	Observable
 

@@ -91,7 +91,7 @@ func (o observable) isValid() bool {
 // {{ $TypeChangeHandler }} is called whenever the value of an {{ $ObservableType }} change.
 type {{ $TypeChangeHandler }} *func(observable {{ $ObservableType }}, old, new {{ $type }})
 
-// {{ $ObservableType }} is an entity that wraps a value and allows to observe value changes.
+// {{ $ObservableType }} is an entity that wraps a value of type {{ $type }} and allows to observe value changes.
 type {{ $ObservableType }} interface {
 	Observable
 
