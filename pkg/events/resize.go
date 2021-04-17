@@ -38,7 +38,7 @@ type Resize struct {
 // MakeResize return a new Resize events.Event.
 func MakeResize(newSize, oldSize geometry.Size) Resize {
 	return Resize{
-		Event:     events.MakeEvent(TypeResize),
+		Event:     events.MakeEvent(_TypeResize),
 		Size:      newSize,
 		IsWider:   newSize.Width() > oldSize.Width(),
 		IsGreater: newSize.Height() > oldSize.Height(),
