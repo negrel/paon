@@ -2,26 +2,23 @@ package flows
 
 import "github.com/negrel/debuggo/pkg/assert"
 
-var _ Flowable = &Cache{}
-
 // Cache is a wrapper for Flowable object.
 type Cache struct {
-	Flowable
+	Algorithm
 	cache      BoxModel
 	constraint Constraint
 }
 
 // NewCache returns a new Cache wrapper for the given Flowable.
-func NewCache(flowable Flowable) *Cache {
+func NewCache() *Cache {
 	return &Cache{
-		Flowable: flowable,
-		cache:    nil,
+		cache: nil,
 	}
 }
 
 // Flow implements the Flowable interface.
 func (c *Cache) Flow(constraint Constraint) BoxModel {
-	assert.NotNil(c.Flowable)
+	assert.NotNil(c.Algorithm)
 
 	// Check in the cache if valid
 	if c.cache != nil && c.constraint == constraint {
@@ -30,7 +27,7 @@ func (c *Cache) Flow(constraint Constraint) BoxModel {
 
 	// Update cache
 	c.constraint = constraint
-	c.cache = c.Flowable.Flow(constraint)
+	c.cache = c.Algorithm(constraint)
 
 	return c.cache
 }

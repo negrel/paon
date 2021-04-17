@@ -8,17 +8,7 @@ import (
 	"github.com/negrel/paon/pkg/pdk/styles/property"
 )
 
-// Flowable ...
-type Flowable interface {
-	Flow(Constraint) BoxModel
-}
-
 type Algorithm func(Constraint) BoxModel
-
-// Flow implements the Flowable interface.
-func (a Algorithm) Flow(constraint Constraint) BoxModel {
-	return a(constraint)
-}
 
 func Block(style styles.Style, constraint Constraint, fallback Algorithm) BoxModel {
 	assert.NotNil(style)
