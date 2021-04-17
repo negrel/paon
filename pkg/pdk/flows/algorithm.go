@@ -8,8 +8,14 @@ import (
 	"github.com/negrel/paon/pkg/pdk/styles/property"
 )
 
+// Algorithm define a flow algorithm used to compute
+// a BoxModel based on the given constraint.
 type Algorithm func(Constraint) BoxModel
 
+// Block is a basic layout algorithm that returns a BoxModel using the
+// width, height properties (min, max) and the Constraint.
+// Sometimes one of those properties aren't defined and the fallback Algorithm is used.
+// This algorithm must be wrapped in a function to be used as an Algorithm.
 func Block(style styles.Style, constraint Constraint, fallback Algorithm) BoxModel {
 	assert.NotNil(style)
 
