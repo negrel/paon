@@ -1,14 +1,16 @@
 package widgets
 
 import (
+	"errors"
+	"fmt"
+
+	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/debuggo/pkg/log"
-	"github.com/negrel/paon/internal/tree"
 	"github.com/negrel/paon/pkg/pdk/id"
 )
 
 // Layout is a Widget that can contain child Widget.
 type Layout interface {
-	tree.ParentNode
 	Widget
 
 	// Returns the first child Widget of this Layout.
@@ -20,39 +22,40 @@ type Layout interface {
 	// An error is returned if the given Widget is an ancestor
 	// of this Layout.
 	// This function panic if a nil value is given.
-	AppendChild(child Widget) (Widget, error)
+	AppendChild(child Widget) error
 
 	// Inserts the given Widget before the reference Widget in the child list.
 	// If the reference is nil the child is appended.
 	// An error is returned if the given Widget is an ancestor
 	// of this Layout.
 	// This function panic if a nil child value is given.
-	InsertBefore(reference, child Widget) (Widget, error)
+	InsertBefore(reference, child Widget) error
 
 	// Removes the given Widget of the child list of this Layout.
 	// An error is returned if the Widget is not a direct child of
 	// this Layout.
 	RemoveChild(child Widget) error
-}
 
-type parentNode = tree.ParentNode
+	// IsAncestorOf return true if the given Layout is a child of this Layout.
+	IsAncestorOf(child Widget) bool
+}
 
 var _ Layout = &layout{}
 
 type layout struct {
 	*widget
-	parentNode
+
+	firstChild Widget
+	lastChild  Widget
 }
 
-func NewLayout(name string, ptr tree.ParentNode, opts ...Option) Layout {
-	return newLayout(name, ptr, opts...)
+func NewLayout(name string, opts ...Option) Layout {
+	return newLayout(name, opts...)
 }
 
-func newLayout(name string, ptr tree.ParentNode, opts ...Option) *layout {
-	parent := tree.NewCompositeParent(ptr)
+func newLayout(name string, opts ...Option) *layout {
 	l := &layout{
-		widget:     newWidget(name, parent, opts...),
-		parentNode: parent,
+		widget: newWidget(name, opts...),
 	}
 
 	return l
@@ -65,54 +68,141 @@ func (l *layout) ID() id.ID {
 
 // LastChild implements the Layout interface.
 func (l *layout) FirstChild() Widget {
-	if fc := l.FirstChildNode(); fc != nil {
-		return fc.(Widget)
-	}
-
-	return nil
+	return l.firstChild
 }
 
 // LastChild implements the Layout interface.
 func (l *layout) LastChild() Widget {
-	if lc := l.LastChildNode(); lc != nil {
-		return lc.(Widget)
+	return l.lastChild
+}
+
+func (l *layout) AppendChild(newChild Widget) (err error) {
+	assert.NotNil(newChild, "child must be non-nil to be appended")
+
+	if err = l.ensurePreInsertionValidity(newChild); err != nil {
+		return fmt.Errorf("can't append child, %v", err)
+	}
+	l.appendChild(newChild)
+
+	return nil
+}
+
+func (l *layout) appendChild(newChild Widget) {
+	l.prepareChildForInsertion(newChild)
+
+	if l.lastChild != nil {
+		l.lastChild.setNext(newChild)
+		newChild.setPrevious(l.lastChild)
+	} else {
+		l.firstChild = newChild
+	}
+
+	l.lastChild = newChild
+
+	newChild.setParent(l)
+}
+
+func (l *layout) ensurePreInsertionValidity(child Widget) error {
+	// check if child is not a parentWidget of pn
+	if layout, isLayout := child.(Layout); isLayout {
+		if layout.IsAncestorOf(l) {
+			return errors.New("child contains the parentWidget")
+		}
 	}
 
 	return nil
 }
 
-// AppendChild implements the Layout interface.
-func (l *layout) AppendChild(child Widget) (Widget, error) {
-	log.Debugln("appending", child, "in", l, "child list")
-	err := l.AppendChildNode(child)
-
-	if err == nil {
-		l.needRender()
+func (l *layout) prepareChildForInsertion(newChild Widget) {
+	if parent := newChild.Parent(); parent != nil {
+		err := parent.RemoveChild(newChild)
+		assert.Nil(err)
 	}
-
-	return child, err
+	assert.Nil(newChild.Root())
+	assert.Nil(newChild.Parent())
+	assert.Nil(newChild.Previous())
+	assert.Nil(newChild.Next())
 }
 
-// InsertBefore implements the Layout interface.
-func (l *layout) InsertBefore(reference, child Widget) (Widget, error) {
-	log.Debugln("inserting", child, "before", reference, "in", l)
-	err := l.InsertBeforeNode(reference, child)
+func (l *layout) InsertBefore(reference, newChild Widget) error {
+	assert.NotNil(newChild, "child must be non-nil to be appended")
 
-	if err == nil {
-		l.needRender()
+	// InsertBefore(nil, node) is equal to AppendChild(node)
+	if reference == nil {
+		return l.AppendChild(newChild)
+	}
+	if referenceIsNotChild := !l.IsSame(reference.Parent()); referenceIsNotChild {
+		return errors.New("can't insert child, the given reference is not a child of this node")
 	}
 
-	return child, err
+	if err := l.ensurePreInsertionValidity(newChild); err != nil {
+		return fmt.Errorf("can't insert child, %v", err)
+	}
+
+	// newChild and reference are the same
+	if reference == newChild {
+		log.Debugln("can't insert child before itself, reference is now child next sibling")
+		reference = newChild.Next()
+		if reference == nil {
+			log.Debugln("can't insert before a nil reference, appending the child")
+			l.appendChild(newChild)
+			return nil
+		}
+	}
+
+	l.insertBefore(reference, newChild)
+	return nil
 }
 
-// RemoveChild implements the Layout interface.
+func (l *layout) insertBefore(reference, newChild Widget) {
+	l.prepareChildForInsertion(newChild)
+
+	if previous := reference.Previous(); previous != nil {
+		previous.setNext(newChild)
+		newChild.setPrevious(previous)
+	} else {
+		l.firstChild = newChild
+	}
+	newChild.setNext(reference)
+	reference.setPrevious(newChild)
+
+	newChild.setParent(l)
+}
+
 func (l *layout) RemoveChild(child Widget) error {
-	log.Debugln("removing", child, "from", l)
-	err := l.RemoveChildNode(child)
+	assert.NotNil(child, "child must be non-nil to be removed")
 
-	if err == nil {
-		l.needRender()
+	// if not a child of pn
+	if !l.IsSame(child.Parent()) {
+		return errors.New("can't remove child, the node is not a child of this node")
 	}
 
-	return err
+	// Removing siblings link
+	next := child.Next()
+	prev := child.Previous()
+	if next != nil {
+		child.setNext(nil)
+		next.setPrevious(prev)
+	} else {
+		l.lastChild = prev
+	}
+
+	if prev != nil {
+		child.setPrevious(nil)
+		prev.setNext(next)
+	} else {
+		l.firstChild = next
+	}
+	// Removing parentWidget & root link
+	child.setParent(nil)
+
+	return nil
+}
+
+func (l *layout) IsAncestorOf(widget Widget) bool {
+	if widget == nil {
+		return false
+	}
+
+	return widget.IsDescendantOf(l)
 }

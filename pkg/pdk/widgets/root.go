@@ -3,7 +3,6 @@ package widgets
 import (
 	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/internal/geometry"
-	"github.com/negrel/paon/internal/tree"
 	"github.com/negrel/paon/pkg/pdk/displays"
 	"github.com/negrel/paon/pkg/pdk/flows"
 	"github.com/negrel/paon/pkg/pdk/render"
@@ -18,11 +17,11 @@ type Root struct {
 
 func NewRoot(screen displays.Screen, engine render.Engine, child Widget) *Root {
 	r := &Root{
+		layout: newLayout("root"),
 		screen: screen,
 		engine: engine,
 	}
-	r.layout = newLayout("root", r)
-	_, err := r.AppendChild(child)
+	err := r.AppendChild(child)
 	assert.Nil(err)
 
 	// r.screen.AddEventListener(events.ResizeListener(func(resize events.Resize) {
@@ -33,13 +32,31 @@ func NewRoot(screen displays.Screen, engine render.Engine, child Widget) *Root {
 }
 
 // RootNode implements the tree.Node interface.
-func (r *Root) RootNode() tree.ParentNode {
+func (r *Root) Root() *Root {
 	return r
 }
 
 // Box implements the Widget interface.
 func (r *Root) Box() flows.BoxModel {
 	return flows.NewBox(r.screen.Bounds())
+}
+
+func (r *Root) AppendChild(child Widget) error {
+	err := r.layout.AppendChild(child)
+	if err == nil {
+		child.setParent(r)
+	}
+
+	return err
+}
+
+func (r *Root) InsertBefore(reference, child Widget) error {
+	err := r.layout.InsertBefore(reference, child)
+	if err == nil {
+		child.setParent(r)
+	}
+
+	return err
 }
 
 // Render implements the render.Renderable interface.

@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/negrel/debuggo/pkg/assert"
-	"github.com/negrel/paon/internal/tree"
 	"github.com/negrel/paon/pkg/pdk/draw"
 	"github.com/negrel/paon/pkg/pdk/events"
 	"github.com/negrel/paon/pkg/pdk/flows"
@@ -18,7 +17,6 @@ import (
 type Widget interface {
 	fmt.Stringer
 	id.Identifiable
-	tree.Node
 	events.Target
 	pdkstyles.Stylable
 	render.Renderable
@@ -26,31 +24,45 @@ type Widget interface {
 	// Drawer returns the drawer of this Widget.
 	Drawer() draw.Drawer
 
+	// FlowAlgo returns the flow algorithm of this Widget
 	FlowAlgo() flows.Algorithm
 
 	// Box returns the current flows.BoxModel of this Widget.
 	Box() flows.BoxModel
+
+	// IsSame returns true if the given widget is the same as this Widget.
+	IsSame(Widget) bool
 
 	// Root returns the Root Widget in the tree.
 	Root() *Root
 
 	// Parent returns the Layout that contain this Widget in the tree.
 	Parent() Layout
+	setParent(Layout)
 
 	// Next returns the next sibling of this Widget.
 	Next() Widget
+	setNext(Widget)
 
 	// Previous returns the previous sibling of this Widget.
 	Previous() Widget
+	setPrevious(Widget)
+
+	// IsDescendantOf return true if this Widget is a descendant of the given Layout.
+	IsDescendantOf(layout Layout) bool
 }
 
 var _ Widget = &widget{}
 
 type widget struct {
-	tree.Node
 	events.Target
-
 	*flows.Cache
+
+	nextWidget Widget
+	prevWidget Widget
+	parent     Layout
+
+	id                     id.ID
 	drawer                 draw.Drawer
 	name                   string
 	needReflow, needRedraw bool
@@ -59,14 +71,14 @@ type widget struct {
 
 // NewWidget returns a new Widget object customized with the given Option.
 func NewWidget(name string, opts ...Option) Widget {
-	return newWidget(name, tree.NewNode(), opts...)
+	return newWidget(name, opts...)
 }
 
-func newWidget(name string, node tree.Node, opts ...Option) *widget {
+func newWidget(name string, opts ...Option) *widget {
 	w := &widget{
-		Node:       node,
 		Target:     events.MakeTarget(),
 		Cache:      flows.NewCache(),
+		id:         id.Make(),
 		name:       name,
 		needRedraw: true,
 		needReflow: true,
@@ -88,10 +100,18 @@ func (w *widget) String() string {
 	return fmt.Sprintf("#%s-%d", w.name, w.ID())
 }
 
+func (w *widget) ID() id.ID {
+	return w.id
+}
+
+func (w *widget) IsSame(other Widget) bool {
+	return w.ID() == other.ID()
+}
+
 // Root implements the Widget interface.
 func (w *widget) Root() *Root {
-	if r := w.RootNode(); r != nil {
-		return r.(*Root)
+	if parent := w.Parent(); parent != nil {
+		return parent.Root()
 	}
 
 	return nil
@@ -99,28 +119,46 @@ func (w *widget) Root() *Root {
 
 // Parent implements the Widget interface.
 func (w *widget) Parent() Layout {
-	if p := w.ParentNode(); p != nil {
-		return p.(Layout)
+	return w.parent
+}
+
+func (w *widget) setParent(layout Layout) {
+	w.parent = layout
+}
+
+func (w *widget) IsDescendantOf(layout Layout) bool {
+	if layout == nil {
+		return false
 	}
-	return nil
+
+	var widget Widget = w
+	for widget != nil {
+		if widget.IsSame(layout) {
+			return true
+		}
+
+		widget = widget.Parent()
+	}
+
+	return false
 }
 
 // Next implements the Widget interface.
 func (w *widget) Next() Widget {
-	if n := w.NextNode(); n != nil {
-		return n.(Widget)
-	}
+	return w.nextWidget
+}
 
-	return nil
+func (w *widget) setNext(widget Widget) {
+	w.nextWidget = widget
 }
 
 // Previous implements the Widget interface.
 func (w *widget) Previous() Widget {
-	if p := w.PreviousNode(); p != nil {
-		return p.(Widget)
-	}
+	return w.prevWidget
+}
 
-	return nil
+func (w *widget) setPrevious(widget Widget) {
+	w.prevWidget = widget
 }
 
 // ParentStyle implements the styles.Stylable interface.
