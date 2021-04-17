@@ -24,23 +24,19 @@ func Bind(variable *Widget) Option {
 	}
 }
 
-func Algo(algorithm func(flows.Constraint) flows.BoxModel) Option {
-	return Flowable(flows.Algorithm(algorithm))
-}
-
-func Flowable(flowable flows.Flowable) Option {
+func Algo(algorithm flows.Algorithm) Option {
 	return func(widget *widget) {
-		widget.Cache = flows.NewCache(flowable)
+		widget.Cache.Algorithm = algorithm
 	}
 }
 
-func Script(script draw.Script) Option {
-	return Drawable(script)
+func DrawerFn(fn draw.DrawerFn) Option {
+	return Drawer(fn)
 }
 
-func Drawable(drawable draw.Drawable) Option {
+func Drawer(drawable draw.Drawer) Option {
 	return func(widget *widget) {
-		widget.Drawable = drawable
+		widget.drawer = drawable
 	}
 }
 

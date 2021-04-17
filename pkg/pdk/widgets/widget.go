@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/negrel/debuggo/pkg/assert"
-	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/internal/tree"
 	"github.com/negrel/paon/pkg/pdk/draw"
 	"github.com/negrel/paon/pkg/pdk/events"
@@ -22,11 +21,12 @@ type Widget interface {
 	tree.Node
 	events.Target
 	pdkstyles.Stylable
-	flows.Flowable
 	render.Renderable
 
 	// Drawer returns the drawer of this Widget.
 	Drawer() draw.Drawer
+
+	FlowAlgo() flows.Algorithm
 
 	// Box returns the current flows.BoxModel of this Widget.
 	Box() flows.BoxModel
@@ -49,8 +49,8 @@ var _ Widget = &widget{}
 type widget struct {
 	tree.Node
 	events.Target
-	*flows.Cache
 
+	*flows.Cache
 	drawer                 draw.Drawer
 	name                   string
 	needReflow, needRedraw bool
@@ -66,6 +66,7 @@ func newWidget(name string, node tree.Node, opts ...Option) *widget {
 	w := &widget{
 		Node:       node,
 		Target:     events.MakeTarget(),
+		Cache:      flows.NewCache(),
 		name:       name,
 		needRedraw: true,
 		needReflow: true,
@@ -77,13 +78,6 @@ func newWidget(name string, node tree.Node, opts ...Option) *widget {
 
 	if w.theme == nil {
 		w.theme = pdkstyles.NewTheme(pdkstyles.NewStyle())
-	}
-	if w.Cache == nil {
-		w.Cache = flows.NewCache(
-			flows.Algorithm(func(constraint flows.Constraint) flows.BoxModel {
-				return flows.NewBox(geometry.Rectangle{})
-			}),
-		)
 	}
 
 	return w
@@ -161,8 +155,13 @@ func (w *widget) Draw(ctx draw.Context) {
 	w.needRedraw = false
 }
 
-// Flow implements the flows.Flowable interface.
-func (w *widget) Flow(constraint flows.Constraint) flows.BoxModel {
+func (w *widget) FlowAlgo() flows.Algorithm {
+	return w.flowAlgo
+}
+
+func (w *widget) flowAlgo(constraint flows.Constraint) flows.BoxModel {
+	assert.NotNil(w.Cache.Algorithm)
+
 	w.needReflow = false
 	return w.Cache.Flow(constraint)
 }
