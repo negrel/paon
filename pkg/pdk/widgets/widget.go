@@ -2,6 +2,7 @@ package widgets
 
 import (
 	"fmt"
+
 	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/internal/tree"
@@ -22,8 +23,10 @@ type Widget interface {
 	events.Target
 	pdkstyles.Stylable
 	flows.Flowable
-	draw.Drawable
 	render.Renderable
+
+	// Drawer returns the drawer of this Widget.
+	Drawer() draw.Drawer
 
 	// Box returns the current flows.BoxModel of this Widget.
 	Box() flows.BoxModel
@@ -47,8 +50,8 @@ type widget struct {
 	tree.Node
 	events.Target
 	*flows.Cache
-	draw.Drawable
 
+	drawer                 draw.Drawer
 	name                   string
 	needReflow, needRedraw bool
 	theme                  pdkstyles.Theme
@@ -140,12 +143,16 @@ func (w *widget) Style() pdkstyles.Style {
 	return w.theme
 }
 
+func (w *widget) Drawer() draw.Drawer {
+	return w
+}
+
 // Draw implements the Widget interface.
 func (w *widget) Draw(ctx draw.Context) {
-	assert.NotNil(w.Drawable)
+	assert.NotNil(w.drawer)
 
 	DrawBoxOf(w, ctx)
-	w.Drawable.Draw(
+	w.drawer.Draw(
 		ctx.SubContext(
 			w.Box().ContentBox(),
 		),
