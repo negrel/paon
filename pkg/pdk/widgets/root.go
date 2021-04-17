@@ -31,7 +31,6 @@ func NewRoot(screen displays.Screen, engine render.Engine, child Widget) *Root {
 	return r
 }
 
-// RootNode implements the tree.Node interface.
 func (r *Root) Root() *Root {
 	return r
 }

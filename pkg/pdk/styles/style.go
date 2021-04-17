@@ -1,7 +1,6 @@
 package styles
 
 import (
-	"github.com/negrel/paon/internal/tree"
 	"github.com/negrel/paon/pkg/pdk/events"
 	"github.com/negrel/paon/pkg/pdk/id"
 	"github.com/negrel/paon/pkg/pdk/styles/property"
@@ -10,7 +9,6 @@ import (
 // Stylable define object that can have a Style.
 type Stylable interface {
 	id.Identifiable
-	tree.Node
 
 	ParentStyle() Style
 	Style() Style
