@@ -58,7 +58,7 @@ func (s style) Set(prop property.Property) {
 	old := s.props[prop.ID()]
 	s.props[prop.ID()] = prop
 
-	s.DispatchEvent(makeEventSetProperty(old, prop))
+	s.DispatchEvent(makeEventPropertyChange(old, prop))
 }
 
 // Get implements the Style interface.

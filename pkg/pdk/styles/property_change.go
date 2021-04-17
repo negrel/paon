@@ -9,9 +9,9 @@ import (
 // PropertyChangeListener convert the given event handler as a generic events.Listener.
 func PropertyChangeListener(handler func(setProperty EventPropertyChange)) *events.Listener {
 	l := events.Listener{
-		Type: eventTypeSetProperty,
+		Type: eventTypePropertyChange,
 		Handle: func(event events.Event) {
-			assert.IsType(event, makeEventSetProperty(nil, nil))
+			assert.IsType(event, EventPropertyChange{})
 			handler(event.(EventPropertyChange))
 		},
 	}
@@ -19,10 +19,10 @@ func PropertyChangeListener(handler func(setProperty EventPropertyChange)) *even
 	return &l
 }
 
-var eventTypeSetProperty = events.MakeType("set-property")
+var eventTypePropertyChange = events.MakeType("set-property")
 
 func EventTypePropertyChange() events.Type {
-	return eventTypeSetProperty
+	return eventTypePropertyChange
 }
 
 type EventPropertyChange struct {
@@ -30,9 +30,9 @@ type EventPropertyChange struct {
 	Old, New property.Property
 }
 
-func makeEventSetProperty(old, new property.Property) EventPropertyChange {
+func makeEventPropertyChange(old, new property.Property) EventPropertyChange {
 	return EventPropertyChange{
-		Event: events.MakeEvent(eventTypeSetProperty),
+		Event: events.MakeEvent(eventTypePropertyChange),
 		Old:   old,
 		New:   new,
 	}
