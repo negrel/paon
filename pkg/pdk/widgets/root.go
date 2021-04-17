@@ -5,7 +5,6 @@ import (
 	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/internal/tree"
 	"github.com/negrel/paon/pkg/pdk/displays"
-	"github.com/negrel/paon/pkg/pdk/events"
 	"github.com/negrel/paon/pkg/pdk/flows"
 	"github.com/negrel/paon/pkg/pdk/render"
 )
@@ -26,9 +25,9 @@ func NewRoot(screen displays.Screen, engine render.Engine, child Widget) *Root {
 	_, err := r.AppendChild(child)
 	assert.Nil(err)
 
-	r.screen.AddEventListener(events.ResizeListener(func(resize events.Resize) {
-		engine.Enqueue(r.FirstChild())
-	}))
+	// r.screen.AddEventListener(events.ResizeListener(func(resize events.Resize) {
+	// 	engine.Enqueue(r.FirstChild())
+	// }))
 
 	return r
 }
@@ -50,10 +49,10 @@ func (r *Root) Render() render.Patch {
 		r.screen.Bounds().Size(), r.screen.Bounds().Size(),
 	)
 
-	childBox := r.FirstChild().Flow(constraint)
+	childBox := r.FirstChild().FlowAlgo()(constraint)
 	canvas := r.screen.Canvas()
 	ctx := canvas.NewContext(childBox.MarginBox())
-	r.FirstChild().Draw(ctx)
+	r.FirstChild().Drawer().Draw(ctx)
 
 	return canvas.Patch()
 }
