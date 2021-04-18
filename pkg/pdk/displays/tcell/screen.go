@@ -2,10 +2,12 @@ package tcell
 
 import (
 	"context"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/debuggo/pkg/log"
 	"github.com/negrel/paon/internal/geometry"
+	paonEvents "github.com/negrel/paon/pkg/events"
 	"github.com/negrel/paon/pkg/pdk/displays"
 	"github.com/negrel/paon/pkg/pdk/draw"
 	"github.com/negrel/paon/pkg/pdk/events"
@@ -106,7 +108,7 @@ func (s *Screen) adaptEvent(event tcell.Event) events.Event {
 		oldSize := s.canvas.Bounds().Size()
 
 		s.canvas = draw.NewCellGrid(geometry.Rect(0, 0, width, height))
-		return events.MakeResize(size, oldSize)
+		return paonEvents.MakeResize(size, oldSize)
 
 	default:
 		assert.Nil(event)
