@@ -43,7 +43,7 @@ func MakeApplication(opts ...Option) (*Application, error) {
 
 // Start starts this application.
 func (app *Application) Start(root widgets.Widget) error {
-	defer app.recover()
+	defer app.Recover()
 
 	var ctx context.Context
 	ctx, app.cancel = context.WithCancel(context.Background())
@@ -56,7 +56,7 @@ func (app *Application) Start(root widgets.Widget) error {
 	}
 
 	go func() {
-		defer app.recover()
+		defer app.Recover()
 		app.engine.Start(ctx)
 	}()
 
@@ -65,7 +65,7 @@ func (app *Application) Start(root widgets.Widget) error {
 	return nil
 }
 
-func (app *Application) recover() {
+func (app *Application) Recover() {
 	if r := recover(); r != nil {
 		app.Stop()
 		// Sleep so other co routine can handle context cancelling
