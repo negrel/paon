@@ -1,6 +1,10 @@
 package styles
 
-import "github.com/negrel/paon/pkg/pdk/styles/property"
+import (
+	"sync"
+
+	"github.com/negrel/paon/pkg/pdk/styles/property"
+)
 
 type _style Style
 
@@ -19,6 +23,8 @@ type Theme interface {
 
 // theme is a composition of Style object.
 type theme struct {
+	sync.RWMutex
+
 	_style
 	shared []Style
 }
@@ -36,6 +42,9 @@ func NewTheme(defaultStyle Style) Theme {
 
 // Get implements the Style interface.
 func (t *theme) Get(id property.ID) property.Property {
+	t.RLock()
+	defer t.RUnlock()
+
 	if prop := t._style.Get(id); prop != nil {
 		return prop
 	}
@@ -51,6 +60,9 @@ func (t *theme) Get(id property.ID) property.Property {
 
 // Styles implements the Theme interface.
 func (t *theme) Styles() []Style {
+	t.RLock()
+	defer t.RUnlock()
+
 	return t.shared
 }
 
