@@ -1,6 +1,8 @@
 package tui
 
 import (
+	"strings"
+
 	"github.com/mitchellh/go-wordwrap"
 	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/pkg/pdk/draw"
@@ -11,7 +13,6 @@ import (
 	"github.com/negrel/paon/pkg/pdk/styles/value"
 	"github.com/negrel/paon/pkg/pdk/widgets"
 	"github.com/negrel/paon/pkg/style"
-	"strings"
 )
 
 var _ widgets.Widget = &TextWidget{}
@@ -37,12 +38,16 @@ func Text(content string, options ...widgets.Option) *TextWidget {
 		widgets.PrependOptions(
 			options,
 			widgets.Algo(tw.flow),
-			widgets.Script(tw.draw),
+			widgets.DrawerFn(tw.draw),
 			widgets.DefaultStyle(defaultStyle),
 		)...,
 	)
 
 	return tw
+}
+
+func (tw *TextWidget) runeContent() []rune {
+	return []rune(tw.content)
 }
 
 func (tw *TextWidget) flowText(width uint) int {
@@ -55,7 +60,7 @@ func (tw *TextWidget) flow(constraint flows.Constraint) flows.BoxModel {
 	return flows.Block(tw.Style(), constraint, func(constraint flows.Constraint) flows.BoxModel {
 		height := tw.flowText(uint(constraint.Max.Width()))
 
-		width := math.Constrain(len(tw.content), constraint.Min.Width(), constraint.Max.Width())
+		width := math.Constrain(len(tw.runeContent()), constraint.Min.Width(), constraint.Max.Width())
 		height = math.Constrain(height, constraint.Min.Height(), constraint.Max.Height())
 
 		box := flows.NewBox(geometry.Rectangle{
