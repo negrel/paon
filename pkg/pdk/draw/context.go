@@ -103,8 +103,12 @@ func (c *context) FillRectangle(rectangle geometry.Rectangle) {
 
 // FillTextH implements the Context interface.
 func (c *context) FillTextH(origin geometry.Point, text string) {
+	c.FillRunesH(origin, []rune(text)...)
+}
+
+func (c *context) FillRunesH(origin geometry.Point, runes ...rune) {
 	origin = origin.Add(c.bounds.Min)
-	rectangle := geometry.Rect(origin.X(), origin.Y(), origin.X()+len(text), origin.Y()+1)
+	rectangle := geometry.Rect(origin.X(), origin.Y(), origin.X()+len(runes), origin.Y()+1)
 	rectangle = c.bounds.Mask(rectangle)
 	if rectangle.Empty() {
 		return
@@ -117,7 +121,7 @@ func (c *context) FillTextH(origin geometry.Point, text string) {
 			if cell == nil {
 				return
 			}
-			cell.Content = rune(text[i-rectangle.Min.X()])
+			cell.Content = runes[i-rectangle.Min.X()]
 			cell.Style.Foreground = fillColor
 		}
 	})
@@ -125,8 +129,12 @@ func (c *context) FillTextH(origin geometry.Point, text string) {
 
 // FillTextV implements the Context interface.
 func (c *context) FillTextV(origin geometry.Point, text string) {
+	c.FillRunesV(origin, []rune(text)...)
+}
+
+func (c *context) FillRunesV(origin geometry.Point, runes ...rune) {
 	origin = origin.Add(c.bounds.Min)
-	rectangle := geometry.Rect(origin.X(), origin.Y(), origin.X()+1, origin.Y()+len(text))
+	rectangle := geometry.Rect(origin.X(), origin.Y(), origin.X()+1, origin.Y()+len(runes))
 	rectangle = c.bounds.Mask(rectangle)
 	if rectangle.Empty() {
 		return
@@ -137,7 +145,7 @@ func (c *context) FillTextV(origin geometry.Point, text string) {
 		for i := rectangle.Min.Y(); i < rectangle.Max.Y(); i++ {
 			cell := c.canvas.Get(geometry.Pt(origin.X(), i))
 			if cell != nil {
-				cell.Content = rune(text[i-rectangle.Min.Y()])
+				cell.Content = runes[i-rectangle.Min.Y()]
 				cell.Style.Foreground = fillColor
 			}
 		}
