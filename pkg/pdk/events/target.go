@@ -1,6 +1,8 @@
 package events
 
 import (
+	"sync"
+
 	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/debuggo/pkg/log"
 )
@@ -15,37 +17,44 @@ type Target interface {
 var _ Target = &target{}
 
 // target is an implementation of the Target interface.
-type target map[Type][]*Listener
+type target struct {
+	sync.RWMutex
+	listeners map[Type][]*Listener
+}
 
 // MakeTarget return an event target
 func MakeTarget() Target {
-	return target(
-		make(map[Type][]*Listener),
-	)
+	return &target{
+		listeners: make(map[Type][]*Listener),
+	}
 }
 
-func (t target) AddEventListener(listener *Listener) {
+func (t *target) AddEventListener(listener *Listener) {
 	assert.NotNil(listener, "listener must be not nil")
+	t.Lock()
+	defer t.Unlock()
 
-	if t[listener.Type] == nil {
-		t[listener.Type] = make([]*Listener, 0, 8)
+	if t.listeners[listener.Type] == nil {
+		t.listeners[listener.Type] = make([]*Listener, 0, 8)
 	}
 
-	t[listener.Type] = append(t[listener.Type], listener)
+	t.listeners[listener.Type] = append(t.listeners[listener.Type], listener)
 }
 
 // RemoveEventListener removes an event listener of a specific event type from the target.
-func (t target) RemoveEventListener(listener *Listener) {
+func (t *target) RemoveEventListener(listener *Listener) {
 	assert.NotNil(listener, "listener must be not nil")
+	t.Lock()
+	defer t.Unlock()
 
-	if t[listener.Type] == nil {
+	if t.listeners[listener.Type] == nil {
 		log.Infof("can't remove event listener %v, no such event listener registered for %v event type", listener, listener.Type)
 		return
 	}
 
-	for i, l := range t[listener.Type] {
+	for i, l := range t.listeners[listener.Type] {
 		if l == listener {
-			t[listener.Type] = append(t[listener.Type][:i], t[listener.Type][i+1:]...)
+			t.listeners[listener.Type] = append(t.listeners[listener.Type][:i], t.listeners[listener.Type][i+1:]...)
 			return
 		}
 	}
@@ -54,8 +63,11 @@ func (t target) RemoveEventListener(listener *Listener) {
 }
 
 // DispatchEvent dispatch the given event to listeners.
-func (t target) DispatchEvent(event Event) {
-	for _, listener := range t[event.Type()] {
+func (t *target) DispatchEvent(event Event) {
+	t.RLock()
+	defer t.RUnlock()
+
+	for _, listener := range t.listeners[event.Type()] {
 		listener.Handle(event)
 	}
 }
