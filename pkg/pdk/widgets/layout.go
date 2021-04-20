@@ -83,6 +83,7 @@ func (l *layout) AppendChild(newChild Widget) (err error) {
 		return fmt.Errorf("can't append child, %v", err)
 	}
 	l.appendChild(newChild)
+	l.markAsNeedReflow()
 
 	return nil
 }
@@ -151,6 +152,8 @@ func (l *layout) InsertBefore(reference, newChild Widget) error {
 	}
 
 	l.insertBefore(reference, newChild)
+	l.markAsNeedReflow()
+
 	return nil
 }
 
@@ -195,6 +198,7 @@ func (l *layout) RemoveChild(child Widget) error {
 	}
 	// Removing parentWidget & root link
 	child.setParent(nil)
+	l.markAsNeedReflow()
 
 	return nil
 }
