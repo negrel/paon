@@ -3,6 +3,7 @@ package widgets
 import (
 	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/internal/geometry"
+	"github.com/negrel/paon/pkg/events"
 	"github.com/negrel/paon/pkg/pdk/displays"
 	"github.com/negrel/paon/pkg/pdk/flows"
 	"github.com/negrel/paon/pkg/pdk/render"
@@ -24,9 +25,9 @@ func NewRoot(screen displays.Screen, engine render.Engine, child Widget) *Root {
 	err := r.AppendChild(child)
 	assert.Nil(err)
 
-	// r.screen.AddEventListener(events.ResizeListener(func(resize events.Resize) {
-	// 	engine.Enqueue(r.FirstChild())
-	// }))
+	r.screen.AddEventListener(events.ResizeListener(func(resize events.Resize) {
+		engine.Enqueue(r)
+	}))
 
 	return r
 }
