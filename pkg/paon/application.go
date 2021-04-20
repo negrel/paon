@@ -82,4 +82,5 @@ func (app *Application) Recover() {
 // Stop stops this application.
 func (app *Application) Stop() {
 	app.cancel()
+	app.screen.Stop()
 }
