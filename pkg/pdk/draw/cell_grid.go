@@ -1,16 +1,17 @@
 package draw
 
 import (
+	"sync"
+
 	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/pkg/pdk/render"
-	"sync"
 )
 
 var _ Canvas = &CellGrid{}
 var _ render.Patch = &CellGrid{}
 
 type CellGrid struct {
-	*sync.Mutex
+	*sync.RWMutex
 	bounds geometry.Rectangle
 	grid   [][]*render.Cell
 }
@@ -18,9 +19,9 @@ type CellGrid struct {
 // NewCellGrid return a new CellGrid Canvas.
 func NewCellGrid(bounds geometry.Rectangle) *CellGrid {
 	cg := &CellGrid{
-		Mutex:  new(sync.Mutex),
-		bounds: bounds,
-		grid:   make([][]*render.Cell, bounds.Height()),
+		RWMutex: &sync.RWMutex{},
+		bounds:  bounds,
+		grid:    make([][]*render.Cell, bounds.Height()),
 	}
 
 	for i := 0; i < bounds.Height(); i++ {
@@ -31,9 +32,6 @@ func NewCellGrid(bounds geometry.Rectangle) *CellGrid {
 }
 
 func (cg *CellGrid) get(pos geometry.Point) *render.Cell {
-	cg.Mutex.Lock()
-	defer cg.Mutex.Unlock()
-
 	row := cg.grid[pos.Y()]
 	if row == nil {
 		row = make([]*render.Cell, cg.bounds.Width())
@@ -51,6 +49,9 @@ func (cg *CellGrid) get(pos geometry.Point) *render.Cell {
 
 // Get implements the Canvas interface.
 func (cg *CellGrid) Get(pos geometry.Point) *render.Cell {
+	cg.RWMutex.RLock()
+	defer cg.RWMutex.RUnlock()
+
 	if !cg.bounds.Contains(pos) {
 		return nil
 	}
@@ -60,15 +61,18 @@ func (cg *CellGrid) Get(pos geometry.Point) *render.Cell {
 
 // Bounds implements the Canvas interface.
 func (cg *CellGrid) Bounds() geometry.Rectangle {
+	cg.RWMutex.RLock()
+	defer cg.RWMutex.RUnlock()
+
 	return cg.bounds
 }
 
 // SubCanvas implements the Canvas interface.
 func (cg *CellGrid) SubCanvas(bounds geometry.Rectangle) Canvas {
 	return &CellGrid{
-		Mutex:  cg.Mutex,
-		bounds: cg.bounds.Mask(bounds),
-		grid:   cg.grid,
+		RWMutex: cg.RWMutex,
+		bounds:  cg.bounds.Mask(bounds),
+		grid:    cg.grid,
 	}
 }
 
@@ -79,6 +83,9 @@ func (cg *CellGrid) Patch() render.Patch {
 
 // ForEachCell implements the render.Patch interface.
 func (cg *CellGrid) ForEachCell(fn func(pos geometry.Point, cell *render.Cell)) {
+	cg.RWMutex.RLock()
+	defer cg.RWMutex.RUnlock()
+
 	for i := cg.bounds.Min.Y(); i < cg.bounds.Max.Y(); i++ {
 		for j := cg.bounds.Min.X(); j < cg.bounds.Max.X(); j++ {
 			pos := geometry.Pt(j, i)
