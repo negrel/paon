@@ -18,3 +18,16 @@ func DrawBoxOf(widget Widget, ctx draw.Context) {
 	}
 	ctx.FillRectangle(box.PaddingBox())
 }
+
+// MarkAsNeedRedraw marks the widget so that on the next rendering frame,
+// the widget will be redrawed.
+func MarkAsNeedRedraw(w Widget) {
+	w.markAsNeedRedraw()
+}
+
+// MarkAsNeedReflow marks the widget so that on the next rendering frame,
+// the widget size will be recomputed. The widgets is also as needing
+// a redraw.
+func MarkAsNeedReflow(w Widget) {
+	w.markAsNeedReflow()
+}
