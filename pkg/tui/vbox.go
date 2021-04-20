@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"github.com/negrel/debuggo/pkg/log"
 	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/pkg/pdk/draw"
 	"github.com/negrel/paon/pkg/pdk/flows"
@@ -16,14 +17,13 @@ func VBox(children []widgets.Widget, opts ...widgets.Option) *VBoxLayout {
 	vbox := &VBoxLayout{}
 	vbox.Layout = widgets.NewLayout(
 		"vbox",
-		vbox,
 		widgets.PrependOptions(opts,
-			widgets.Algo(vbox.flow), widgets.Script(vbox.draw),
+			widgets.Algo(vbox.flow), widgets.DrawerFn(vbox.draw),
 		)...,
 	)
 
 	for _, child := range children {
-		_, err := vbox.AppendChild(child)
+		err := vbox.AppendChild(child)
 		if err != nil {
 			panic(err)
 		}
@@ -63,11 +63,12 @@ func (vbl *VBoxLayout) flow(constraint flows.Constraint) flows.BoxModel {
 }
 
 func (vbl *VBoxLayout) flowChildren(constraint flows.Constraint) []flows.BoxModel {
+	log.Debug("flow ", vbl)
 	result := make([]flows.BoxModel, 0, 8)
 
 	child := vbl.FirstChild()
 	for child != nil {
-		childBox := child.Flow(constraint)
+		childBox := child.FlowAlgo()(constraint)
 		result = append(result, childBox)
 
 		constraint.Min.Min = geometry.Pt(0, childBox.Height()).Add(constraint.Min.Min)
@@ -83,7 +84,7 @@ func (vbl *VBoxLayout) draw(ctx draw.Context) {
 	for child != nil {
 		childBox := child.Box()
 		childCtx := ctx.SubContext(childBox.MarginBox())
-		child.Draw(childCtx)
+		child.Drawer().Draw(childCtx)
 
 		child = child.Next()
 	}

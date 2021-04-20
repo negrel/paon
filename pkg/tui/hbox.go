@@ -16,14 +16,13 @@ func HBox(children []widgets.Widget, opts ...widgets.Option) *HBoxLayout {
 	hbox := &HBoxLayout{}
 	hbox.Layout = widgets.NewLayout(
 		"hbox",
-		hbox,
 		widgets.PrependOptions(opts,
-			widgets.Algo(hbox.flow), widgets.Script(hbox.draw),
+			widgets.Algo(hbox.flow), widgets.DrawerFn(hbox.draw),
 		)...,
 	)
 
 	for _, child := range children {
-		_, err := hbox.AppendChild(child)
+		err := hbox.AppendChild(child)
 		if err != nil {
 			panic(err)
 		}
@@ -67,7 +66,7 @@ func (hbl *HBoxLayout) flowChildren(constraint flows.Constraint) []flows.BoxMode
 
 	child := hbl.FirstChild()
 	for child != nil {
-		childBox := child.Flow(constraint)
+		childBox := child.FlowAlgo()(constraint)
 		result = append(result, childBox)
 
 		constraint.Min.Min = geometry.Pt(childBox.Width(), 0).Add(constraint.Min.Min)
@@ -84,7 +83,7 @@ func (hbl *HBoxLayout) draw(ctx draw.Context) {
 		childBox := child.Box()
 
 		childCtx := ctx.SubContext(childBox.MarginBox())
-		child.Draw(childCtx)
+		child.Drawer().Draw(childCtx)
 
 		child = child.Next()
 	}
