@@ -5,16 +5,13 @@ import (
 	"github.com/negrel/paon/pkg/pdk/flows"
 	pdkstyle "github.com/negrel/paon/pkg/pdk/styles"
 	"github.com/negrel/paon/pkg/pdk/styles/property"
+	"github.com/negrel/paon/pkg/pdk/widgets/lifecycle"
 )
 
 type Option func(widget *widget)
 
 func PrependOptions(opts []Option, toPrepend ...Option) []Option {
-	for _, opt := range opts {
-		toPrepend = append(toPrepend, opt)
-	}
-
-	return toPrepend
+	return append(toPrepend, opts...)
 }
 
 // Bind binds the given variable to the widget.
@@ -59,4 +56,44 @@ func Props(props ...property.Property) Option {
 			widget.theme.Set(prop)
 		}
 	}
+}
+
+func lifecycleHook(step lifecycle.Step, hook func()) Option {
+	return func(widget *widget) {
+		widget.lifeCycleHooks[step] = hook
+	}
+}
+
+func BeforeCreate(hook func()) Option {
+	return func(widget *widget) {
+		hook()
+	}
+}
+
+func Created(hook func()) Option {
+	return lifecycleHook(lifecycle.Created, hook)
+}
+
+func BeforeMount(hook func()) Option {
+	return lifecycleHook(lifecycle.BeforeMount, hook)
+}
+
+func Mounted(hook func()) Option {
+	return lifecycleHook(lifecycle.Mounted, hook)
+}
+
+func BeforeUpdate(hook func()) Option {
+	return lifecycleHook(lifecycle.BeforeUpdate, hook)
+}
+
+func Updated(hook func()) Option {
+	return lifecycleHook(lifecycle.Updated, hook)
+}
+
+func BeforeUnmount(hook func()) Option {
+	return lifecycleHook(lifecycle.BeforeUnmount, hook)
+}
+
+func Unmounted(hook func()) Option {
+	return lifecycleHook(lifecycle.Unmounted, hook)
 }
