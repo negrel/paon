@@ -29,7 +29,7 @@ type Style interface {
 var _ Style = style{}
 
 type style struct {
-	sync.RWMutex
+	*sync.RWMutex
 	events.Target
 
 	id    id.ID
@@ -38,9 +38,10 @@ type style struct {
 
 func NewStyle() Style {
 	return style{
-		id:     id.Make(),
-		Target: events.MakeTarget(),
-		props:  make(map[property.ID]property.Property, 8),
+		RWMutex: &sync.RWMutex{},
+		id:      id.Make(),
+		Target:  events.MakeTarget(),
+		props:   make(map[property.ID]property.Property, 8),
 	}
 }
 
