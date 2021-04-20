@@ -21,7 +21,7 @@ func (c *Cache) Flow(constraint Constraint) BoxModel {
 	assert.NotNil(c.Algorithm)
 
 	// Check in the cache if valid
-	if c.cache != nil && c.constraint == constraint {
+	if c.cache != nil && c.constraint.Equals(constraint) {
 		return c.cache
 	}
 
