@@ -10,6 +10,7 @@ import (
 	"github.com/negrel/paon/pkg/pdk/id"
 	"github.com/negrel/paon/pkg/pdk/render"
 	pdkstyles "github.com/negrel/paon/pkg/pdk/styles"
+	"github.com/negrel/paon/pkg/pdk/widgets/lifecycle"
 )
 
 // Widget define any object part of the Widget tree
@@ -50,6 +51,9 @@ type Widget interface {
 
 	// IsDescendantOf return true if this Widget is a descendant of the given Layout.
 	IsDescendantOf(layout Layout) bool
+
+	markAsNeedRedraw()
+	markAsNeedReflow()
 }
 
 var _ Widget = &widget{}
@@ -67,6 +71,7 @@ type widget struct {
 	name                   string
 	needReflow, needRedraw bool
 	theme                  pdkstyles.Theme
+	lifeCycleHooks         lifecycle.Hooks
 }
 
 // NewWidget returns a new Widget object customized with the given Option.
@@ -76,12 +81,13 @@ func NewWidget(name string, opts ...Option) Widget {
 
 func newWidget(name string, opts ...Option) *widget {
 	w := &widget{
-		Target:     events.MakeTarget(),
-		Cache:      flows.NewCache(),
-		id:         id.Make(),
-		name:       name,
-		needRedraw: true,
-		needReflow: true,
+		Target:         events.MakeTarget(),
+		Cache:          flows.NewCache(),
+		id:             id.Make(),
+		name:           name,
+		needRedraw:     true,
+		needReflow:     true,
+		lifeCycleHooks: lifecycle.MakeHooks(),
 	}
 
 	for _, opt := range opts {
@@ -123,6 +129,17 @@ func (w *widget) Parent() Layout {
 }
 
 func (w *widget) setParent(layout Layout) {
+	unmount := w.Parent() != nil && layout == nil
+	mount := w.Parent() == nil && layout != nil
+
+	if mount {
+		w.lifeCycleHooks[lifecycle.BeforeMount]()
+		defer w.lifeCycleHooks[lifecycle.Mounted]()
+	} else if unmount {
+		w.lifeCycleHooks[lifecycle.BeforeUnmount]()
+		defer w.lifeCycleHooks[lifecycle.Unmounted]()
+	}
+
 	w.parent = layout
 }
 
@@ -205,6 +222,11 @@ func (w *widget) flowAlgo(constraint flows.Constraint) flows.BoxModel {
 }
 
 func (w *widget) enqueue() {
+	// if already in the rendering queue
+	if w.NeedRendering() {
+		return
+	}
+
 	if root := w.Root(); root != nil {
 		root.engine.Enqueue(w)
 	}
@@ -217,6 +239,9 @@ func (w *widget) NeedRendering() bool {
 
 // Render implements the render.Renderable interface.
 func (w *widget) Render() render.Patch {
+	w.lifeCycleHooks[lifecycle.BeforeUpdate]()
+	defer w.lifeCycleHooks[lifecycle.Updated]()
+
 	if w.needReflow {
 		return w.Parent().Render()
 	}
@@ -233,9 +258,14 @@ func (w *widget) Render() render.Patch {
 	return nil
 }
 
-func (w *widget) needRender() {
-	w.needReflow = true
-	w.needRedraw = true
+func (w *widget) markAsNeedReflow() {
 	w.Cache.Invalidate()
 	w.enqueue()
+	w.needReflow = true
+	w.needRedraw = true
+}
+
+func (w *widget) markAsNeedRedraw() {
+	w.enqueue()
+	w.needRedraw = true
 }
