@@ -2,6 +2,7 @@ package tcell
 
 import (
 	"context"
+	"sync"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/negrel/debuggo/pkg/assert"
@@ -18,6 +19,8 @@ var _ displays.Screen = &Screen{}
 
 // Screen implements the screens.screen interface.
 type Screen struct {
+	sync.RWMutex
+
 	events.Target
 	tcell.Screen
 	canvas draw.Canvas
@@ -36,24 +39,32 @@ func MakeScreen() (displays.Screen, error) {
 	}, nil
 }
 
+func (s *Screen) Recover() {
+	if r := recover(); r != nil {
+		s.stop()
+		panic(r)
+	}
+}
+
 // Start implements the displays.Screen interface.
 func (s *Screen) Start(ctx context.Context) error {
-	defer func() {
-		if r := recover(); r != nil {
-			s.stop()
-			panic(r)
-		}
-	}()
+	defer s.Recover()
 
 	err := s.Screen.Init()
 	if err != nil {
 		return err
 	}
 
-	go s.eventLoop(ctx)
+	go func() {
+		defer s.Recover()
+		s.eventLoop(ctx)
+	}()
 
 	width, height := s.Screen.Size()
+
+	s.Lock()
 	s.canvas = draw.NewCellGrid(geometry.Rect(0, 0, width, height))
+	s.Unlock()
 
 	return nil
 }
@@ -78,11 +89,15 @@ func (s *Screen) pollEvent(ch chan<- events.Event) {
 
 func (s *Screen) eventLoop(ctx context.Context) {
 	ch := make(chan events.Event)
-	go s.pollEvent(ch)
+	go func() {
+		defer s.Recover()
+		s.pollEvent(ch)
+	}()
 
 	for {
 		select {
 		case <-ctx.Done():
+			close(ch)
 			s.stop()
 			return
 
@@ -105,9 +120,12 @@ func (s *Screen) adaptEvent(event tcell.Event) events.Event {
 	case *tcell.EventResize:
 		width, height := ev.Size()
 		size := geometry.MakeSize(width, height)
-		oldSize := s.canvas.Bounds().Size()
 
+		s.Lock()
+		oldSize := s.canvas.Bounds().Size()
 		s.canvas = draw.NewCellGrid(geometry.Rect(0, 0, width, height))
+		s.Unlock()
+
 		return paonEvents.MakeResize(size, oldSize)
 
 	default:
