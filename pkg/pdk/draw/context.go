@@ -159,9 +159,6 @@ func (c *context) FillLine(from, to geometry.Point) {
 
 // Commit implements the Context interface.
 func (c *context) Commit() {
-	c.canvas.Lock()
-	c.canvas.Unlock()
-
 	for _, op := range c.ops {
 		op(c.canvas)
 	}
