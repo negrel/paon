@@ -41,6 +41,11 @@ func MakeApplication(opts ...Option) (*Application, error) {
 	return app, nil
 }
 
+// Screen returns the screen used by the application.
+func (app *Application) Screen() displays.Screen {
+	return app.screen
+}
+
 // Start starts this application.
 func (app *Application) Start(root widgets.Widget) error {
 	defer app.Recover()
@@ -60,7 +65,7 @@ func (app *Application) Start(root widgets.Widget) error {
 		app.engine.Start(ctx)
 	}()
 
-	app.root.Render()
+	<-ctx.Done()
 
 	return nil
 }
