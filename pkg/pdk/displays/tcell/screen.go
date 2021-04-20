@@ -15,10 +15,10 @@ import (
 	"github.com/negrel/paon/pkg/pdk/render"
 )
 
-var _ displays.Screen = &Screen{}
+var _ displays.Screen = &screen{}
 
 // Screen implements the screens.screen interface.
-type Screen struct {
+type screen struct {
 	sync.RWMutex
 
 	events.Target
@@ -28,26 +28,26 @@ type Screen struct {
 
 // MakeScreen return a new displays.Screen using the tcell backend.
 func MakeScreen() (displays.Screen, error) {
-	screen, err := tcell.NewScreen()
+	s, err := tcell.NewScreen()
 	if err != nil {
 		return nil, err
 	}
 
-	return &Screen{
-		Screen: screen,
+	return &screen{
+		Screen: s,
 		Target: events.MakeTarget(),
 	}, nil
 }
 
-func (s *Screen) Recover() {
+func (s *screen) Recover() {
 	if r := recover(); r != nil {
-		s.stop()
+		s.Stop()
 		panic(r)
 	}
 }
 
 // Start implements the displays.Screen interface.
-func (s *Screen) Start(ctx context.Context) error {
+func (s *screen) Start(ctx context.Context) error {
 	defer s.Recover()
 
 	err := s.Screen.Init()
@@ -70,11 +70,11 @@ func (s *Screen) Start(ctx context.Context) error {
 }
 
 // Canvas implements the displays.Screen interface.
-func (s *Screen) Canvas() draw.Canvas {
+func (s *screen) Canvas() draw.Canvas {
 	return s.canvas
 }
 
-func (s *Screen) pollEvent(ch chan<- events.Event) {
+func (s *screen) pollEvent(ch chan<- events.Event) {
 	for rawEvent := s.Screen.PollEvent(); rawEvent != nil; rawEvent = s.Screen.PollEvent() {
 		event := s.adaptEvent(rawEvent)
 		// TODO remove nil event safety
@@ -87,7 +87,7 @@ func (s *Screen) pollEvent(ch chan<- events.Event) {
 	}
 }
 
-func (s *Screen) eventLoop(ctx context.Context) {
+func (s *screen) eventLoop(ctx context.Context) {
 	ch := make(chan events.Event)
 	go func() {
 		defer s.Recover()
@@ -98,7 +98,7 @@ func (s *Screen) eventLoop(ctx context.Context) {
 		select {
 		case <-ctx.Done():
 			close(ch)
-			s.stop()
+			s.Stop()
 			return
 
 		case event := <-ch:
@@ -107,7 +107,7 @@ func (s *Screen) eventLoop(ctx context.Context) {
 	}
 }
 
-func (s *Screen) adaptEvent(event tcell.Event) events.Event {
+func (s *screen) adaptEvent(event tcell.Event) events.Event {
 	switch ev := event.(type) {
 	case *tcell.EventKey:
 
@@ -136,8 +136,7 @@ func (s *Screen) adaptEvent(event tcell.Event) events.Event {
 }
 
 // Apply implements the render.Surface interface.
-func (s *Screen) Apply(patch render.Patch) {
-	log.Info("applying patch")
+func (s *screen) Apply(patch render.Patch) {
 	patch.ForEachCell(func(pos geometry.Point, cell *render.Cell) {
 		if cell == nil {
 			return
@@ -152,16 +151,16 @@ func (s *Screen) Apply(patch render.Patch) {
 }
 
 // Flush implements the render.Surface interface.
-func (s *Screen) Flush() {
+func (s *screen) Flush() {
 	s.Screen.Show()
 }
 
-func (s *Screen) stop() {
+func (s *screen) Stop() {
 	s.Screen.Fini()
 }
 
 // Bounds implements the displays.Screen interface.
-func (s *Screen) Bounds() geometry.Rectangle {
+func (s *screen) Bounds() geometry.Rectangle {
 	w, h := s.Screen.Size()
 	return geometry.Rect(0, 0, w, h)
 }
