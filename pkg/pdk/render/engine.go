@@ -1,7 +1,6 @@
 package render
 
 import (
-	"context"
 	"sync"
 	"time"
 )
@@ -9,7 +8,10 @@ import (
 // Engine is responsible for timing the rendering of renderable.
 type Engine interface {
 	// Start starts the engine rendering loop.
-	Start(ctx context.Context)
+	Start()
+
+	// Stop stops the engine rendering loop.
+	Stop()
 
 	// Surface returns the underlying Surface used by this Engine.
 	Surface() Surface
@@ -25,6 +27,7 @@ type engine struct {
 	surface Surface
 	queue   []Renderable
 	clock   *time.Ticker
+	done    chan struct{}
 }
 
 // Surface implements the Engine interface.
@@ -38,6 +41,7 @@ func NewEngine(surface Surface) Engine {
 		surface: surface,
 		queue:   make([]Renderable, 0, 32),
 		clock:   time.NewTicker(time.Millisecond * 16),
+		done:    make(chan struct{}),
 	}
 }
 
@@ -48,7 +52,7 @@ func (s *engine) Enqueue(renderable Renderable) {
 	s.queue = append(s.queue, renderable)
 }
 
-func (s *engine) Start(ctx context.Context) {
+func (s *engine) Start() {
 	for {
 		select {
 		case <-s.clock.C:
@@ -63,8 +67,13 @@ func (s *engine) Start(ctx context.Context) {
 			s.Unlock()
 			s.surface.Flush()
 
-		case <-ctx.Done():
+		case <-s.done:
 			return
 		}
 	}
+}
+
+// Stop stops the engine rendering loop.
+func (s *engine) Stop() {
+	s.done <- struct{}{}
 }

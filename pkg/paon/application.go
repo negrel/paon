@@ -62,7 +62,7 @@ func (app *Application) Start(root widgets.Widget) error {
 
 	go func() {
 		defer app.Recover()
-		app.engine.Start(ctx)
+		app.engine.Start()
 	}()
 
 	<-ctx.Done()
@@ -83,4 +83,5 @@ func (app *Application) Recover() {
 func (app *Application) Stop() {
 	app.cancel()
 	app.screen.Stop()
+	app.engine.Stop()
 }
