@@ -2,10 +2,10 @@ package widgets
 
 import (
 	"github.com/negrel/paon/pkg/pdk/draw"
+	"github.com/negrel/paon/pkg/pdk/events"
 	"github.com/negrel/paon/pkg/pdk/flows"
 	pdkstyle "github.com/negrel/paon/pkg/pdk/styles"
 	"github.com/negrel/paon/pkg/pdk/styles/property"
-	"github.com/negrel/paon/pkg/pdk/widgets/lifecycle"
 )
 
 type Option func(widget *widget)
@@ -58,9 +58,30 @@ func Props(props ...property.Property) Option {
 	}
 }
 
-func lifecycleHook(step lifecycle.Step, hook func()) Option {
+func lifecycleHook(step LifeCycleStep, hook func()) Option {
 	return func(widget *widget) {
-		widget.lifeCycleHooks[step] = hook
+		remover := func() {}
+
+		listener := &events.Listener{
+			Type: LifeCycleEventType(),
+			Handle: func(event events.Event) {
+				lifeCycleEvent, isLifeCycleEvent := event.(LifeCycleEvent)
+				if isLifeCycleEvent && lifeCycleEvent.Step == step {
+					hook()
+					remover()
+				}
+			},
+		}
+
+		// Remove the lifecycle hook if the lifecycle won't occure more than one time.
+		if step == beforeCreateLifeCycleStep ||
+			step == createdLifeCycleStep {
+			remover = func() {
+				widget.RemoveEventListener(listener)
+			}
+		}
+
+		widget.AddEventListener(listener)
 	}
 }
 
@@ -71,29 +92,29 @@ func BeforeCreate(hook func()) Option {
 }
 
 func Created(hook func()) Option {
-	return lifecycleHook(lifecycle.Created, hook)
+	return lifecycleHook(createdLifeCycleStep, hook)
 }
 
 func BeforeMount(hook func()) Option {
-	return lifecycleHook(lifecycle.BeforeMount, hook)
+	return lifecycleHook(beforeMountLifeCycleStep, hook)
 }
 
 func Mounted(hook func()) Option {
-	return lifecycleHook(lifecycle.Mounted, hook)
+	return lifecycleHook(mountedLifeCycleStep, hook)
 }
 
 func BeforeUpdate(hook func()) Option {
-	return lifecycleHook(lifecycle.BeforeUpdate, hook)
+	return lifecycleHook(beforeUpdateLifeCycleStep, hook)
 }
 
 func Updated(hook func()) Option {
-	return lifecycleHook(lifecycle.Updated, hook)
+	return lifecycleHook(updatedLifeCycleStep, hook)
 }
 
 func BeforeUnmount(hook func()) Option {
-	return lifecycleHook(lifecycle.BeforeUnmount, hook)
+	return lifecycleHook(beforeUnmountLifeCycleStep, hook)
 }
 
 func Unmounted(hook func()) Option {
-	return lifecycleHook(lifecycle.Unmounted, hook)
+	return lifecycleHook(unmountedLifeCycleStep, hook)
 }

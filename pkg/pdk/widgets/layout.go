@@ -82,6 +82,10 @@ func (l *layout) AppendChild(newChild Widget) (err error) {
 	if err = l.ensurePreInsertionValidity(newChild); err != nil {
 		return fmt.Errorf("can't append child, %v", err)
 	}
+
+	newChild.DispatchEvent(MakeLifeCycleEvent(beforeMountLifeCycleStep))
+	defer newChild.DispatchEvent(MakeLifeCycleEvent(mountedLifeCycleStep))
+
 	l.appendChild(newChild)
 	l.markAsNeedReflow()
 
@@ -140,6 +144,9 @@ func (l *layout) InsertBefore(reference, newChild Widget) error {
 		return fmt.Errorf("can't insert child, %v", err)
 	}
 
+	newChild.DispatchEvent(MakeLifeCycleEvent(beforeMountLifeCycleStep))
+	defer newChild.DispatchEvent(MakeLifeCycleEvent(mountedLifeCycleStep))
+
 	// newChild and reference are the same
 	if reference == newChild {
 		log.Debugln("can't insert child before itself, reference is now child next sibling")
@@ -180,6 +187,15 @@ func (l *layout) RemoveChild(child Widget) error {
 		return errors.New("can't remove child, the node is not a child of this node")
 	}
 
+	child.DispatchEvent(MakeLifeCycleEvent(beforeUnmountLifeCycleStep))
+	defer child.DispatchEvent(MakeLifeCycleEvent(unmountedLifeCycleStep))
+
+	l.removeChild(child)
+
+	return nil
+}
+
+func (l *layout) removeChild(child Widget) {
 	// Removing siblings link
 	next := child.Next()
 	prev := child.Previous()
@@ -199,8 +215,6 @@ func (l *layout) RemoveChild(child Widget) error {
 	// Removing parentWidget & root link
 	child.setParent(nil)
 	l.markAsNeedReflow()
-
-	return nil
 }
 
 func (l *layout) IsAncestorOf(widget Widget) bool {

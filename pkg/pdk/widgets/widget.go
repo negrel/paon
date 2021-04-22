@@ -10,7 +10,6 @@ import (
 	"github.com/negrel/paon/pkg/pdk/id"
 	"github.com/negrel/paon/pkg/pdk/render"
 	pdkstyles "github.com/negrel/paon/pkg/pdk/styles"
-	"github.com/negrel/paon/pkg/pdk/widgets/lifecycle"
 )
 
 // Widget define any object part of the Widget tree
@@ -71,7 +70,6 @@ type widget struct {
 	name                   string
 	needReflow, needRedraw bool
 	theme                  pdkstyles.Theme
-	lifeCycleHooks         lifecycle.Hooks
 }
 
 // NewWidget returns a new Widget object customized with the given Option.
@@ -80,19 +78,27 @@ func NewWidget(name string, opts ...Option) Widget {
 }
 
 func newWidget(name string, opts ...Option) *widget {
+	assert.Greater(len(name), 0)
 	w := &widget{
-		Target:         events.MakeTarget(),
-		Cache:          flows.NewCache(),
-		id:             id.Make(),
-		name:           name,
-		needRedraw:     true,
-		needReflow:     true,
-		lifeCycleHooks: lifecycle.MakeHooks(),
+		Target: events.MakeTarget(),
+		Cache:  flows.NewCache(),
+		id:     id.Make(),
+
+		name:       name,
+		needRedraw: true,
+		needReflow: true,
 	}
 
 	for _, opt := range opts {
 		opt(w)
 	}
+
+	w.DispatchEvent(
+		MakeLifeCycleEvent(beforeCreateLifeCycleStep),
+	)
+	defer w.DispatchEvent(
+		MakeLifeCycleEvent(createdLifeCycleStep),
+	)
 
 	if w.theme == nil {
 		w.theme = pdkstyles.NewTheme(pdkstyles.NewStyle())
@@ -129,17 +135,6 @@ func (w *widget) Parent() Layout {
 }
 
 func (w *widget) setParent(layout Layout) {
-	unmount := w.Parent() != nil && layout == nil
-	mount := w.Parent() == nil && layout != nil
-
-	if mount {
-		w.lifeCycleHooks[lifecycle.BeforeMount]()
-		defer w.lifeCycleHooks[lifecycle.Mounted]()
-	} else if unmount {
-		w.lifeCycleHooks[lifecycle.BeforeUnmount]()
-		defer w.lifeCycleHooks[lifecycle.Unmounted]()
-	}
-
 	w.parent = layout
 }
 
@@ -239,8 +234,8 @@ func (w *widget) NeedRendering() bool {
 
 // Render implements the render.Renderable interface.
 func (w *widget) Render() render.Patch {
-	w.lifeCycleHooks[lifecycle.BeforeUpdate]()
-	defer w.lifeCycleHooks[lifecycle.Updated]()
+	w.DispatchEvent(MakeLifeCycleEvent(beforeUpdateLifeCycleStep))
+	defer w.DispatchEvent(MakeLifeCycleEvent(updatedLifeCycleStep))
 
 	if w.needReflow {
 		return w.Parent().Render()
