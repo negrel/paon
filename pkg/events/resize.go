@@ -31,6 +31,7 @@ func ResizeListener(handler func(Resize)) *events.Listener {
 type Resize struct {
 	events.Event
 	geometry.Size
+	OldSize geometry.Size
 
 	IsWider, IsGreater bool
 }
@@ -40,6 +41,7 @@ func MakeResize(newSize, oldSize geometry.Size) Resize {
 	return Resize{
 		Event:     events.MakeEvent(_TypeResize),
 		Size:      newSize,
+		OldSize:   oldSize,
 		IsWider:   newSize.Width() > oldSize.Width(),
 		IsGreater: newSize.Height() > oldSize.Height(),
 	}
