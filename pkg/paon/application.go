@@ -1,9 +1,6 @@
 package paon
 
 import (
-	"context"
-	"time"
-
 	"github.com/negrel/paon/pkg/pdk/displays"
 	"github.com/negrel/paon/pkg/pdk/displays/tcell"
 	"github.com/negrel/paon/pkg/pdk/render"
@@ -15,7 +12,6 @@ type Application struct {
 	engine render.Engine
 	screen displays.Screen
 	root   *widgets.Root
-	cancel context.CancelFunc
 }
 
 // MakeApplication returns a new Application object configured with the given object.
@@ -50,22 +46,14 @@ func (app *Application) Screen() displays.Screen {
 func (app *Application) Start(root widgets.Widget) error {
 	defer app.Recover()
 
-	var ctx context.Context
-	ctx, app.cancel = context.WithCancel(context.Background())
-
 	app.root = widgets.NewRoot(app.screen, app.engine, root)
 
-	err := app.screen.Start(ctx)
+	err := app.screen.Start()
 	if err != nil {
 		return err
 	}
 
-	go func() {
-		defer app.Recover()
-		app.engine.Start()
-	}()
-
-	<-ctx.Done()
+	app.engine.Start()
 
 	return nil
 }
@@ -73,15 +61,12 @@ func (app *Application) Start(root widgets.Widget) error {
 func (app *Application) Recover() {
 	if r := recover(); r != nil {
 		app.Stop()
-		// Sleep so other co routine can handle context cancelling
-		time.Sleep(time.Millisecond)
 		panic(r)
 	}
 }
 
 // Stop stops this application.
 func (app *Application) Stop() {
-	app.cancel()
-	app.screen.Stop()
 	app.engine.Stop()
+	app.screen.Stop()
 }

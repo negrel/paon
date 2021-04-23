@@ -27,7 +27,7 @@ type engine struct {
 	surface Surface
 	queue   []Renderable
 	clock   *time.Ticker
-	done    chan struct{}
+	done    bool
 }
 
 // Surface implements the Engine interface.
@@ -41,7 +41,6 @@ func NewEngine(surface Surface) Engine {
 		surface: surface,
 		queue:   make([]Renderable, 0, 32),
 		clock:   time.NewTicker(time.Millisecond * 16),
-		done:    make(chan struct{}),
 	}
 }
 
@@ -53,27 +52,38 @@ func (s *engine) Enqueue(renderable Renderable) {
 }
 
 func (s *engine) Start() {
+	s.done = false
+
 	for {
 		select {
 		case <-s.clock.C:
-			s.Lock()
 			for _, renderable := range s.queue {
 				if renderable.NeedRendering() {
 					patch := renderable.Render()
 					s.surface.Apply(patch)
+					_ = patch
 				}
 			}
+			s.Lock()
 			s.queue = make([]Renderable, 0, 32)
 			s.Unlock()
+
 			s.surface.Flush()
 
-		case <-s.done:
-			return
+		default:
+			s.Lock()
+			done := s.done
+			s.Unlock()
+			if done {
+				return
+			}
 		}
 	}
 }
 
 // Stop stops the engine rendering loop.
 func (s *engine) Stop() {
-	s.done <- struct{}{}
+	s.Lock()
+	s.done = true
+	s.Unlock()
 }

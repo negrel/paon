@@ -1,8 +1,6 @@
 package displays
 
 import (
-	"context"
-
 	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/pkg/pdk/draw"
 	"github.com/negrel/paon/pkg/pdk/events"
@@ -15,7 +13,7 @@ type Screen interface {
 	render.Surface
 
 	// Start starts the screen so it can produce events, display things and more.
-	Start(ctx context.Context) error
+	Start() error
 
 	// Stop clears the screen and stop listening to events.
 	Stop()

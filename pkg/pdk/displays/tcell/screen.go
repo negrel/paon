@@ -1,7 +1,6 @@
 package tcell
 
 import (
-	"context"
 	"sync"
 
 	"github.com/gdamore/tcell/v2"
@@ -24,6 +23,7 @@ type screen struct {
 	events.Target
 	tcell.Screen
 	canvas draw.Canvas
+	done   bool
 }
 
 // MakeScreen return a new displays.Screen using the tcell backend.
@@ -47,24 +47,24 @@ func (s *screen) Recover() {
 }
 
 // Start implements the displays.Screen interface.
-func (s *screen) Start(ctx context.Context) error {
+func (s *screen) Start() error {
 	defer s.Recover()
+	s.Lock()
+	defer s.Unlock()
 
 	err := s.Screen.Init()
 	if err != nil {
 		return err
 	}
+	s.done = false
 
 	go func() {
 		defer s.Recover()
-		s.eventLoop(ctx)
+		s.eventLoop()
 	}()
 
 	width, height := s.Screen.Size()
-
-	s.Lock()
 	s.canvas = draw.NewCellGrid(geometry.Rect(0, 0, width, height))
-	s.Unlock()
 
 	return nil
 }
@@ -75,7 +75,8 @@ func (s *screen) Canvas() draw.Canvas {
 }
 
 func (s *screen) pollEvent(ch chan<- events.Event) {
-	for rawEvent := s.Screen.PollEvent(); rawEvent != nil; rawEvent = s.Screen.PollEvent() {
+	rawEvent := s.Screen.PollEvent()
+	for ; rawEvent != nil; rawEvent = s.Screen.PollEvent() {
 		event := s.adaptEvent(rawEvent)
 		// TODO remove nil event safety
 		if event == nil {
@@ -87,7 +88,7 @@ func (s *screen) pollEvent(ch chan<- events.Event) {
 	}
 }
 
-func (s *screen) eventLoop(ctx context.Context) {
+func (s *screen) eventLoop() {
 	ch := make(chan events.Event)
 	go func() {
 		defer s.Recover()
@@ -96,13 +97,17 @@ func (s *screen) eventLoop(ctx context.Context) {
 
 	for {
 		select {
-		case <-ctx.Done():
-			close(ch)
-			s.Stop()
-			return
-
 		case event := <-ch:
 			s.Target.DispatchEvent(event)
+
+		default:
+			s.RWMutex.RLock()
+			done := s.done
+			s.RWMutex.RUnlock()
+			if done {
+				close(ch)
+				return
+			}
 		}
 	}
 }
@@ -157,6 +162,9 @@ func (s *screen) Flush() {
 
 func (s *screen) Stop() {
 	s.Screen.Fini()
+	s.Lock()
+	s.done = true
+	s.Unlock()
 }
 
 // Bounds implements the displays.Screen interface.
