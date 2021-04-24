@@ -1,6 +1,8 @@
 package paon
 
 import (
+	"sync"
+
 	"github.com/negrel/paon/pkg/pdk/displays"
 	"github.com/negrel/paon/pkg/pdk/displays/tcell"
 	"github.com/negrel/paon/pkg/pdk/render"
@@ -12,6 +14,7 @@ type Application struct {
 	engine render.Engine
 	screen displays.Screen
 	root   *widgets.Root
+	sync.Once
 }
 
 // MakeApplication returns a new Application object configured with the given object.
@@ -46,6 +49,7 @@ func (app *Application) Screen() displays.Screen {
 func (app *Application) Start(root widgets.Widget) error {
 	defer app.Recover()
 
+	app.Once = sync.Once{}
 	app.root = widgets.NewRoot(app.screen, app.engine, root)
 
 	err := app.screen.Start()
@@ -67,6 +71,10 @@ func (app *Application) Recover() {
 
 // Stop stops this application.
 func (app *Application) Stop() {
-	app.engine.Stop()
+	app.Once.Do(app.stop)
+}
+
+func (app *Application) stop() {
 	app.screen.Stop()
+	app.engine.Stop()
 }

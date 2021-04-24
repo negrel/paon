@@ -22,8 +22,9 @@ type screen struct {
 
 	events.Target
 	tcell.Screen
-	canvas draw.Canvas
-	done   bool
+	canvas   draw.Canvas
+	done     bool
+	stopOnce sync.Once
 }
 
 // MakeScreen return a new displays.Screen using the tcell backend.
@@ -36,6 +37,7 @@ func MakeScreen() (displays.Screen, error) {
 	return &screen{
 		Screen: s,
 		Target: events.MakeTarget(),
+		done:   true,
 	}, nil
 }
 
@@ -56,6 +58,7 @@ func (s *screen) Start() error {
 	if err != nil {
 		return err
 	}
+	s.stopOnce = sync.Once{}
 	s.done = false
 
 	go func() {
@@ -161,6 +164,10 @@ func (s *screen) Flush() {
 }
 
 func (s *screen) Stop() {
+	s.stopOnce.Do(s.stop)
+}
+
+func (s *screen) stop() {
 	s.Screen.Fini()
 	s.Lock()
 	s.done = true

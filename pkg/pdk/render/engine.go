@@ -63,7 +63,6 @@ func (s *engine) Start() {
 					s.surface.Apply(patch)
 					_ = patch
 				}
-			}
 			s.Lock()
 			s.queue = make([]Renderable, 0, 32)
 			s.Unlock()
