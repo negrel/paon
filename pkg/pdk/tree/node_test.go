@@ -6,147 +6,69 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+type nodeTest struct {
+	name           string
+	functions      []func(t *testing.T, n Node)
+	leafNodeOnly   bool
+	concurrentOnly bool
+}
+
 func TestNode(t *testing.T) {
-	t.Run("leafNode", func(t *testing.T) {
-		LeafNodeImpl(t, func() Node {
-			return newLeafNode(nil)
-		})
-	})
+	nodeTests := generateNodeTests()
 
-	t.Run("branchNode", func(t *testing.T) {
-		LeafNodeImpl(t, func() Node {
-			return newNode(nil)
-		})
-
-		BranchNodeImpl(t, func() Node {
-			return newNode(nil)
-		})
-	})
+	for _, methodTest := range nodeTests {
+		for _, test := range methodTest.functions {
+			t.Run(methodTest.name, func(t *testing.T) {
+				test(t, NewNode(nodeData))
+			})
+		}
+	}
 }
 
-func LeafNodeImpl(t *testing.T, nodeConstructor func() Node) {
-	t.Run("IsSame", func(t *testing.T) {
-		Node_IsSame_true(t, nodeConstructor())
-		Node_IsSame_false(t, nodeConstructor())
-	})
+func generateNodeTests() []nodeTest {
+	tests := []nodeTest{
+		{
+			name: "AppendChild",
+			functions: []func(t *testing.T, n Node){
+				Node_AppendChild_ToEmptyNode,
+				Node_AppendChild_ToNonEmptyNode,
+				Node_AppendChild_NilNode,
+				Node_AppendChild_ParentOfNode,
+				Node_AppendChild_GreatParentOfNode,
+				Node_AppendChild_NodeWithParent,
+				Node_AppendChild_Itself,
+			},
+		},
+		{
+			name: "InsertBefore",
+			functions: []func(t *testing.T, n Node){
+				Node_InsertBeforeNode,
+				Node_InsertBeforeNode_NonChildReference,
+				Node_InsertBeforeNode_ToEmptyParent_NilReference,
+				Node_InsertBeforeNode_ToEmptyParent_NilChild,
+				Node_InsertBeforeNode_ParentOfNode,
+				Node_InsertBeforeNode_Itself,
+				Node_InsertBeforeNode_BetweenTwoNode,
+			},
+		},
+		{
+			name: "RemoveChild",
+			functions: []func(t *testing.T, n Node){
+				Node_RemoveChild,
+				Node_RemoveChild_Nil,
+				Node_RemoveChild_AnotherParentChild,
+				Node_RemoveChild_SecondChild,
+			},
+		},
+	}
 
-	t.Run("IsDescendantOf", func(t *testing.T) {
-		Node_IsDescendantOf_NilParent(t, nodeConstructor())
-		Node_IsDescendantOf_Parent(t, nodeConstructor())
-		Node_IsDescendantOf_NonChildNode(t, nodeConstructor())
-		Node_IsDescendantOf_PreviousParent(t, nodeConstructor())
-		Node_IsDescendantOf_GreatParent(t, nodeConstructor())
-	})
+	for _, test := range generateLeafNodeTests() {
+		if !test.leafNodeOnly && !test.concurrentOnly {
+			tests = append(tests, test)
+		}
+	}
 
-	t.Run("Root", func(t *testing.T) {
-		Node_Root_Nil(t, nodeConstructor())
-		Node_Root_Parent(t, nodeConstructor())
-		Node_Root_GreatParent(t, nodeConstructor())
-	})
-}
-
-func BranchNodeImpl(t *testing.T, nodeConstructor func() Node) {
-	t.Run("AppendChild", func(t *testing.T) {
-		Node_AppendChild_ToEmptyNode(t, nodeConstructor())
-		Node_AppendChild_ToNonEmptyNode(t, nodeConstructor())
-		Node_AppendChild_NilNode(t, nodeConstructor())
-		Node_AppendChild_ParentOfNode(t, nodeConstructor())
-		Node_AppendChild_GreatParentOfNode(t, nodeConstructor())
-		Node_AppendChild_NodeWithParent(t, nodeConstructor())
-		Node_AppendChild_Itself(t, nodeConstructor())
-	})
-
-	t.Run("InsertBefore", func(t *testing.T) {
-		Node_InsertBeforeNode(t, nodeConstructor())
-		Node_InsertBeforeNode_NonChildReference(t, nodeConstructor())
-		Node_InsertBeforeNode_ToEmptyParent_NilReference(t, nodeConstructor())
-		Node_InsertBeforeNode_ToEmptyParent_NilChild(t, nodeConstructor())
-		Node_InsertBeforeNode_ParentOfNode(t, nodeConstructor())
-		Node_InsertBeforeNode_Itself(t, nodeConstructor())
-	})
-
-	t.Run("RemoveChild", func(t *testing.T) {
-		Node_RemoveChild(t, nodeConstructor())
-		Node_RemoveChild_Nil(t, nodeConstructor())
-		Node_RemoveChild_AnotherParentChild(t, nodeConstructor())
-	})
-}
-
-func Node_IsSame_true(t *testing.T, node Node) {
-	assert.True(t, node.IsSame(node))
-}
-
-func Node_IsSame_false(t *testing.T, node Node) {
-	assert.False(t, node.IsSame(NewNode(nil)))
-}
-
-func Node_IsDescendantOf_NilParent(t *testing.T, node Node) {
-	node.SetParent(nil)
-	assert.False(t, node.IsDescendantOf(nil))
-}
-
-func Node_IsDescendantOf_Parent(t *testing.T, node Node) {
-	parent := NewNode(nil)
-	node.SetParent(parent)
-
-	assert.True(t, node.IsDescendantOf(parent))
-}
-
-func Node_IsDescendantOf_NonChildNode(t *testing.T, node Node) {
-	otherNode := NewNode(nil)
-	node.SetParent(nil)
-
-	assert.False(t, node.IsDescendantOf(otherNode))
-}
-
-func Node_IsDescendantOf_PreviousParent(t *testing.T, node Node) {
-	parent := NewNode(nil)
-
-	err := parent.AppendChild(node)
-	assert.Nil(t, err)
-
-	err = parent.RemoveChild(node)
-	assert.Nil(t, err)
-
-	assert.False(t, node.IsDescendantOf(parent))
-}
-
-func Node_IsDescendantOf_GreatParent(t *testing.T, node Node) {
-	greatParent := NewNode(nil)
-	parent := NewNode(nil)
-
-	err := parent.AppendChild(node)
-	assert.Nil(t, err)
-
-	err = greatParent.AppendChild(node)
-	assert.Nil(t, err)
-
-	assert.True(t, node.IsDescendantOf(greatParent))
-}
-
-func Node_Root_Nil(t *testing.T, node Node) {
-	node.SetParent(nil)
-	assert.Equal(t, node.Root(), nil)
-}
-
-func Node_Root_Parent(t *testing.T, node Node) {
-	root := NewRoot(nil)
-	err := root.AppendChild(node)
-	assert.Nil(t, err)
-	assert.Equal(t, root, node.Root())
-}
-
-func Node_Root_GreatParent(t *testing.T, node Node) {
-	root := NewRoot(nil)
-	parent := NewNode(nil)
-
-	err := root.AppendChild(parent)
-	assert.Nil(t, err)
-
-	err = parent.AppendChild(node)
-	assert.Nil(t, err)
-
-	assert.Equal(t, root, node.Root())
+	return tests
 }
 
 func Node_AppendChild_ToEmptyNode(t *testing.T, node Node) {
@@ -365,6 +287,34 @@ func Node_InsertBeforeNode_ChildWithParent(t *testing.T, node Node) {
 	assert.True(t, reference.IsSame(child.Next()))
 }
 
+func Node_InsertBeforeNode_BetweenTwoNode(t *testing.T, node Node) {
+	assert.Nil(t, node.FirstChild())
+	assert.Nil(t, node.LastChild())
+
+	previous := NewNode(nil)
+	next := NewNode(nil)
+	child := NewNode(nil)
+
+	err := node.AppendChild(previous)
+	assert.Nil(t, err)
+
+	err = node.AppendChild(next)
+	assert.Nil(t, err)
+
+	err = node.InsertBefore(next, child)
+	assert.Nil(t, err)
+
+	assert.True(t, node.IsSame(child.Parent()))
+	assert.True(t, node.FirstChild().IsSame(previous))
+	assert.True(t, node.LastChild().IsSame(next))
+
+	assert.True(t, child.IsSame(next.Previous()))
+	assert.True(t, next.IsSame(child.Next()))
+
+	assert.True(t, child.IsSame(previous.Next()))
+	assert.True(t, previous.IsSame(child.Previous()))
+}
+
 func Node_InsertBeforeNode_Itself(t *testing.T, node Node) {
 	assert.Nil(t, node.FirstChild())
 	assert.Nil(t, node.LastChild())
@@ -422,4 +372,31 @@ func Node_RemoveChild_AnotherParentChild(t *testing.T, node Node) {
 
 	err = node.RemoveChild(child)
 	assert.NotNil(t, err)
+}
+
+func Node_RemoveChild_SecondChild(t *testing.T, node Node) {
+	assert.Nil(t, node.FirstChild())
+	assert.Nil(t, node.LastChild())
+
+	first := NewNode(nil)
+	child := NewNode(nil)
+	third := NewNode(nil)
+
+	err := node.AppendChild(first)
+	assert.Nil(t, err)
+
+	err = node.AppendChild(child)
+	assert.Nil(t, err)
+
+	err = node.AppendChild(third)
+	assert.Nil(t, err)
+
+	err = node.RemoveChild(child)
+	assert.Nil(t, err)
+
+	assert.True(t, third.IsSame(first.Next()))
+	assert.True(t, third.Previous().IsSame(first))
+
+	assert.True(t, first.IsSame(third.Previous()))
+	assert.True(t, first.Next().IsSame(third))
 }

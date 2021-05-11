@@ -1,12 +1,12 @@
 package tree
 
 type Root struct {
-	*parentNode
+	*node
 }
 
 func NewRoot(data interface{}) Node {
 	return Root{
-		parentNode: newNode(data),
+		node: newNode(data),
 	}
 }
 
@@ -19,7 +19,7 @@ func (r Root) Parent() Node {
 }
 
 func (r Root) AppendChild(newChild Node) error {
-	err := r.parentNode.AppendChild(newChild)
+	err := r.node.AppendChild(newChild)
 	if err != nil {
 		return err
 	}
@@ -29,7 +29,7 @@ func (r Root) AppendChild(newChild Node) error {
 }
 
 func (r Root) InsertBefore(reference, newChild Node) error {
-	err := r.parentNode.InsertBefore(reference, newChild)
+	err := r.node.InsertBefore(reference, newChild)
 	if err != nil {
 		return err
 	}
