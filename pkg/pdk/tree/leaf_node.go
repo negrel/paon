@@ -3,14 +3,18 @@ package tree
 import (
 	"errors"
 
+	"github.com/negrel/paon/pkg/pdk/events"
 	"github.com/negrel/paon/pkg/pdk/id"
 )
 
 var _ Node = &leafNode{}
 
 type leafNode struct {
-	id   id.ID
-	data interface{}
+	events.Target
+
+	id    id.ID
+	data  interface{}
+	stage LifeCycleStage
 
 	next     Node
 	previous Node
@@ -24,10 +28,22 @@ func NewLeafNode(data interface{}) Node {
 }
 
 func newLeafNode(data interface{}) *leafNode {
-	return &leafNode{
-		id:   id.Make(),
-		data: data,
+	ln := &leafNode{
+		Target: events.NewTarget(),
+		id:     id.Make(),
+		data:   data,
 	}
+
+	// Update internal stage value
+	ln.Target.AddEventListener(LifeCycleEventListener(func(event LifeCycleEvent) {
+		ln.stage = event.Stage
+	}))
+
+	return ln
+}
+
+func (ln *leafNode) Stage() LifeCycleStage {
+	return ln.stage
 }
 
 func (ln *leafNode) Unwrap() interface{} {

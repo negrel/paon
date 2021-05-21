@@ -5,12 +5,17 @@ import (
 	"fmt"
 
 	"github.com/negrel/debuggo/pkg/assert"
+	"github.com/negrel/paon/pkg/pdk/events"
 	"github.com/negrel/paon/pkg/pdk/id"
 )
 
 // Node define an element in a Node tree.
 type Node interface {
 	id.Identifiable
+	events.Target
+
+	// Stage returns the LifeCycleStage of this.
+	Stage() LifeCycleStage
 
 	// Unwrap returns the data stored in this Node.
 	Unwrap() interface{}
@@ -77,6 +82,15 @@ func newNode(data interface{}) *node {
 		leafNode: newLeafNode(data),
 	}
 
+	// Propagate mount & unmount event from the top to the bottom of the subtree.
+	n.Target.AddEventListener(LifeCycleEventListener(func(event LifeCycleEvent) {
+		for child := n.FirstChild(); child != nil; child.Next() {
+			ev := event
+			ev.Node = child
+			child.DispatchEvent(ev)
+		}
+	}))
+
 	return n
 }
 
@@ -108,6 +122,9 @@ func (n *node) AppendChild(newChild Node) (err error) {
 }
 
 func (n *node) appendChild(newChild Node) {
+	newChild.DispatchEvent(MakeLifeCycleEvent(newChild, BeforeMountLifeCycleStage))
+	defer newChild.DispatchEvent(MakeLifeCycleEvent(newChild, MountedLifeCycleStage))
+
 	n.prepareChildForInsertion(newChild)
 
 	if n.lastChild != nil {
@@ -166,6 +183,9 @@ func (n *node) InsertBefore(reference, newChild Node) error {
 }
 
 func (n *node) insertBefore(reference, newChild Node) {
+	newChild.DispatchEvent(MakeLifeCycleEvent(newChild, BeforeMountLifeCycleStage))
+	defer newChild.DispatchEvent(MakeLifeCycleEvent(newChild, MountedLifeCycleStage))
+
 	n.prepareChildForInsertion(newChild)
 
 	if previous := reference.Previous(); previous != nil {
@@ -188,6 +208,15 @@ func (n *node) RemoveChild(child Node) error {
 		return errors.New("can't remove child, the node is not a child of this node")
 	}
 
+	n.removeChild(child)
+
+	return nil
+}
+
+func (n *node) removeChild(child Node) {
+	child.DispatchEvent(MakeLifeCycleEvent(child, BeforeUnmountLifeCycleStage))
+	defer child.DispatchEvent(MakeLifeCycleEvent(child, UnmountedLifeCycleStage))
+
 	// Removing siblings link
 	next := child.Next()
 	prev := child.Previous()
@@ -206,6 +235,4 @@ func (n *node) RemoveChild(child Node) error {
 	}
 	// Removing parentNode & root link
 	child.SetParent(nil)
-
-	return nil
 }
