@@ -2,24 +2,26 @@ package paon
 
 import (
 	"sync"
+	"time"
 
 	"github.com/negrel/paon/pkg/pdk/displays"
 	"github.com/negrel/paon/pkg/pdk/displays/tcell"
-	"github.com/negrel/paon/pkg/pdk/render"
+	"github.com/negrel/paon/pkg/pdk/events"
 	"github.com/negrel/paon/pkg/pdk/widgets"
 )
 
 // Application define a TUI application.
 type Application struct {
-	engine render.Engine
-	screen displays.Screen
-	root   *widgets.Root
 	sync.Once
+
+	screen displays.Screen
+	done   chan struct{}
+	clock  *time.Ticker
 }
 
 // MakeApplication returns a new Application object configured with the given object.
 func MakeApplication(opts ...Option) (*Application, error) {
-	app := new(Application)
+	app := &Application{}
 
 	for _, opt := range opts {
 		opt(app)
@@ -33,8 +35,8 @@ func MakeApplication(opts ...Option) (*Application, error) {
 		}
 	}
 
-	if app.engine == nil {
-		app.engine = render.NewEngine(app.screen)
+	if app.clock == nil {
+		app.clock = time.NewTicker(time.Millisecond * 16)
 	}
 
 	return app, nil
@@ -50,14 +52,29 @@ func (app *Application) Start(root widgets.Widget) error {
 	defer app.Recover()
 
 	app.Once = sync.Once{}
-	app.root = widgets.NewRoot(app.screen, app.engine, root)
+	app.done = make(chan struct{})
 
-	err := app.screen.Start()
+	eventChannel := make(chan events.Event)
+	err := app.screen.Start(eventChannel)
 	if err != nil {
 		return err
 	}
 
-	app.engine.Start()
+	root = widgets.NewRoot(app.screen, root)
+
+loop:
+	for {
+		select {
+		case event := <-eventChannel:
+			root.DispatchEvent(event)
+
+		case <-app.clock.C:
+			app.screen.Flush()
+
+		case <-app.done:
+			break loop
+		}
+	}
 
 	return nil
 }
@@ -76,5 +93,5 @@ func (app *Application) Stop() {
 
 func (app *Application) stop() {
 	app.screen.Stop()
-	app.engine.Stop()
+	close(app.done)
 }
