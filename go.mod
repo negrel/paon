@@ -7,5 +7,6 @@ require (
 	github.com/golang/mock v1.4.4
 	github.com/mitchellh/go-wordwrap v1.0.1
 	github.com/negrel/debuggo v0.0.0-20210107194810-7105b309cb66
+	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.6.1
 )

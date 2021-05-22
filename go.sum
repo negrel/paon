@@ -37,6 +37,8 @@ github.com/negrel/asttk v0.0.0-20201023213657-e9c55de06520/go.mod h1:JCEr1L4C1RW
 github.com/negrel/debuggo v0.0.0-20210107194810-7105b309cb66 h1:x1uxyz84NPz4hUCedr+oJ7o7qVKBzKQAPkD0PhbDGQ8=
 github.com/negrel/debuggo v0.0.0-20210107194810-7105b309cb66/go.mod h1:Y78R4hP4Ryo+36p5A/2TRdcgTKl26xICr0kUmZrL0+A=
 github.com/oligot/go-mod-upgrade v0.2.1/go.mod h1:A+g8WOzoaH4U5fEk1svHgC7jWi4otz5uF2kMMwpVzzo=
+github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
+github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/rivo/uniseg v0.1.0 h1:+2KBaVoUmb9XzDsrx/Ct0W/EYOSFf/nWTauy++DprtY=
