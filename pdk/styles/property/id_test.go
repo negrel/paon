@@ -1,10 +1,11 @@
 package property
 
 import (
-	"github.com/stretchr/testify/assert"
 	"strconv"
 	"sync"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_MakeID(t *testing.T) {
@@ -20,7 +21,7 @@ func Test_MakeID(t *testing.T) {
 	for i := 0; i < idCount; i++ {
 		go func(i int) {
 			name := strconv.Itoa(i)
-			ch <- MakeID(name)
+			ch <- NewID(name)
 		}(i)
 	}
 
@@ -46,7 +47,7 @@ func Test_ID_String(t *testing.T) {
 		// Create IDs concurrently
 		go func(i int) {
 			name := strconv.Itoa(i)
-			_id := MakeID(name)
+			_id := NewID(name)
 
 			// Check the id name concurrently
 			go func(_id ID, name string) {
