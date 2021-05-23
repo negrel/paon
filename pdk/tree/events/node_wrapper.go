@@ -13,9 +13,11 @@ type Node interface {
 	// LifeCycleStage returns the LifeCycleStage of this Node.
 	LifeCycleStage() LifeCycleStage
 
+	// Node returns the underlying tree.Node of this Node.
 	Node() tree.Node
 
 	// Copied from tree.Node
+	Unwrap() interface{}
 	IsSame(Node) bool
 	Next() Node
 	SetNext(Node)
@@ -26,11 +28,11 @@ type Node interface {
 	Root() Node
 	FirstChild() Node
 	LastChild() Node
-	AppendChild(newChild Node) error
+	AppendChild(Node) error
 	InsertBefore(reference, newChild Node) error
-	RemoveChild(child Node) error
-	IsAncestorOf(child Node) bool
-	IsDescendantOf(node Node) bool
+	RemoveChild(Node) error
+	IsAncestorOf(Node) bool
+	IsDescendantOf(Node) bool
 }
 
 type node struct {
@@ -41,12 +43,14 @@ type node struct {
 	stage LifeCycleStage
 }
 
-// NewLeafNode returns a new Node object.
-func NewLeafNode(options ...Option) Node {
+// WrapLeafNode wraps a tree.Node object and returns a Node object.
+// The returned Node DON'T propagate lifecycle events to children Node.
+func WrapLeafNode(options ...Option) Node {
 	return newNode(options...)
 }
 
-// NewNode returns a new Node object.
+// WrapNode wraps a tree.Node object and returns a new Node object.
+// The returned Node propagate lifecycle events to children Node.
 func NewNode(options ...Option) Node {
 	node := newNode(options...)
 
@@ -89,6 +93,10 @@ func newNode(options ...Option) *node {
 	}))
 
 	return node
+}
+
+func (n *node) Unwrap() interface{} {
+	return n.node.Unwrap()
 }
 
 func (n *node) Node() tree.Node {
