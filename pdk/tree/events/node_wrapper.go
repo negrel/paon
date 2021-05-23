@@ -18,7 +18,6 @@ type Node interface {
 
 	// Copied from tree.Node
 	Unwrap() interface{}
-	IsSame(Node) bool
 	Next() Node
 	SetNext(Node)
 	Previous() Node
@@ -105,14 +104,6 @@ func (n *node) Node() tree.Node {
 
 func (n *node) LifeCycleStage() LifeCycleStage {
 	return n.stage
-}
-
-func (n *node) IsSame(other Node) bool {
-	if other == nil {
-		return false
-	}
-
-	return n.node.IsSame(other.Node())
 }
 
 func (n *node) adaptTreeNodeGetter(fn func() tree.Node) Node {

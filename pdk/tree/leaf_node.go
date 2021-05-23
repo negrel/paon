@@ -57,7 +57,7 @@ func (ln *leafNode) ID() id.ID {
 	return ln.id
 }
 
-func (ln *leafNode) IsSame(other Node) bool {
+func (ln *leafNode) IsSame(other id.Identifiable) bool {
 	if other == nil {
 		return false
 	}

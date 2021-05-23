@@ -15,9 +15,6 @@ type Node interface {
 	// Unwrap returns the data stored in this Node.
 	Unwrap() interface{}
 
-	// Returns true if the given Node is the same as this.
-	IsSame(Node) bool
-
 	// Next sibling.
 	Next() Node
 	SetNext(Node)
