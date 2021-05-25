@@ -8,7 +8,7 @@ type Prop struct {
 	id ID
 }
 
-func MakeProp(id ID) Prop {
+func NewProp(id ID) Prop {
 	return Prop{
 		id: id,
 	}

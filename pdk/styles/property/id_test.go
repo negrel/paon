@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_MakeID(t *testing.T) {
+func Test_NewID(t *testing.T) {
 	idCount := 1000
 	ids := make(map[ID]struct{}, idCount)
 	ch := make(chan ID)

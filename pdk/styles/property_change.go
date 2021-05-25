@@ -30,9 +30,9 @@ type EventPropertyChange struct {
 	Old, New property.Property
 }
 
-func makeEventPropertyChange(old, new property.Property) EventPropertyChange {
+func newEventPropertyChange(old, new property.Property) EventPropertyChange {
 	return EventPropertyChange{
-		Event: events.MakeEvent(eventTypePropertyChange),
+		Event: events.NewEvent(eventTypePropertyChange),
 		Old:   old,
 		New:   new,
 	}

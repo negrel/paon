@@ -15,11 +15,11 @@ type event struct {
 	timeStamp int64
 }
 
-func MakeEvent(eventType Type) Event {
-	return makeEvent(eventType)
+func NewEvent(eventType Type) Event {
+	return newEvent(eventType)
 }
 
-func makeEvent(eventType Type) event {
+func newEvent(eventType Type) event {
 	return event{
 		eType:     eventType,
 		timeStamp: time.Now().UnixNano(),

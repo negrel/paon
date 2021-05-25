@@ -2,12 +2,14 @@ package events
 
 import (
 	"github.com/negrel/paon/pdk/events"
+	"github.com/negrel/paon/pdk/id"
 	"github.com/negrel/paon/pdk/tree"
 )
 
 // Node define a tree.Node with events and LifeCycleStage.
 // tree.Node method are rewritten to ensure type safety until generics are released.
 type Node interface {
+	id.Identifiable
 	events.Target
 
 	// LifeCycleStage returns the LifeCycleStage of this Node.
@@ -144,9 +146,9 @@ func (n *node) Parent() Node {
 
 func (n *node) SetParent(parent Node) {
 	if parent != nil {
-		n.DispatchEvent(MakeLifeCycleEvent(n, LCSBeforeMount))
+		n.DispatchEvent(NewLifeCycleEvent(n, LCSBeforeMount))
 	} else {
-		n.DispatchEvent(MakeLifeCycleEvent(n, LCSBeforeUnmount))
+		n.DispatchEvent(NewLifeCycleEvent(n, LCSBeforeUnmount))
 	}
 
 	n.adaptTreeNodeSetter(n.node.SetParent, parent)
@@ -167,7 +169,7 @@ func (n *node) LastChild() Node {
 func (n *node) AppendChild(newChild Node) error {
 	err := n.node.AppendChild(newChild.Node())
 	if err != nil {
-		n.DispatchEvent(MakeLifeCycleEvent(newChild, LCSMounted))
+		n.DispatchEvent(NewLifeCycleEvent(newChild, LCSMounted))
 	}
 
 	return err
@@ -176,7 +178,7 @@ func (n *node) AppendChild(newChild Node) error {
 func (n *node) InsertBefore(reference, newChild Node) error {
 	err := n.node.InsertBefore(reference.Node(), newChild.Node())
 	if err != nil {
-		n.DispatchEvent(MakeLifeCycleEvent(newChild, LCSMounted))
+		n.DispatchEvent(NewLifeCycleEvent(newChild, LCSMounted))
 	}
 
 	return err
@@ -185,7 +187,7 @@ func (n *node) InsertBefore(reference, newChild Node) error {
 func (n *node) RemoveChild(newChild Node) error {
 	err := n.node.RemoveChild(newChild.Node())
 	if err != nil {
-		n.DispatchEvent(MakeLifeCycleEvent(newChild, LCSUnmounted))
+		n.DispatchEvent(NewLifeCycleEvent(newChild, LCSUnmounted))
 	}
 
 	return err

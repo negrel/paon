@@ -11,9 +11,9 @@ type Unit struct {
 	Value val.Unit
 }
 
-func MakeUnit(id ID, unit val.Unit) Unit {
+func NewUnit(id ID, unit val.Unit) Unit {
 	return Unit{
-		Prop:  MakeProp(id),
+		Prop:  NewProp(id),
 		Value: unit,
 	}
 }

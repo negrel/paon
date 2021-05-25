@@ -6,8 +6,8 @@ var _ Sized = Size{}
 // object.
 type Size Point
 
-// MakeSize return a new Size using the given width and height.
-func MakeSize(width int, height int) Size {
+// NewSize return a new Size using the given width and height.
+func NewSize(width int, height int) Size {
 	return Size{
 		x: width,
 		y: height,

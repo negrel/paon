@@ -16,7 +16,7 @@ func LifeCycleEventListener(handler func(LifeCycleEvent)) *events.Listener {
 	l := events.Listener{
 		Type: lifeCycleEventType,
 		Handle: func(event events.Event) {
-			assert.IsType(event, MakeLifeCycleEvent(nil, _maxLifeCycle))
+			assert.IsType(event, NewLifeCycleEvent(nil, _maxLifeCycle))
 			handler(event.(LifeCycleEvent))
 		},
 	}
@@ -33,10 +33,10 @@ type LifeCycleEvent struct {
 	Stage LifeCycleStage
 }
 
-// MakeLifeCycleEvent returns a new LifeCycleEvent events.Event with the given stage.
-func MakeLifeCycleEvent(node Node, stage LifeCycleStage) LifeCycleEvent {
+// NewLifeCycleEvent returns a new LifeCycleEvent events.Event with the given stage.
+func NewLifeCycleEvent(node Node, stage LifeCycleStage) LifeCycleEvent {
 	return LifeCycleEvent{
-		Event: events.MakeEvent(lifeCycleEventType),
+		Event: events.NewEvent(lifeCycleEventType),
 		Node:  node,
 		Stage: stage,
 	}

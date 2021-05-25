@@ -12,10 +12,10 @@ type Color struct {
 	value.Color
 }
 
-// MakeColor returns a new Color property with the given value.
-func MakeColor(id ID, color value.Color) Color {
+// NewColor returns a new Color property with the given value.
+func NewColor(id ID, color value.Color) Color {
 	return Color{
-		Prop:  MakeProp(id),
+		Prop:  NewProp(id),
 		Color: color,
 	}
 }
