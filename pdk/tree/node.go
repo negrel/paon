@@ -38,15 +38,18 @@ type Node interface {
 
 	// Appends the given child to the list of child Node. An error is returned
 	// if the given child is an ancestor of this Node.
+	// When an error is returned, the child is left unchanged
 	AppendChild(newChild Node) error
 
 	// Inserts the given child before the given reference child Node. If the
 	// reference is nil, the child is appended. An error is returned
 	// if the given child is an ancestor of this Node or if the reference
 	// is not a direct child of this.
+	// When an error is returned, the child is left unchanged
 	InsertBefore(reference, newChild Node) error
 
 	// Removes the given direct child Node of this. Returns an error otherwise.
+	// When an error is returned, the child is left unchanged
 	RemoveChild(child Node) error
 
 	// IsAncestorOf returns true if the given Node is a child of this.
@@ -154,6 +157,7 @@ func (n *node) InsertBefore(reference, newChild Node) error {
 
 func (n *node) insertBefore(reference, newChild Node) {
 	n.prepareChildForInsertion(newChild)
+	newChild.SetParent(n)
 
 	if previous := reference.Previous(); previous != nil {
 		previous.SetNext(newChild)
@@ -163,8 +167,6 @@ func (n *node) insertBefore(reference, newChild Node) {
 	}
 	reference.SetPrevious(newChild)
 	newChild.SetNext(reference)
-
-	newChild.SetParent(n)
 }
 
 func (n *node) RemoveChild(child Node) error {
@@ -181,6 +183,9 @@ func (n *node) RemoveChild(child Node) error {
 }
 
 func (n *node) removeChild(child Node) {
+	// Removing parentNode & root link
+	child.SetParent(nil)
+
 	// Removing siblings link
 	next := child.Next()
 	prev := child.Previous()
@@ -197,6 +202,4 @@ func (n *node) removeChild(child Node) {
 	} else {
 		n.firstChild = next
 	}
-	// Removing parentNode & root link
-	child.SetParent(nil)
 }
