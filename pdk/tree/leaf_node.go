@@ -141,8 +141,3 @@ func (ln *leafNode) IsDescendantOf(parent Node) bool {
 
 	return false
 }
-
-// String implements the fmt.Stringer interface.
-func (ln *leafNode) String() string {
-	return string(ln.id)
-}
