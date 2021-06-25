@@ -2,6 +2,7 @@ package tcell
 
 import (
 	"github.com/gdamore/tcell/v2"
+	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/pdk/backend"
 	"github.com/negrel/paon/pdk/draw"
@@ -15,8 +16,7 @@ var _ backend.Console = &Console{}
 type Console struct {
 	tcell.Screen
 
-	eventChannel chan<- events.Event
-	done         chan struct{}
+	done chan struct{}
 }
 
 // NewConsole returns a new Console object configured with the
@@ -74,21 +74,21 @@ func (c *Console) Flush() {
 }
 
 // Start implements the backend.Console interface.
-func (c *Console) Start() error {
+func (c *Console) Start(evch chan<- events.Event) error {
+	assert.NotNil(evch)
+
 	err := c.Screen.Init()
 	if err != nil {
 		return err
 	}
 
 	c.done = make(chan struct{})
-
-	if c.eventChannel != nil {
-		go eventLoop(c.done, c.eventChannel, c.Screen.PollEvent)
-	}
+	go eventLoop(c.done, evch, c.Screen.PollEvent)
 
 	return nil
 }
 
+// Stop implements the backend.Console interface.
 func (c *Console) Stop() {
 	c.Screen.Fini()
 	c.done <- struct{}{}
