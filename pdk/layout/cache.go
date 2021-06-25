@@ -17,8 +17,8 @@ func NewCache(algo Algo) *Cache {
 	}
 }
 
-// Compute implements the Algo interface.
-func (c *Cache) Compute(constraint Constraint) BoxModel {
+// Layout implements the Algo interface.
+func (c *Cache) Layout(constraint Constraint) BoxModel {
 	assert.NotNil(c.Algo)
 
 	if c.cache != nil && c.constraint.Equals(constraint) {
@@ -27,7 +27,7 @@ func (c *Cache) Compute(constraint Constraint) BoxModel {
 
 	// Update cache
 	c.constraint = constraint
-	c.cache = c.Algo.Compute(constraint)
+	c.cache = c.Algo.Layout(constraint)
 
 	return c.cache
 }

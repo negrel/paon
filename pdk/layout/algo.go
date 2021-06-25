@@ -11,14 +11,14 @@ import (
 // Algo define a flow algorithm used to compute
 // a BoxModel based on the given constraint.
 type Algo interface {
-	Compute(Constraint) BoxModel
+	Layout(Constraint) BoxModel
 }
 
 var _ Algo = AlgoFn(nil)
 
 type AlgoFn func(Constraint) BoxModel
 
-func (af AlgoFn) Compute(c Constraint) BoxModel {
+func (af AlgoFn) Layout(c Constraint) BoxModel {
 	return af(c)
 }
 
@@ -59,7 +59,7 @@ func Block(style styles.Style, constraint Constraint, fallback Algo) BoxModel {
 			},
 		)
 
-		return fallback.Compute(constraint)
+		return fallback.Layout(constraint)
 	}
 
 	// At this stage minWidth == maxWidth && minHeight == maxHeight
