@@ -16,25 +16,53 @@
 </p>
 
 # :peacock: - Paon
-*A framework to build efficient, thread-safe, highly composable widgets based terminal user interface.*
+*A framework to build efficient, thread-aware, highly composable widgets based terminal user interface.*
 
 > **NOTE**: Paon is still under active development and is not ready yet.
 
-## TODO
-- [ ] Composable widgets
-- [ ] Thread-safe widgets update
-- [ ] Rendering
-	- [ ] Customizable frame rate
-	- [ ] Efficient rendering with overlapping widgets
-- [ ] Input events
-	- [ ] Mouse
-	- [ ] Keyboard
-	- [ ] Window resize
-- [ ] Style
-	- [ ] Cascade
-	- [ ] Inheritance
-- [ ] Parse XML to build Element Tree
-- [ ] Lua bindings to Element Tree
+## Widgets
+- [ ] Text
+- [ ] TextInput
+- [ ] PasswordInput
+- [ ] Button
+- [ ] Drop-down
+- [ ] Checkbox
+- [ ] Radio
+
+## Layouts
+- [ ] HBox
+- [ ] VBox
+- [ ] Table
+- [ ] ScrollView
+- [ ] Form
+
+# Project structure
+
+```shell
+┌─[negrel@matebook] - [~/code/golang/paon] - [4792]
+└─[$] tree . -d
+.
+├── events                             # Public events
+├── examples                           # Code examples
+│   └── ...
+├── internal                           # internal packages
+│   └── ...
+├── pdk                                # Paon Development Kit | Packages used to develop custom widgets
+│   ├── backend                          # Interface to abstract terminal/console interaction.
+│   │   └── tcell                          # tcell implementation
+│   ├── draw                             # Drawing interfaces
+│   ├── id                               # A package to generate unique ID (thread-safe)
+│   ├── layout                           # Layout interfaces
+│   ├── math                             # Basic numerical helpers
+│   ├── tree                             # Generic node tree package
+│   └── widgets                          # Widgets definition and basic implementations
+├── scripts
+├── styles                             # Widgets styling package
+│   ├── property                         # Style property interface
+│   └── value                            # Style value types
+└── widgets                            # Built-in widgets (see list above)
+
+```
 
 ## Acknowledgments
 
