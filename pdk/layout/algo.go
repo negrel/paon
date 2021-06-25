@@ -4,8 +4,8 @@ import (
 	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/pdk/math"
-	"github.com/negrel/paon/pdk/styles"
-	"github.com/negrel/paon/pdk/styles/property"
+	"github.com/negrel/paon/styles"
+	"github.com/negrel/paon/styles/property"
 )
 
 // Algo define a flow algorithm used to compute

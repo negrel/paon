@@ -2,8 +2,8 @@ package layout
 
 import (
 	"github.com/negrel/paon/pdk/math"
-	"github.com/negrel/paon/pdk/styles"
-	"github.com/negrel/paon/pdk/styles/property"
+	"github.com/negrel/paon/styles"
+	"github.com/negrel/paon/styles/property"
 )
 
 func GetUnitProp(style styles.Style, id property.ID) (property.Unit, bool) {

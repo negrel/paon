@@ -2,7 +2,7 @@ package layout
 
 import (
 	"github.com/negrel/paon/internal/geometry"
-	"github.com/negrel/paon/pdk/styles"
+	"github.com/negrel/paon/styles"
 )
 
 // BoxModel define a sized box with margin, border and padding in a 2D geometric plane.

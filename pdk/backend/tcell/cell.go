@@ -3,7 +3,7 @@ package tcell
 import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/negrel/paon/pdk/draw"
-	"github.com/negrel/paon/pdk/styles/value"
+	"github.com/negrel/paon/styles/value"
 )
 
 var defaultFg, defaultBg, defaultAttr = tcell.StyleDefault.Decompose()

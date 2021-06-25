@@ -3,7 +3,7 @@ package styles
 import (
 	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/events"
-	"github.com/negrel/paon/pdk/styles/property"
+	"github.com/negrel/paon/styles/property"
 )
 
 // PropertyChangeListener convert the given event handler as a generic events.Listener.

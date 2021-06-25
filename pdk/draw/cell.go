@@ -1,6 +1,6 @@
 package draw
 
-import "github.com/negrel/paon/pdk/styles/value"
+import "github.com/negrel/paon/styles/value"
 
 // CellStyle define the style of a single terminal Cell.
 type CellStyle struct {

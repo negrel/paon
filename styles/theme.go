@@ -4,7 +4,7 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/negrel/paon/pdk/styles/property"
+	"github.com/negrel/paon/styles/property"
 )
 
 type _style Style

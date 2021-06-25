@@ -5,7 +5,7 @@ import (
 
 	"github.com/negrel/paon/events"
 	"github.com/negrel/paon/pdk/id"
-	"github.com/negrel/paon/pdk/styles/property"
+	"github.com/negrel/paon/styles/property"
 )
 
 // Stylable define object that can have a Style.

@@ -2,7 +2,7 @@ package draw
 
 import (
 	"github.com/negrel/paon/internal/geometry"
-	"github.com/negrel/paon/pdk/styles/value"
+	"github.com/negrel/paon/styles/value"
 )
 
 // Context define a drawing context on a Canvas.

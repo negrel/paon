@@ -2,7 +2,7 @@ package layout
 
 import (
 	"github.com/negrel/paon/internal/geometry"
-	"github.com/negrel/paon/pdk/styles/value"
+	"github.com/negrel/paon/styles/value"
 )
 
 // Constraint define the constraint an flow must respect.
