@@ -1,6 +1,6 @@
 package styles
 
-import "github.com/negrel/paon/pdk/events"
+import "github.com/negrel/paon/events"
 
 type Option func(*style)
 

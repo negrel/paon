@@ -3,7 +3,7 @@ package tree
 import (
 	"github.com/pkg/errors"
 
-	"github.com/negrel/paon/pdk/events"
+	"github.com/negrel/paon/events"
 	"github.com/negrel/paon/pdk/id"
 )
 

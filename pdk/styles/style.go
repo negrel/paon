@@ -3,7 +3,7 @@ package styles
 import (
 	"sync"
 
-	"github.com/negrel/paon/pdk/events"
+	"github.com/negrel/paon/events"
 	"github.com/negrel/paon/pdk/id"
 	"github.com/negrel/paon/pdk/styles/property"
 )

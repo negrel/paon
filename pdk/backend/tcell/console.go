@@ -6,7 +6,7 @@ import (
 	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/pdk/backend"
 	"github.com/negrel/paon/pdk/draw"
-	"github.com/negrel/paon/pdk/events"
+	"github.com/negrel/paon/events"
 )
 
 var _ backend.Console = &Console{}
