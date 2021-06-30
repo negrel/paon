@@ -3,10 +3,10 @@ package tcell
 import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/negrel/debuggo/pkg/assert"
+	"github.com/negrel/paon/events"
 	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/pdk/backend"
 	"github.com/negrel/paon/pdk/draw"
-	"github.com/negrel/paon/events"
 )
 
 var _ backend.Console = &Console{}
@@ -90,9 +90,14 @@ func (c *Console) Start(evch chan<- events.Event) error {
 
 // Stop implements the backend.Console interface.
 func (c *Console) Stop() {
+	if c.done == nil {
+		return
+	}
+
 	c.Screen.Fini()
 	c.done <- struct{}{}
 	close(c.done)
+	c.done = nil
 }
 
 func adaptEvent(event tcell.Event) events.Event {
