@@ -59,6 +59,7 @@ func (c *Console) Set(pos geometry.Point, cell draw.Cell) {
 	c.Screen.SetContent(pos.X(), pos.Y(), mainc, combc, style)
 }
 
+// NewContext implements the draw.Canvas interface.
 func (c *Console) NewContext(bounds geometry.Rectangle) draw.Context {
 	return draw.NewContext(c, bounds)
 }

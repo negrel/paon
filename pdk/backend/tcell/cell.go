@@ -6,53 +6,65 @@ import (
 	"github.com/negrel/paon/styles/value"
 )
 
-var defaultFg, defaultBg, defaultAttr = tcell.StyleDefault.Decompose()
+var _, _, defaultAttr = tcell.StyleDefault.Decompose()
+var defaultFg = tcell.ColorDefault
+var defaultBg = tcell.ColorDefault
 
 func fromTcell(mainc rune, combc []rune, style tcell.Style, width int) draw.Cell {
-	fg, bg, attrs := style.Decompose()
-
 	cell := draw.Cell{
-		Style: draw.CellStyle{
-			Bold:      (attrs & tcell.AttrBold) != 0,
-			Blink:     (attrs & tcell.AttrBlink) != 0,
-			Reverse:   (attrs & tcell.AttrReverse) != 0,
-			Underline: (attrs & tcell.AttrUnderline) != 0,
-			Dim:       (attrs & tcell.AttrDim) != 0,
-			Italic:    (attrs & tcell.AttrItalic) != 0,
-		},
+		Style:   fromTcellStyle(style),
 		Content: mainc,
-	}
-
-	if fg != defaultFg {
-		cell.Style.Foreground = value.ColorFromHex(fg.Hex())
-	}
-	if bg != defaultBg {
-		cell.Style.Background = value.ColorFromHex(bg.Hex())
 	}
 
 	return cell
 }
 
-func toTcell(cell draw.Cell) (mainc rune, combc []rune, style tcell.Style) {
-	style = tcell.StyleDefault.
-		Bold(cell.Style.Bold).
-		Blink(cell.Style.Blink).
-		Reverse(cell.Style.Reverse).
-		Underline(cell.Style.Underline).
-		Dim(cell.Style.Dim).
-		Italic(cell.Style.Italic)
+func fromTcellStyle(style tcell.Style) draw.CellStyle {
+	fg, bg, attrs := style.Decompose()
+	cellstyle := draw.CellStyle{
+		Bold:      (attrs & tcell.AttrBold) != 0,
+		Blink:     (attrs & tcell.AttrBlink) != 0,
+		Reverse:   (attrs & tcell.AttrReverse) != 0,
+		Underline: (attrs & tcell.AttrUnderline) != 0,
+		Dim:       (attrs & tcell.AttrDim) != 0,
+		Italic:    (attrs & tcell.AttrItalic) != 0,
+	}
 
-	if cell.Style.Foreground.IsSet() {
+	if fg != defaultFg {
+		cellstyle.Foreground = value.ColorFromHex(fg.Hex())
+	}
+	if bg != defaultBg {
+		cellstyle.Background = value.ColorFromHex(bg.Hex())
+	}
+
+	return cellstyle
+}
+
+func toTcell(cell draw.Cell) (rune, []rune, tcell.Style) {
+	return cell.Content, []rune{}, toTcellStyle(cell.Style)
+}
+
+func toTcellStyle(cellstyle draw.CellStyle) tcell.Style {
+	style := tcell.StyleDefault.
+		Bold(cellstyle.Bold).
+		Blink(cellstyle.Blink).
+		Reverse(cellstyle.Reverse).
+		Underline(cellstyle.Underline).
+		Dim(cellstyle.Dim).
+		Italic(cellstyle.Italic).
+		StrikeThrough(cellstyle.StrikeThrough)
+
+	if cellstyle.Foreground.IsSet() {
 		style = style.Foreground(
-			tcell.NewHexColor(cell.Style.Foreground.Int32()),
+			tcell.NewHexColor(cellstyle.Foreground.Hex()),
 		)
 	}
 
-	if cell.Style.Background.IsSet() {
+	if cellstyle.Background.IsSet() {
 		style = style.Background(
-			tcell.NewHexColor(cell.Style.Background.Int32()),
+			tcell.NewHexColor(cellstyle.Background.Hex()),
 		)
 	}
 
-	return cell.Content, []rune{}, style
+	return style
 }

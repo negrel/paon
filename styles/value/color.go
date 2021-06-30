@@ -1,14 +1,12 @@
 package value
 
-import "github.com/negrel/debuggo/code_gen/log/log"
-
 // Color define a 24-bit RGB color.
 type Color struct {
 	R, G, B uint8
 	isSet   bool
 }
 
-// ColorFromRGB returns a Color object using the given color channel value.
+// ColorFromRGB returns a Color object using the given color channels values.
 func ColorFromRGB(r, g, b uint8) Color {
 	return Color{
 		R:     r,
@@ -28,14 +26,18 @@ func ColorFromHex(rgb int32) Color {
 	}
 }
 
-// Int32 converts this Color to an int32.
-func (c Color) Int32() int32 {
+// ColorUnset returns an unset Color.
+// Editing the RGB channels of an unset color is useless.
+func ColorUnset() Color {
+	return Color{}
+}
+
+// Hex converts this Color to an int32.
+func (c Color) Hex() int32 {
 	return int32(c.R)<<16 | int32(c.G)<<8 | int32(c.B)
 }
 
 // IsSet returns true if the color is set (to make distinction between black and unset colors).
 func (c Color) IsSet() bool {
-	log.Debug(c.isSet)
-	log.Debug(c.Int32())
-	return c.isSet && c.Int32() != 0
+	return c.isSet
 }
