@@ -6,7 +6,7 @@ import (
 	"github.com/negrel/paon/styles/property"
 )
 
-func GetUnitProp(style styles.Style, id property.ID) (property.Unit, bool) {
+func getUnitProp(style styles.Style, id property.ID) (property.Unit, bool) {
 	prop := style.Get(id)
 	if prop != nil {
 		if unitProp, isUnitProp := prop.(property.Unit); isUnitProp {
@@ -17,15 +17,15 @@ func GetUnitProp(style styles.Style, id property.ID) (property.Unit, bool) {
 	return property.Unit{}, false
 }
 
-func ComputeMinMaxWidth(style styles.Style, constraint Constraint) (int, int) {
+func computeMinMaxWidth(style styles.Style, constraint Constraint) (int, int) {
 	minWidth := constraint.Min.Width()
 	maxWidth := constraint.Max.Width()
 
-	minWidthProp, ok := GetUnitProp(style, property.MinWidth())
+	minWidthProp, ok := getUnitProp(style, property.MinWidth())
 	if ok {
 		minWidth = math.Max(minWidth, constraint.ToCellUnit(minWidthProp.Value))
 	}
-	maxWidthProp, ok := GetUnitProp(style, property.MaxWidth())
+	maxWidthProp, ok := getUnitProp(style, property.MaxWidth())
 	if ok {
 		maxWidth = math.Min(maxWidth, constraint.ToCellUnit(maxWidthProp.Value))
 	}
@@ -33,15 +33,15 @@ func ComputeMinMaxWidth(style styles.Style, constraint Constraint) (int, int) {
 	return minWidth, maxWidth
 }
 
-func ComputeMinMaxHeight(style styles.Style, constraint Constraint) (int, int) {
+func computeMinMaxHeight(style styles.Style, constraint Constraint) (int, int) {
 	minHeight := constraint.Min.Height()
 	maxHeight := constraint.Max.Height()
 
-	minHeightProp, ok := GetUnitProp(style, property.MinHeight())
+	minHeightProp, ok := getUnitProp(style, property.MinHeight())
 	if ok {
 		minHeight = math.Max(minHeight, constraint.ToCellUnit(minHeightProp.Value))
 	}
-	maxHeightProp, ok := GetUnitProp(style, property.MaxHeight())
+	maxHeightProp, ok := getUnitProp(style, property.MaxHeight())
 	if ok {
 		maxHeight = math.Min(maxHeight, constraint.ToCellUnit(maxHeightProp.Value))
 	}
@@ -52,25 +52,25 @@ func ComputeMinMaxHeight(style styles.Style, constraint Constraint) (int, int) {
 func boxOf(style styles.Style, props [4]property.ID) boxOffset {
 
 	left := 0
-	leftProp, ok := GetUnitProp(style, props[0])
+	leftProp, ok := getUnitProp(style, props[0])
 	if ok {
 		left = leftProp.Value.Value
 	}
 
 	top := 0
-	topProp, ok := GetUnitProp(style, props[1])
+	topProp, ok := getUnitProp(style, props[1])
 	if ok {
 		top = topProp.Value.Value
 	}
 
 	right := 0
-	rightProp, ok := GetUnitProp(style, props[2])
+	rightProp, ok := getUnitProp(style, props[2])
 	if ok {
 		right = rightProp.Value.Value
 	}
 
 	bottom := 0
-	bottomProp, ok := GetUnitProp(style, props[3])
+	bottomProp, ok := getUnitProp(style, props[3])
 	if ok {
 		bottom = bottomProp.Value.Value
 	}

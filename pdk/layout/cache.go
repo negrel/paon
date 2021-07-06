@@ -4,22 +4,22 @@ import "github.com/negrel/debuggo/pkg/assert"
 
 // Cache is a wrapper for Flowable object.
 type Cache struct {
-	Algo
+	Manager
 	cache      BoxModel
 	constraint Constraint
 }
 
 // NewCache returns a new Cache wrapper for the given Flowable.
-func NewCache(algo Algo) *Cache {
+func NewCache(man Manager) *Cache {
 	return &Cache{
-		Algo:  algo,
-		cache: nil,
+		Manager: man,
+		cache:   nil,
 	}
 }
 
 // Layout implements the Algo interface.
 func (c *Cache) Layout(constraint Constraint) BoxModel {
-	assert.NotNil(c.Algo)
+	assert.NotNil(c.Manager)
 
 	if c.cache != nil && c.constraint.Equals(constraint) {
 		return c.cache
@@ -27,7 +27,7 @@ func (c *Cache) Layout(constraint Constraint) BoxModel {
 
 	// Update cache
 	c.constraint = constraint
-	c.cache = c.Algo.Layout(constraint)
+	c.cache = c.Manager.Layout(constraint)
 
 	return c.cache
 }
@@ -35,6 +35,16 @@ func (c *Cache) Layout(constraint Constraint) BoxModel {
 // Invalidate invalidates the cache data.
 func (c *Cache) Invalidate() {
 	c.cache = nil
+}
+
+// IsValid returns true if the cache data is valid.
+func (c *Cache) IsValid() bool {
+	return c.cache != nil
+}
+
+// Constraint returns the cached constraint of the last layout.
+func (c *Cache) Constraint() Constraint {
+	return c.constraint
 }
 
 // Box return the cached BoxModel of the last flow.
