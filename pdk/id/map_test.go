@@ -16,7 +16,7 @@ func Test_ConcurrentReadWrite(t *testing.T) {
 	for i := 0; i < idCount; i++ {
 		go func(i int32) {
 			if ids.Get(ID(i)) != "" {
-				t.FailNow()
+				t.Fail()
 			}
 			ids.Set(ID(i), strconv.Itoa(int(i)))
 

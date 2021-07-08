@@ -2,20 +2,22 @@ package id
 
 import "sync"
 
-type IDStringMap interface {
+// StringMap define a map that use IDs as keys and string as values.
+type StringMap interface {
 	Set(p ID, name string)
 	Get(p ID) string
 	Del(p ID)
 }
 
-var _ IDStringMap = &idMap{}
+var _ StringMap = &idMap{}
 
 type idMap struct {
 	sync.RWMutex
 	m map[ID]string
 }
 
-func NewMap() IDStringMap {
+// NewMap returns a new empty StringMap
+func NewMap() StringMap {
 	return &idMap{
 		m: make(map[ID]string),
 	}
