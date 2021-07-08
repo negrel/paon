@@ -15,6 +15,8 @@ type event struct {
 	timeStamp int64
 }
 
+// NewEvent returns a new Event object of the given type. This function
+// should be used as a base for real Event objects.
 func NewEvent(eventType Type) Event {
 	return newEvent(eventType)
 }
