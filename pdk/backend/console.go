@@ -1,8 +1,8 @@
 package backend
 
 import (
-	"github.com/negrel/paon/pdk/draw"
 	"github.com/negrel/paon/events"
+	"github.com/negrel/paon/pdk/draw"
 )
 
 // Console define a generic console used for rendering and event loops.
