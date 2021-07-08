@@ -4,6 +4,7 @@ import (
 	"github.com/negrel/paon/internal/geometry"
 )
 
+// Canvas define a bounded drawing surface.
 type Canvas interface {
 	// Bounds returns the bounds of this Canvas.
 	Bounds() geometry.Rectangle
