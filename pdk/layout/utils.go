@@ -21,11 +21,11 @@ func computeMinMaxWidth(style styles.Style, constraint Constraint) (int, int) {
 	minWidth := constraint.Min.Width()
 	maxWidth := constraint.Max.Width()
 
-	minWidthProp, ok := getUnitProp(style, property.MinWidth())
+	minWidthProp, ok := getUnitProp(style, property.MinWidthID())
 	if ok {
 		minWidth = math.Max(minWidth, constraint.ToCellUnit(minWidthProp.Value))
 	}
-	maxWidthProp, ok := getUnitProp(style, property.MaxWidth())
+	maxWidthProp, ok := getUnitProp(style, property.MaxWidthID())
 	if ok {
 		maxWidth = math.Min(maxWidth, constraint.ToCellUnit(maxWidthProp.Value))
 	}
@@ -37,11 +37,11 @@ func computeMinMaxHeight(style styles.Style, constraint Constraint) (int, int) {
 	minHeight := constraint.Min.Height()
 	maxHeight := constraint.Max.Height()
 
-	minHeightProp, ok := getUnitProp(style, property.MinHeight())
+	minHeightProp, ok := getUnitProp(style, property.MinHeightID())
 	if ok {
 		minHeight = math.Max(minHeight, constraint.ToCellUnit(minHeightProp.Value))
 	}
-	maxHeightProp, ok := getUnitProp(style, property.MaxHeight())
+	maxHeightProp, ok := getUnitProp(style, property.MaxHeightID())
 	if ok {
 		maxHeight = math.Min(maxHeight, constraint.ToCellUnit(maxHeightProp.Value))
 	}
@@ -80,27 +80,27 @@ func boxOf(style styles.Style, props [4]property.ID) boxOffset {
 
 func marginOf(style styles.Style) boxOffset {
 	return boxOf(style, [4]property.ID{
-		property.MarginLeft(),
-		property.MarginTop(),
-		property.MarginRight(),
-		property.MarginBottom(),
+		property.MarginLeftID(),
+		property.MarginTopID(),
+		property.MarginRightID(),
+		property.MarginBottomID(),
 	})
 }
 
 func borderOf(style styles.Style) boxOffset {
 	return boxOf(style, [4]property.ID{
-		property.BorderLeft(),
-		property.BorderTop(),
-		property.BorderRight(),
-		property.BorderBottom(),
+		property.BorderLeftID(),
+		property.BorderTopID(),
+		property.BorderRightID(),
+		property.BorderBottomID(),
 	})
 }
 
 func paddingOf(style styles.Style) boxOffset {
 	return boxOf(style, [4]property.ID{
-		property.PaddingLeft(),
-		property.PaddingTop(),
-		property.PaddingRight(),
-		property.PaddingBottom(),
+		property.PaddingLeftID(),
+		property.PaddingTopID(),
+		property.PaddingRightID(),
+		property.PaddingBottomID(),
 	})
 }

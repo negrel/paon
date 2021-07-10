@@ -33,14 +33,14 @@ func Block(style styles.Style, constraint Constraint, fallback Manager) BoxModel
 	minWidth, maxWidth := computeMinMaxWidth(style, constraint)
 	minHeight, maxHeight := computeMinMaxHeight(style, constraint)
 
-	widthProp, hasWidth := getUnitProp(style, property.Width())
+	widthProp, hasWidth := getUnitProp(style, property.WidthID())
 	if hasWidth {
 		width := constraint.ToCellUnit(widthProp.Value)
 		minWidth = math.Max(minWidth, width)
 		maxWidth = math.Min(maxWidth, width)
 	}
 
-	heightProp, hasHeight := getUnitProp(style, property.Height())
+	heightProp, hasHeight := getUnitProp(style, property.HeightID())
 	if hasHeight {
 		height := constraint.ToCellUnit(heightProp.Value)
 		minHeight = math.Max(minHeight, height)
