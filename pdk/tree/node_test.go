@@ -7,21 +7,20 @@ import (
 )
 
 type nodeTest struct {
-	name           string
-	functions      []func(t *testing.T, n Node)
-	leafNodeOnly   bool
-	concurrentOnly bool
+	name         string
+	test         func(t *testing.T, constructor func() Node)
+	leafNodeOnly bool
 }
 
 func TestNode(t *testing.T) {
 	nodeTests := generateNodeTests()
 
 	for _, methodTest := range nodeTests {
-		for _, test := range methodTest.functions {
-			t.Run(methodTest.name, func(t *testing.T) {
-				test(t, NewNode(nodeData))
+		t.Run(methodTest.name, func(t *testing.T) {
+			methodTest.test(t, func() Node {
+				return NewNode(nodeData)
 			})
-		}
+		})
 	}
 }
 
@@ -29,41 +28,77 @@ func generateNodeTests() []nodeTest {
 	tests := []nodeTest{
 		{
 			name: "AppendChild",
-			functions: []func(t *testing.T, n Node){
-				Node_AppendChild_ToEmptyNode,
-				Node_AppendChild_ToNonEmptyNode,
-				Node_AppendChild_NilNode,
-				Node_AppendChild_ParentOfNode,
-				Node_AppendChild_GreatParentOfNode,
-				Node_AppendChild_NodeWithParent,
-				Node_AppendChild_Itself,
+			test: func(t *testing.T, constructor func() Node) {
+				t.Run("ToEmptyNode", func(t *testing.T) {
+					testNodeAppendChildToEmptyNode(t, constructor())
+				})
+				t.Run("ToNonEmptyNode", func(t *testing.T) {
+					testNodeAppendChildToNonEmptyNode(t, constructor())
+				})
+				t.Run("NilChildNode", func(t *testing.T) {
+					testNodeAppendChildNilNode(t, constructor())
+				})
+				t.Run("ParentOfNode", func(t *testing.T) {
+					testNodeAppendChildParentOfNode(t, constructor())
+				})
+				t.Run("GreatParentOfNode", func(t *testing.T) {
+					testNodeAppendChildGreatParentOfNode(t, constructor())
+				})
+				t.Run("NodeWithParent", func(t *testing.T) {
+					testNodeAppendChildNodeWithParent(t, constructor())
+				})
+				t.Run("Itself", func(t *testing.T) {
+					testNodeAppendChildItself(t, constructor())
+				})
 			},
 		},
 		{
 			name: "InsertBefore",
-			functions: []func(t *testing.T, n Node){
-				Node_InsertBeforeNode,
-				Node_InsertBeforeNode_NonChildReference,
-				Node_InsertBeforeNode_ToEmptyParent_NilReference,
-				Node_InsertBeforeNode_ToEmptyParent_NilChild,
-				Node_InsertBeforeNode_ParentOfNode,
-				Node_InsertBeforeNode_Itself,
-				Node_InsertBeforeNode_BetweenTwoNode,
+			test: func(t *testing.T, constructor func() Node) {
+				t.Run("Node", func(t *testing.T) {
+					testNodeInsertBeforeNode(t, constructor())
+				})
+				t.Run("NonChildReference", func(t *testing.T) {
+					testNodeInsertBeforeNodeNonChildReference(t, constructor())
+				})
+				t.Run("NilReference", func(t *testing.T) {
+					testNodeInsertBeforeNilReference(t, constructor())
+				})
+				t.Run("NilChild", func(t *testing.T) {
+					testNodeInsertBeforeNilChild(t, constructor())
+				})
+				t.Run("ParentOfNode", func(t *testing.T) {
+					testNodeInsertBeforeParentOfNode(t, constructor())
+				})
+				t.Run("Itself", func(t *testing.T) {
+					testNodeInsertBeforeItself(t, constructor())
+				})
+				t.Run("BetweenTwoNode", func(t *testing.T) {
+					testNodeInsertBeforeBetweenTwoNode(t, constructor())
+				})
 			},
 		},
 		{
 			name: "RemoveChild",
-			functions: []func(t *testing.T, n Node){
-				Node_RemoveChild,
-				Node_RemoveChild_Nil,
-				Node_RemoveChild_AnotherParentChild,
-				Node_RemoveChild_SecondChild,
+			test: func(t *testing.T, constructor func() Node) {
+				t.Run("", func(t *testing.T) {
+					testNodeRemoveChild(t, constructor())
+				})
+				t.Run("Nil", func(t *testing.T) {
+					testNodeRemoveChildNil(t, constructor())
+				})
+				t.Run("AnotherParentChild", func(t *testing.T) {
+					testNodeRemoveChildAnotherParentChild(t, constructor())
+				})
+				t.Run("SecondChild", func(t *testing.T) {
+					testNodeRemoveChildSecondChild(t, constructor())
+				})
 			},
 		},
 	}
 
 	for _, test := range generateLeafNodeTests() {
-		if !test.leafNodeOnly && !test.concurrentOnly {
+		if !test.leafNodeOnly {
 			tests = append(tests, test)
 		}
 	}
@@ -71,7 +106,7 @@ func generateNodeTests() []nodeTest {
 	return tests
 }
 
-func Node_AppendChild_ToEmptyNode(t *testing.T, node Node) {
+func testNodeAppendChildToEmptyNode(t *testing.T, node Node) {
 	assert.Nil(t, node.FirstChild())
 	assert.Nil(t, node.LastChild())
 
@@ -85,7 +120,7 @@ func Node_AppendChild_ToEmptyNode(t *testing.T, node Node) {
 	assert.True(t, node.LastChild().IsSame(child))
 }
 
-func Node_AppendChild_ToNonEmptyNode(t *testing.T, node Node) {
+func testNodeAppendChildToNonEmptyNode(t *testing.T, node Node) {
 	assert.Nil(t, node.FirstChild())
 	assert.Nil(t, node.LastChild())
 	firstChild := NewNode(nil)
@@ -104,7 +139,7 @@ func Node_AppendChild_ToNonEmptyNode(t *testing.T, node Node) {
 	assert.True(t, firstChild.Next().IsSame(lastChild))
 }
 
-func Node_AppendChild_NilNode(t *testing.T, node Node) {
+func testNodeAppendChildNilNode(t *testing.T, node Node) {
 	assert.Nil(t, node.FirstChild())
 	assert.Nil(t, node.LastChild())
 
@@ -114,7 +149,7 @@ func Node_AppendChild_NilNode(t *testing.T, node Node) {
 	})
 }
 
-func Node_AppendChild_ParentOfNode(t *testing.T, node Node) {
+func testNodeAppendChildParentOfNode(t *testing.T, node Node) {
 	assert.Nil(t, node.FirstChild())
 	assert.Nil(t, node.LastChild())
 
@@ -126,7 +161,7 @@ func Node_AppendChild_ParentOfNode(t *testing.T, node Node) {
 	assert.NotNil(t, err)
 }
 
-func Node_AppendChild_GreatParentOfNode(t *testing.T, node Node) {
+func testNodeAppendChildGreatParentOfNode(t *testing.T, node Node) {
 	assert.Nil(t, node.FirstChild())
 	assert.Nil(t, node.LastChild())
 
@@ -143,7 +178,7 @@ func Node_AppendChild_GreatParentOfNode(t *testing.T, node Node) {
 	assert.NotNil(t, err)
 }
 
-func Node_AppendChild_NodeWithParent(t *testing.T, node Node) {
+func testNodeAppendChildNodeWithParent(t *testing.T, node Node) {
 	assert.Nil(t, node.FirstChild())
 	assert.Nil(t, node.LastChild())
 
@@ -159,7 +194,7 @@ func Node_AppendChild_NodeWithParent(t *testing.T, node Node) {
 	assert.True(t, node.LastChild().IsSame(child))
 }
 
-func Node_AppendChild_Itself(t *testing.T, node Node) {
+func testNodeAppendChildItself(t *testing.T, node Node) {
 	assert.Nil(t, node.FirstChild())
 	assert.Nil(t, node.LastChild())
 
@@ -167,7 +202,7 @@ func Node_AppendChild_Itself(t *testing.T, node Node) {
 	assert.NotNil(t, err)
 }
 
-func Node_InsertBeforeNode(t *testing.T, node Node) {
+func testNodeInsertBeforeNode(t *testing.T, node Node) {
 	assert.Nil(t, node.FirstChild())
 	assert.Nil(t, node.LastChild())
 
@@ -188,7 +223,7 @@ func Node_InsertBeforeNode(t *testing.T, node Node) {
 	assert.True(t, reference.IsSame(child.Next()))
 }
 
-func Node_InsertBeforeNode_NonChildReference(t *testing.T, node Node) {
+func testNodeInsertBeforeNodeNonChildReference(t *testing.T, node Node) {
 	assert.Nil(t, node.FirstChild())
 	assert.Nil(t, node.LastChild())
 
@@ -202,7 +237,7 @@ func Node_InsertBeforeNode_NonChildReference(t *testing.T, node Node) {
 	assert.NotNil(t, err)
 }
 
-func Node_InsertBeforeNode_ToEmptyParent_NilReference(t *testing.T, node Node) {
+func testNodeInsertBeforeNilReference(t *testing.T, node Node) {
 	assert.Nil(t, node.FirstChild())
 	assert.Nil(t, node.LastChild())
 
@@ -216,7 +251,7 @@ func Node_InsertBeforeNode_ToEmptyParent_NilReference(t *testing.T, node Node) {
 	assert.True(t, node.LastChild().IsSame(child))
 }
 
-func Node_InsertBeforeNode_ToEmptyParent_NilChild(t *testing.T, node Node) {
+func testNodeInsertBeforeNilChild(t *testing.T, node Node) {
 	assert.Nil(t, node.FirstChild())
 	assert.Nil(t, node.LastChild())
 
@@ -228,7 +263,7 @@ func Node_InsertBeforeNode_ToEmptyParent_NilChild(t *testing.T, node Node) {
 	})
 }
 
-func Node_InsertBeforeNode_ParentOfNode(t *testing.T, node Node) {
+func testNodeInsertBeforeParentOfNode(t *testing.T, node Node) {
 	assert.Nil(t, node.FirstChild())
 	assert.Nil(t, node.LastChild())
 
@@ -244,7 +279,7 @@ func Node_InsertBeforeNode_ParentOfNode(t *testing.T, node Node) {
 	assert.NotNil(t, err)
 }
 
-func Node_InsertBeforeNode_GreatParentOfNode(t *testing.T, node Node) {
+func NodeInsertBeforeNodeGreatParentOfNode(t *testing.T, node Node) {
 	assert.Nil(t, node.FirstChild())
 	assert.Nil(t, node.LastChild())
 
@@ -263,7 +298,7 @@ func Node_InsertBeforeNode_GreatParentOfNode(t *testing.T, node Node) {
 	assert.NotNil(t, err)
 }
 
-func Node_InsertBeforeNode_ChildWithParent(t *testing.T, node Node) {
+func NodeInsertBeforeNodeChildWithParent(t *testing.T, node Node) {
 	assert.Nil(t, node.FirstChild())
 	assert.Nil(t, node.LastChild())
 
@@ -287,7 +322,7 @@ func Node_InsertBeforeNode_ChildWithParent(t *testing.T, node Node) {
 	assert.True(t, reference.IsSame(child.Next()))
 }
 
-func Node_InsertBeforeNode_BetweenTwoNode(t *testing.T, node Node) {
+func testNodeInsertBeforeBetweenTwoNode(t *testing.T, node Node) {
 	assert.Nil(t, node.FirstChild())
 	assert.Nil(t, node.LastChild())
 
@@ -315,7 +350,7 @@ func Node_InsertBeforeNode_BetweenTwoNode(t *testing.T, node Node) {
 	assert.True(t, previous.IsSame(child.Previous()))
 }
 
-func Node_InsertBeforeNode_Itself(t *testing.T, node Node) {
+func testNodeInsertBeforeItself(t *testing.T, node Node) {
 	assert.Nil(t, node.FirstChild())
 	assert.Nil(t, node.LastChild())
 
@@ -327,7 +362,7 @@ func Node_InsertBeforeNode_Itself(t *testing.T, node Node) {
 	assert.NotNil(t, err)
 }
 
-func Node_RemoveChild(t *testing.T, node Node) {
+func testNodeRemoveChild(t *testing.T, node Node) {
 	assert.Nil(t, node.FirstChild())
 	assert.Nil(t, node.LastChild())
 
@@ -351,7 +386,7 @@ func Node_RemoveChild(t *testing.T, node Node) {
 	assert.Nil(t, firstChild.Parent())
 }
 
-func Node_RemoveChild_Nil(t *testing.T, node Node) {
+func testNodeRemoveChildNil(t *testing.T, node Node) {
 	assert.Nil(t, node.FirstChild())
 	assert.Nil(t, node.LastChild())
 
@@ -361,7 +396,7 @@ func Node_RemoveChild_Nil(t *testing.T, node Node) {
 	})
 }
 
-func Node_RemoveChild_AnotherParentChild(t *testing.T, node Node) {
+func testNodeRemoveChildAnotherParentChild(t *testing.T, node Node) {
 	assert.Nil(t, node.FirstChild())
 	assert.Nil(t, node.LastChild())
 
@@ -374,7 +409,7 @@ func Node_RemoveChild_AnotherParentChild(t *testing.T, node Node) {
 	assert.NotNil(t, err)
 }
 
-func Node_RemoveChild_SecondChild(t *testing.T, node Node) {
+func testNodeRemoveChildSecondChild(t *testing.T, node Node) {
 	assert.Nil(t, node.FirstChild())
 	assert.Nil(t, node.LastChild())
 

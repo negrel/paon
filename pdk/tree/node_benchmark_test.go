@@ -1,12 +1,13 @@
 package tree
 
 import (
+	"fmt"
 	"math/rand"
 	"testing"
 	"time"
 )
 
-func BenchmarkNode_AppendChild(b *testing.B) {
+func BenchmarkNodeAppendChild(b *testing.B) {
 	parent := NewNode(nodeData)
 	nodes := make([]Node, b.N)
 
@@ -20,7 +21,7 @@ func BenchmarkNode_AppendChild(b *testing.B) {
 	}
 }
 
-func BenchmarkNode_InsertBefore(b *testing.B) {
+func BenchmarkNodeInsertBefore(b *testing.B) {
 	parent := NewNode(nodeData)
 	nodes := make([]Node, b.N)
 
@@ -36,7 +37,7 @@ func BenchmarkNode_InsertBefore(b *testing.B) {
 	}
 }
 
-func BenchmarkNode_RemoveChild(b *testing.B) {
+func BenchmarkNodeRemoveChild(b *testing.B) {
 	parent := NewNode(nodeData)
 	nodes := make([]Node, b.N)
 
@@ -55,7 +56,17 @@ func BenchmarkNode_RemoveChild(b *testing.B) {
 	}
 }
 
-func benchmarkNode_Root(b *testing.B, deep int) {
+func BenchmarkNodeRoot(b *testing.B) {
+	b.Run("Root", func(b *testing.B) {
+		for i := 8; i < 1024; i *= 2 {
+			b.Run(fmt.Sprintf("%d", i), func(b *testing.B) {
+				benchmarkNodeRoot(b, i)
+			})
+		}
+	})
+}
+
+func benchmarkNodeRoot(b *testing.B, deep int) {
 	rootData := nodeData.Add(time.Minute)
 	root := NewRoot(rootData)
 
@@ -71,35 +82,4 @@ func benchmarkNode_Root(b *testing.B, deep int) {
 	for i := 0; i < b.N; i++ {
 		_ = deepestChild.Root()
 	}
-}
-
-func BenchmarkNode_Root8(b *testing.B) {
-	benchmarkNode_Root(b, 8)
-}
-
-func BenchmarkNode_Root16(b *testing.B) {
-	benchmarkNode_Root(b, 16)
-}
-func BenchmarkNode_Root32(b *testing.B) {
-	benchmarkNode_Root(b, 32)
-}
-
-func BenchmarkNode_Root64(b *testing.B) {
-	benchmarkNode_Root(b, 64)
-}
-
-func BenchmarkNode_Root128(b *testing.B) {
-	benchmarkNode_Root(b, 128)
-}
-
-func BenchmarkNode_Root256(b *testing.B) {
-	benchmarkNode_Root(b, 256)
-}
-
-func BenchmarkNode_Root512(b *testing.B) {
-	benchmarkNode_Root(b, 512)
-}
-
-func BenchmarkNode_Root1024(b *testing.B) {
-	benchmarkNode_Root(b, 1024)
 }
