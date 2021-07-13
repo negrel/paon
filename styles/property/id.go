@@ -26,8 +26,6 @@ func NewID(name string) ID {
 }
 
 var (
-	_IDFlow ID = NewID("flow")
-
 	_IDWidth    = NewID("width")
 	_IDMinWidth = NewID("min-width")
 	_IDMaxWidth = NewID("max-width")
@@ -57,94 +55,127 @@ var (
 	_IDForegroundColor = NewID("foreground-color")
 )
 
-func Flow() ID {
-	return _IDFlow
+// IsCustomPropID returns true if the given ID is not one of the built-in property ID.
+func IsCustomPropID(id ID) bool {
+	return id < FirstID() || id > LastID()
 }
 
-func Width() ID {
+// FirstID returns the first declared ID.
+func FirstID() ID {
 	return _IDWidth
 }
 
-func MinWidth() ID {
+// LastID returns the last declared ID.
+func LastID() ID {
+	return _IDForegroundColor
+}
+
+// WidthID returns the ID of the Width property.
+func WidthID() ID {
+	return _IDWidth
+}
+
+// MinWidthID returns the ID of the MinWidth property.
+func MinWidthID() ID {
 	return _IDMinWidth
 }
 
-func MaxWidth() ID {
+// MaxWidthID returns the ID of the MaxWidth property.
+func MaxWidthID() ID {
 	return _IDMaxWidth
 }
 
-func Height() ID {
+// HeightID returns the ID of the Height property.
+func HeightID() ID {
 	return _IDHeight
 }
 
-func MinHeight() ID {
+// MinHeightID returns the ID of the MinHeight property.
+func MinHeightID() ID {
 	return _IDMinHeight
 }
 
-func MaxHeight() ID {
+// MaxHeightID returns the ID of the MaxHeight property.
+func MaxHeightID() ID {
 	return _IDMaxHeight
 }
 
-func MarginLeft() ID {
+// MarginLeftID returns the ID of the MarginLeft property.
+func MarginLeftID() ID {
 	return _IDMarginLeft
 }
 
-func MarginTop() ID {
+// MarginTopID returns the ID of the MarginTop property.
+func MarginTopID() ID {
 	return _IDMarginTop
 }
 
-func MarginRight() ID {
+// MarginRightID returns the ID of the MarginRight property.
+func MarginRightID() ID {
 	return _IDMarginRight
 }
 
-func MarginBottom() ID {
+// MarginBottomID returns the ID of the MarginBottom property.
+func MarginBottomID() ID {
 	return _IDMarginBottom
 }
 
-func BorderLeft() ID {
+// BorderLeftID returns the ID of the BorderLeft property.
+func BorderLeftID() ID {
 	return _IDBorderLeft
 }
 
-func BorderTop() ID {
+// BorderTopID returns the ID of the BorderTop property.
+func BorderTopID() ID {
 	return _IDBorderTop
 }
 
-func BorderRight() ID {
+// BorderRightID returns the ID of the BorderRight property.
+func BorderRightID() ID {
 	return _IDBorderRight
 }
 
-func BorderBottom() ID {
+// BorderBottomID returns the ID of the BorderBottom property.
+func BorderBottomID() ID {
 	return _IDBorderBottom
 }
 
-func BorderCharset() ID {
+// BorderCharsetID returns the ID of the BorderCharset property.
+func BorderCharsetID() ID {
 	return _IDBorderCharSet
 }
 
-func BorderColor() ID {
+// BorderColorID returns the ID of the BorderColor property.
+func BorderColorID() ID {
 	return _IDBorderColor
 }
 
-func PaddingLeft() ID {
+// PaddingLeftID returns the ID of the PaddingLeft property.
+func PaddingLeftID() ID {
 	return _IDPaddingLeft
 }
 
-func PaddingTop() ID {
+// PaddingTopID returns the ID of the PaddingTop property.
+func PaddingTopID() ID {
 	return _IDPaddingTop
 }
 
-func PaddingRight() ID {
+// PaddingRightID returns the ID of the PaddingRight property.
+func PaddingRightID() ID {
 	return _IDPaddingRight
 }
 
-func PaddingBottom() ID {
+// PaddingBottomID returns the ID of the PaddingBottom property.
+func PaddingBottomID() ID {
 	return _IDPaddingBottom
 }
 
-func BackgroundColor() ID {
+// BackgroundColorID returns the ID of the BackgroundColor property.
+func BackgroundColorID() ID {
 	return _IDBackgroundColor
 }
 
-func ForegroundColor() ID {
+// ForegroundColorID returns the ID of the ForegroundColor property.
+func ForegroundColorID() ID {
 	return _IDForegroundColor
 }
