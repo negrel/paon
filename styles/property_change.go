@@ -21,10 +21,12 @@ func PropertyChangeListener(handler func(setProperty EventPropertyChange)) *even
 
 var eventTypePropertyChange = events.NewType("property-change")
 
+// EventTypePropertyChange returns the events.Type of PropertyChangeEvent.
 func EventTypePropertyChange() events.Type {
 	return eventTypePropertyChange
 }
 
+// EventPropertyChange is triggered when the style property of a Style change.
 type EventPropertyChange struct {
 	events.Event
 	Old, New property.Property

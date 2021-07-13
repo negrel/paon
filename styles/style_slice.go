@@ -4,7 +4,7 @@ import "sort"
 
 var _ sort.Interface = make(styleSlice, 0)
 
-type styleSlice []Style
+type styleSlice []WeightedStyle
 
 // Len implements the sort.Interface interface.
 func (ss styleSlice) Len() int {

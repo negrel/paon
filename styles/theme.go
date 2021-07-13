@@ -4,10 +4,9 @@ import (
 	"sort"
 	"sync"
 
+	"github.com/negrel/paon/events"
 	"github.com/negrel/paon/styles/property"
 )
-
-type _style Style
 
 // Theme define a set of Style. These styles are read-only and can't be modified
 // throught the Theme object. Theme also implements the Style interface because
@@ -16,30 +15,31 @@ type Theme interface {
 	Style
 
 	// AddStyle adds the given Style to the StyleList.
-	AddStyle(Style)
+	AddStyle(WeightedStyle)
 	// DelStyle deletes the given Style from the StyleList.
-	DelStyle(Style)
+	DelStyle(WeightedStyle)
 
 	// Styles returns all the Style present in this Theme.
-	Styles() []Style
+	Styles() []WeightedStyle
 }
 
 // theme is a composition of Style object.
 type theme struct {
 	sync.RWMutex
+	events.Target
 
-	_style
+	style  Style
 	shared styleSlice
 	sorted bool
 }
 
 // NewTheme return a new Theme object with the given internal Style.
-func NewTheme(defaultStyle Style) Theme {
-	shared := make([]Style, 0, 8)
+func NewTheme(defaultStyle WeightedStyle) Theme {
+	shared := make([]WeightedStyle, 0, 8)
 	shared = append(shared, defaultStyle)
 
 	return &theme{
-		_style: NewStyle(),
+		style:  New(),
 		shared: shared,
 	}
 }
@@ -60,7 +60,7 @@ func (t *theme) Get(id property.ID) property.Property {
 	t.RLock()
 	defer t.RUnlock()
 
-	if prop := t._style.Get(id); prop != nil {
+	if prop := t.style.Get(id); prop != nil {
 		return prop
 	}
 
@@ -73,8 +73,18 @@ func (t *theme) Get(id property.ID) property.Property {
 	return nil
 }
 
+// Set implements the Style interface.
+func (t *theme) Set(prop property.Property) {
+	t.style.Set(prop)
+}
+
+// Del implements the Style interface.
+func (t *theme) Del(prop property.ID) {
+	t.style.Del(prop)
+}
+
 // Styles implements the Theme interface.
-func (t *theme) Styles() []Style {
+func (t *theme) Styles() []WeightedStyle {
 	t.RLock()
 	defer t.RUnlock()
 
@@ -82,11 +92,18 @@ func (t *theme) Styles() []Style {
 }
 
 // AddStyle implements the Theme interface.
-func (t *theme) AddStyle(s Style) {
-	panic("implement me")
+func (t *theme) AddStyle(s WeightedStyle) {
+	t.shared = append(t.shared, s)
+	sort.Sort(t.shared)
 }
 
 // DelStyle implements the Theme interface.
-func (t *theme) DelStyle(s Style) {
-	panic("implement me")
+func (t *theme) DelStyle(s WeightedStyle) {
+	for i, style := range t.shared {
+		if style == s {
+			t.shared[len(t.shared)-1], t.shared[i] = t.shared[i], t.shared[len(t.shared)-1]
+			t.shared = t.shared[:len(t.shared)-1]
+		}
+	}
+	sort.Sort(t.shared)
 }
