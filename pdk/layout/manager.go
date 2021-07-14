@@ -23,10 +23,15 @@ func (mf ManagerFn) Layout(c Constraint) BoxModel {
 	return mf(c)
 }
 
-// Block is a basic layout algorithm that returns a BoxModel using the
-// width, height properties (min, max) and the Constraint.
-// Sometimes one of those properties aren't defined and the fallback Algorithm is used.
-// This algorithm must be wrapped in a function to be used as an Algorithm.
+// Block is a layout helper that can be used by a Manager.
+// Block updates the size Constraint using the min/max width/height
+// properties while respecting the original Constraint.
+// If the style is fully sized (has a defined width and height)
+// a BoxModel using these properties and the margins, borders and
+// paddings props is returned.
+// Otherwise, the fallback manager is called. The fallback should
+// also applies margins, borders and paddings in order to have consistent
+// layout.
 func Block(style styles.Style, constraint Constraint, fallback Manager) BoxModel {
 	assert.NotNil(style)
 
@@ -66,7 +71,7 @@ func Block(style styles.Style, constraint Constraint, fallback Manager) BoxModel
 	// At this stage minWidth == maxWidth && minHeight == maxHeight
 	box := NewBox(geometry.Rectangle{
 		Min: constraint.Min.Min,
-		Max: constraint.Min.Min.Add(geometry.Pt(minWidth, maxWidth)),
+		Max: constraint.Min.Min.Add(geometry.Pt(maxWidth, maxHeight)),
 	})
 	box.ApplyMargin(style)
 	box.ApplyBorder(style)

@@ -40,7 +40,7 @@ func (c Constraint) Equals(other Constraint) bool {
 		c.parentSize.Equals(other.parentSize) && c.rootSize.Equals(other.rootSize)
 }
 
-// ToCellUnit converts the given value to a Cell based value.Unit and returns it
+// ToCellUnit converts the given value to a Cell based value.Unit and returns it.
 func (c Constraint) ToCellUnit(unit value.Unit) int {
 	switch unit.UnitID {
 	case value.CellUnit:
