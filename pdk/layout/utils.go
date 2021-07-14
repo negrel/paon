@@ -6,7 +6,10 @@ import (
 	"github.com/negrel/paon/styles/property"
 )
 
-func getUnitProp(style styles.Style, id property.ID) (property.Unit, bool) {
+// UnitProp converts the property contained in the given styles.Style that
+// have the given property.ID and returns it.
+// A true boolean is also returned if the property is a property.Unit.
+func UnitProp(style styles.Style, id property.ID) (property.Unit, bool) {
 	prop := style.Get(id)
 	if prop != nil {
 		if unitProp, isUnitProp := prop.(property.Unit); isUnitProp {
@@ -17,15 +20,17 @@ func getUnitProp(style styles.Style, id property.ID) (property.Unit, bool) {
 	return property.Unit{}, false
 }
 
-func computeMinMaxWidth(style styles.Style, constraint Constraint) (int, int) {
+// MinMaxWidth returns min and max width that respect the Constraint and
+// the styles.Styles min/max width properties.
+func MinMaxWidth(style styles.Style, constraint Constraint) (int, int) {
 	minWidth := constraint.Min.Width()
 	maxWidth := constraint.Max.Width()
 
-	minWidthProp, ok := getUnitProp(style, property.MinWidthID())
+	minWidthProp, ok := UnitProp(style, property.MinWidthID())
 	if ok {
 		minWidth = math.Max(minWidth, constraint.ToCellUnit(minWidthProp.Value))
 	}
-	maxWidthProp, ok := getUnitProp(style, property.MaxWidthID())
+	maxWidthProp, ok := UnitProp(style, property.MaxWidthID())
 	if ok {
 		maxWidth = math.Min(maxWidth, constraint.ToCellUnit(maxWidthProp.Value))
 	}
@@ -33,15 +38,17 @@ func computeMinMaxWidth(style styles.Style, constraint Constraint) (int, int) {
 	return minWidth, maxWidth
 }
 
-func computeMinMaxHeight(style styles.Style, constraint Constraint) (int, int) {
+// MinMaxHeight returns min and max height that respect the given Constraint and
+// the styles.Styles min/max height properties.
+func MinMaxHeight(style styles.Style, constraint Constraint) (int, int) {
 	minHeight := constraint.Min.Height()
 	maxHeight := constraint.Max.Height()
 
-	minHeightProp, ok := getUnitProp(style, property.MinHeightID())
+	minHeightProp, ok := UnitProp(style, property.MinHeightID())
 	if ok {
 		minHeight = math.Max(minHeight, constraint.ToCellUnit(minHeightProp.Value))
 	}
-	maxHeightProp, ok := getUnitProp(style, property.MaxHeightID())
+	maxHeightProp, ok := UnitProp(style, property.MaxHeightID())
 	if ok {
 		maxHeight = math.Min(maxHeight, constraint.ToCellUnit(maxHeightProp.Value))
 	}
@@ -52,30 +59,30 @@ func computeMinMaxHeight(style styles.Style, constraint Constraint) (int, int) {
 func boxOf(style styles.Style, props [4]property.ID) boxOffset {
 
 	left := 0
-	leftProp, ok := getUnitProp(style, props[0])
+	leftProp, ok := UnitProp(style, props[0])
 	if ok {
 		left = leftProp.Value.Value
 	}
 
 	top := 0
-	topProp, ok := getUnitProp(style, props[1])
+	topProp, ok := UnitProp(style, props[1])
 	if ok {
 		top = topProp.Value.Value
 	}
 
 	right := 0
-	rightProp, ok := getUnitProp(style, props[2])
+	rightProp, ok := UnitProp(style, props[2])
 	if ok {
 		right = rightProp.Value.Value
 	}
 
 	bottom := 0
-	bottomProp, ok := getUnitProp(style, props[3])
+	bottomProp, ok := UnitProp(style, props[3])
 	if ok {
 		bottom = bottomProp.Value.Value
 	}
 
-	return makeBoxOffset(left, top, right, bottom)
+	return newBoxOffset(left, top, right, bottom)
 }
 
 func marginOf(style styles.Style) boxOffset {

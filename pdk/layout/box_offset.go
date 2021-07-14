@@ -4,7 +4,7 @@ import "github.com/negrel/paon/internal/geometry"
 
 type boxOffset [4]int
 
-func makeBoxOffset(left, top, right, bottom int) boxOffset {
+func newBoxOffset(left, top, right, bottom int) boxOffset {
 	return boxOffset{left, top, right, bottom}
 }
 

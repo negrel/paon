@@ -2,6 +2,9 @@ package layout
 
 import "github.com/negrel/debuggo/pkg/assert"
 
+var _ Boxed = &Cache{}
+var _ Manager = &Cache{}
+
 // Cache is a wrapper for Flowable object.
 type Cache struct {
 	Manager

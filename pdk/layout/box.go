@@ -5,6 +5,11 @@ import (
 	"github.com/negrel/paon/styles"
 )
 
+// Boxed define any objects that can returns a BoxModel.
+type Boxed interface {
+	Box() BoxModel
+}
+
 // BoxModel define a sized box with margin, border and padding in a 2D geometric plane.
 type BoxModel interface {
 	MarginBox() geometry.Rectangle
