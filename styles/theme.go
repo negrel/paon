@@ -8,6 +8,12 @@ import (
 	"github.com/negrel/paon/styles/property"
 )
 
+// Themed define a generic interface for objects
+// containing a Theme object.
+type Themed interface {
+	Theme() Theme
+}
+
 // Theme define a set of Style. These styles are read-only and can't be modified
 // throught the Theme object. Theme also implements the Style interface because
 // it embed a read-write Style object.

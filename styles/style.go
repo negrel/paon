@@ -6,6 +6,11 @@ import (
 	"github.com/negrel/paon/styles/property"
 )
 
+// Styled is a generic interface for object that have a Style.
+type Styled interface {
+	Style() Style
+}
+
 // Style is a set of property.Property object.
 // Property change can be observed by listening to EventPropertyChange events.
 type Style interface {
