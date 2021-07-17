@@ -2,7 +2,7 @@ package widgets
 
 import (
 	"github.com/negrel/debuggo/pkg/assert"
-	"github.com/negrel/paon/events"
+	"github.com/negrel/paon/pdk/events"
 	"github.com/negrel/paon/pdk/draw"
 	"github.com/negrel/paon/pdk/id"
 )

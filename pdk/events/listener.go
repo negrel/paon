@@ -2,7 +2,7 @@ package events
 
 import "fmt"
 
-// Listener represents an object that can Handle an event dispatched by an Target object.
+// Listener define an event handler that listens for a events of a specific type.
 type Listener struct {
 	Type   Type
 	Handle func(event Event)
@@ -10,4 +10,10 @@ type Listener struct {
 
 func (l *Listener) String() string {
 	return fmt.Sprintf("(%v)-event-listener", l.Type)
+}
+
+// TreeListener define a listener for TreeEvents.
+type TreeListener struct {
+	Listener
+	Phase Phase
 }

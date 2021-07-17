@@ -3,7 +3,6 @@ package tree
 import (
 	"github.com/pkg/errors"
 
-	"github.com/negrel/paon/events"
 	"github.com/negrel/paon/pdk/id"
 )
 
@@ -20,8 +19,6 @@ func ErrLeafNode() error {
 var _ Node = &leafNode{}
 
 type leafNode struct {
-	events.Target
-
 	id   id.ID
 	data interface{}
 
@@ -41,9 +38,8 @@ func NewLeafNode(data interface{}) Node {
 
 func newLeafNode(data interface{}) *leafNode {
 	ln := &leafNode{
-		Target: events.NewTarget(),
-		id:     id.New(),
-		data:   data,
+		id:   id.New(),
+		data: data,
 	}
 
 	return ln

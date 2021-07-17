@@ -2,7 +2,7 @@ package widgets
 
 import (
 	"github.com/negrel/debuggo/pkg/assert"
-	"github.com/negrel/paon/events"
+	"github.com/negrel/paon/pdk/events"
 	"github.com/negrel/paon/pdk/draw"
 	"github.com/negrel/paon/pdk/layout"
 	"github.com/negrel/paon/pdk/tree"
@@ -15,6 +15,7 @@ type baseWidgetOption struct {
 	nodeConstructor func(data interface{}) tree.Node
 	data            interface{}
 	listeners       []*events.Listener
+	defaultStyle    styles.Style
 }
 
 // WidgetOption define an option for BaseWidget.
@@ -86,12 +87,10 @@ func Drawer(drawer draw.Drawer) WidgetOption {
 	}
 }
 
-// Theme returns a WidgetOption that sets the Theme used by the
-// Widget.
-func Theme(theme styles.Theme) WidgetOption {
-	assert.NotNil(theme)
-
+// DefaultStyle returns a WidgetOption that sets default style properties of
+// the widget.
+func DefaultStyle(style styles.Style) WidgetOption {
 	return func(bwo *baseWidgetOption) {
-		bwo.theme = theme
+		bwo.defaultStyle = style
 	}
 }

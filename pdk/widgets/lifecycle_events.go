@@ -2,7 +2,7 @@ package widgets
 
 import (
 	"github.com/negrel/debuggo/pkg/assert"
-	"github.com/negrel/paon/events"
+	"github.com/negrel/paon/pdk/events"
 )
 
 var lifeCycleEventType = events.NewType("lifecycle")

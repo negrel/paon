@@ -128,8 +128,11 @@ func (r *Root) SetChild(child Widget) {
 func (r *Root) Draw(ctx draw.Context) {
 	ctx.SetFillColor(value.Color{})
 	ctx.FillRectangle(ctx.Bounds())
-	r.child.Draw(ctx)
 	ctx.Commit()
+
+	r.child.Draw(
+		draw.SubContext(ctx, r.child.Box().BorderBox()),
+	)
 }
 
 func (r *Root) enqueueReflow() {

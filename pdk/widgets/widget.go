@@ -2,7 +2,7 @@ package widgets
 
 import (
 	"github.com/negrel/debuggo/pkg/assert"
-	"github.com/negrel/paon/events"
+	"github.com/negrel/paon/pdk/events"
 	"github.com/negrel/paon/pdk/draw"
 	"github.com/negrel/paon/pdk/id"
 	"github.com/negrel/paon/pdk/layout"
@@ -130,6 +130,7 @@ func newBaseWidget(options ...WidgetOption) *BaseWidget {
 		BaseWidget:      widget,
 		nodeConstructor: tree.NewLeafNode,
 		data:            widget,
+		defaultStyle:    styles.New(),
 	}
 
 	for _, option := range options {
@@ -147,7 +148,7 @@ func newBaseWidget(options ...WidgetOption) *BaseWidget {
 	}
 
 	if widget.theme == nil {
-		widget.theme = styles.NewTheme(styles.NewWeighted(styles.New(), 0))
+		widget.theme = styles.NewTheme(styles.NewWeighted(widgetConf.defaultStyle, -1))
 	}
 
 	assert.NotNil(widget.cache)
