@@ -15,7 +15,7 @@ func (t Type) name() string {
 
 // String implements the fmt.Stringer interface.
 func (t Type) String() string {
-	return fmt.Sprintf("%v(%d)", t.name(), t)
+	return fmt.Sprintf("%v", t.name())
 }
 
 var typeName = id.NewMap()

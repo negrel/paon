@@ -3,6 +3,7 @@ package tcell
 import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/negrel/debuggo/pkg/assert"
+	"github.com/negrel/paon/events"
 	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/pdk/backend"
 	"github.com/negrel/paon/pdk/draw"
@@ -103,11 +104,20 @@ func (c *Terminal) Stop() {
 	c.done = nil
 }
 
+var oldSize = geometry.Size{}
+
 func adaptEvent(event tcell.Event) pdkevents.Event {
 	switch ev := event.(type) {
 	case *tcell.EventError:
 		_ = ev
 		return nil
+
+	case *tcell.EventResize:
+		newSize := geometry.NewSize(ev.Size())
+		e := events.NewResize(oldSize, newSize)
+		oldSize = newSize
+
+		return e
 
 	default:
 		return nil
