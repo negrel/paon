@@ -1,12 +1,12 @@
 package backend
 
 import (
-	"github.com/negrel/paon/events"
 	"github.com/negrel/paon/pdk/draw"
+	"github.com/negrel/paon/pdk/events"
 )
 
-// Console define a generic console used for rendering and event loops.
-type Console interface {
+// Terminal define a generic terminal in raw mode used for rendering and event loops.
+type Terminal interface {
 	draw.Canvas
 
 	// Clear clears the entire console surface and replace cell by empty black one.
