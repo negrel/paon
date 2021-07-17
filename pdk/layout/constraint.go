@@ -40,6 +40,12 @@ func (c Constraint) Equals(other Constraint) bool {
 		c.parentSize.Equals(other.parentSize) && c.rootSize.Equals(other.rootSize)
 }
 
+// EqualsSize returns true if the given Constraint has the same min and
+// max size.
+func (c Constraint) EqualsSize(other Constraint) bool {
+	return c.Min.Size().Equals(other.Min.Size()) && c.Max.Size().Equals(other.Max.Size())
+}
+
 // ToCellUnit converts the given value to a Cell based value.Unit and returns it.
 func (c Constraint) ToCellUnit(unit value.Unit) int {
 	switch unit.UnitID {

@@ -24,8 +24,21 @@ func NewCache(man Manager) *Cache {
 func (c *Cache) Layout(constraint Constraint) BoxModel {
 	assert.NotNil(c.Manager)
 
-	if c.cache != nil && c.constraint.Equals(constraint) {
-		return c.cache
+	// the cache is still valid if the new constraint has the same size
+	// than the cached constraint and the distance between the Min and Max
+	// rectangle remains the same.
+	if c.cache != nil && c.constraint.EqualsSize(constraint) &&
+		c.constraint.Min.Min.Sub(c.constraint.Max.Min) == constraint.Min.Min.Sub(constraint.Max.Min) {
+		box := c.cache
+
+		if !c.constraint.Min.Equals(constraint.Min) || !c.constraint.Max.Equals(constraint.Max) {
+			box = &movedBox{
+				BoxModel: box,
+				offset:   c.constraint.Min.Min.Sub(constraint.Min.Min),
+			}
+		}
+
+		return box
 	}
 
 	// Update cache

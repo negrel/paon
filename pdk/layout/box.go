@@ -18,6 +18,32 @@ type BoxModel interface {
 	ContentBox() geometry.Rectangle
 }
 
+var _ BoxModel = movedBox{}
+
+// movedBox is a wrapper around a BoxModel object.
+// This allow layout optimization for object that has the same size constraint
+// but has moved.
+type movedBox struct {
+	BoxModel
+	offset geometry.Point
+}
+
+func (mb movedBox) MarginBox() geometry.Rectangle {
+	return mb.BoxModel.MarginBox().Add(mb.offset)
+}
+
+func (mb movedBox) BorderBox() geometry.Rectangle {
+	return mb.BoxModel.BorderBox().Add(mb.offset)
+}
+
+func (mb movedBox) PaddingBox() geometry.Rectangle {
+	return mb.BoxModel.PaddingBox().Add(mb.offset)
+}
+
+func (mb movedBox) ContentBox() geometry.Rectangle {
+	return mb.BoxModel.ContentBox().Add(mb.offset)
+}
+
 // Box define a basic BoxModel implementation.
 type Box struct {
 	borderBox geometry.Rectangle
