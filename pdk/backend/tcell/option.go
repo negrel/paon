@@ -11,7 +11,7 @@ type Option func(*Terminal) error
 // by the Terminal.
 func Screen(screen tcell.Screen) Option {
 	return func(c *Terminal) error {
-		c.Screen = screen
+		c.screen = screen
 
 		return nil
 	}

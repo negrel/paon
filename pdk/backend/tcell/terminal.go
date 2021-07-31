@@ -1,6 +1,9 @@
 package tcell
 
 import (
+	stdcontext "context"
+	"sync"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/events"
@@ -15,7 +18,11 @@ var _ backend.Terminal = &Terminal{}
 // Terminal is a wrapper around https://www.github.com/gdamore/tcell Screen
 // that satisfy the backend.Terminal interface.
 type Terminal struct {
-	tcell.Screen
+	mu sync.Mutex
+
+	// the wrapped tcell.Screen.
+	// It is initialized in NewTerminal and never reassigned.
+	screen tcell.Screen
 
 	done chan struct{}
 }
@@ -33,8 +40,8 @@ func NewTerminal(options ...Option) (*Terminal, error) {
 		}
 	}
 
-	if terminal.Screen == nil {
-		terminal.Screen, err = tcell.NewScreen()
+	if terminal.screen == nil {
+		terminal.screen, err = tcell.NewScreen()
 		if err != nil {
 			return nil, err
 		}
@@ -45,60 +52,66 @@ func NewTerminal(options ...Option) (*Terminal, error) {
 
 // Bounds implements the draw.Canvas interface.
 func (c *Terminal) Bounds() geometry.Rectangle {
-	w, h := c.Screen.Size()
+	w, h := c.screen.Size()
 	return geometry.Rect(0, 0, w, h)
 }
 
 // Get implements the draw.Canvas interface.
 func (c *Terminal) Get(pos geometry.Point) draw.Cell {
-	return fromTcell(c.Screen.GetContent(pos.X(), pos.Y()))
+	return fromTcell(c.screen.GetContent(pos.X(), pos.Y()))
 }
 
 // Set implements the draw.Canvas interface.
 func (c *Terminal) Set(pos geometry.Point, cell draw.Cell) {
 	mainc, combc, style := toTcell(cell)
-	c.Screen.SetContent(pos.X(), pos.Y(), mainc, combc, style)
+	c.screen.SetContent(pos.X(), pos.Y(), mainc, combc, style)
 }
 
 // NewContext implements the draw.Canvas interface.
-func (c *Terminal) NewContext(bounds geometry.Rectangle) draw.Context {
-	return draw.NewContext(c, bounds)
+func (c *Terminal) NewContext(ctx stdcontext.Context, bounds geometry.Rectangle) *draw.Context {
+	return draw.NewContext(ctx, c, bounds)
 }
 
 // Clear implements the backend.Terminal interface.
 func (c *Terminal) Clear() {
-	c.Screen.Clear()
+	c.screen.Clear()
 }
 
 // Flush implements the backend.Terminal interface.
 func (c *Terminal) Flush() {
 	if c.done != nil {
-		c.Screen.Show()
+		c.screen.Show()
 	}
 }
 
 // Start implements the backend.Terminal interface.
 func (c *Terminal) Start(evch chan<- pdkevents.Event) error {
 	assert.NotNil(evch)
+	c.mu.Lock()
+	defer c.mu.Unlock()
 
-	err := c.Screen.Init()
+	err := c.screen.Init()
 	if err != nil {
 		return err
 	}
 
 	c.done = make(chan struct{})
-	go eventLoop(c.done, evch, c.Screen.PollEvent)
+	go eventLoop(c.done, evch, c.screen.PollEvent)
 
 	return nil
 }
 
 // Stop implements the backend.Terminal interface.
 func (c *Terminal) Stop() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	if c.done == nil {
 		return
 	}
 
-	c.Screen.Fini()
+	c.screen.Fini()
+
 	c.done <- struct{}{}
 	close(c.done)
 	c.done = nil
@@ -128,11 +141,10 @@ func eventLoop(done <-chan struct{}, eventChannel chan<- pdkevents.Event, pollEv
 	ch := make(chan pdkevents.Event)
 
 	go func(ch chan<- pdkevents.Event) {
-	loop:
 		for {
 			event := pollEvent()
 			if event == nil {
-				break loop
+				return
 			}
 			ch <- adaptEvent(event)
 		}
