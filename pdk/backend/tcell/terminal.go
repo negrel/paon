@@ -25,12 +25,17 @@ type Terminal struct {
 	screen tcell.Screen
 
 	done chan struct{}
+	// The drawing buffer used by drawing contexts
+	// We allocate it once.
+	drawBuf []func(draw.Canvas)
 }
 
 // NewTerminal returns a new Terminal object configured with the
 // given options.
 func NewTerminal(options ...Option) (*Terminal, error) {
-	terminal := &Terminal{}
+	terminal := &Terminal{
+		drawBuf: make([]func(draw.Canvas), 0, 256),
+	}
 
 	var err error
 	for _, option := range options {
@@ -69,7 +74,8 @@ func (c *Terminal) Set(pos geometry.Point, cell draw.Cell) {
 
 // NewContext implements the draw.Canvas interface.
 func (c *Terminal) NewContext(ctx stdcontext.Context, bounds geometry.Rectangle) *draw.Context {
-	return draw.NewContext(ctx, c, bounds)
+	dctx := draw.NewContext(ctx, c, bounds, &c.drawBuf)
+	return dctx
 }
 
 // Clear implements the backend.Terminal interface.
