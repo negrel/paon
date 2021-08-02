@@ -8,18 +8,8 @@ import (
 // Constraint define the constraint an flow must respect.
 type Constraint struct {
 	Min, Max   geometry.Rectangle
-	parentSize geometry.Size
-	rootSize   geometry.Size
-}
-
-// NewConstraint returns a new Constraint object with the given constraint.
-func NewConstraint(min, max geometry.Rectangle, parent, root geometry.Size) Constraint {
-	return Constraint{
-		Min:        min,
-		Max:        max,
-		parentSize: parent,
-		rootSize:   root,
-	}
+	ParentSize geometry.Size
+	RootSize   geometry.Size
 }
 
 // SetMin sets the constraint minimum rectangle.
@@ -37,7 +27,7 @@ func (c Constraint) SetMax(max geometry.Rectangle) Constraint {
 // Equals returns true if the given Constraint is equal to this Constraint.
 func (c Constraint) Equals(other Constraint) bool {
 	return c.Min.Equals(other.Min) && c.Max.Equals(other.Max) &&
-		c.parentSize.Equals(other.parentSize) && c.rootSize.Equals(other.rootSize)
+		c.ParentSize.Equals(other.ParentSize) && c.RootSize.Equals(other.RootSize)
 }
 
 // EqualsSize returns true if the given Constraint has the same min and
@@ -53,16 +43,16 @@ func (c Constraint) ToCellUnit(unit value.Unit) int {
 		return unit.Value
 
 	case value.PercentageWidthUnit:
-		return c.parentSize.Width() / 100 * unit.Value
+		return c.ParentSize.Width() / 100 * unit.Value
 
 	case value.PercentageHeightUnit:
-		return c.parentSize.Height() / 100 * unit.Value
+		return c.ParentSize.Height() / 100 * unit.Value
 
 	case value.WindowWidthUnit:
-		return c.rootSize.Width() / 100 * unit.Value
+		return c.RootSize.Width() / 100 * unit.Value
 
 	case value.WindowHeightUnit:
-		return c.rootSize.Height() / 100 * unit.Value
+		return c.RootSize.Height() / 100 * unit.Value
 
 	default:
 		panic("invalid unit")
