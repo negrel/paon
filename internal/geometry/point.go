@@ -30,7 +30,6 @@ func (p Point) Y() int {
 
 // Add returns a new Point translated by adding the given point.
 func (p Point) Add(other Point) Point {
-
 	p.x += other.x
 	p.y += other.y
 
