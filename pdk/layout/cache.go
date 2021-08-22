@@ -2,10 +2,7 @@ package layout
 
 import (
 	"github.com/negrel/debuggo/pkg/assert"
-	"github.com/negrel/paon/internal/geometry"
 )
-
-var unsetSize = geometry.NewSize(-1, -1)
 
 var _ Boxed = &Cache{}
 var _ Manager = &Cache{}
@@ -14,7 +11,7 @@ var _ Manager = &Cache{}
 type Cache struct {
 	Manager
 	valid      bool
-	cache      BoxModel
+	cache      *Box
 	constraint Constraint
 }
 
@@ -27,24 +24,14 @@ func NewCache(man Manager) *Cache {
 }
 
 // Layout implements the Algo interface.
-func (c *Cache) Layout(constraint Constraint) BoxModel {
+func (c *Cache) Layout(constraint Constraint) *Box {
 	assert.NotNil(c.Manager)
 
 	// the cache is still valid if the new constraint has the same size
 	// than the cached constraint and the distance between the Min and Max
 	// rectangle remains the same.
-	if c.valid && c.constraint.EqualsSize(constraint) &&
-		c.constraint.Min.Min.Sub(c.constraint.Max.Min) == constraint.Min.Min.Sub(constraint.Max.Min) {
-		box := c.cache
-
-		if !c.constraint.Min.Equals(constraint.Min) || !c.constraint.Max.Equals(constraint.Max) {
-			box = &movedBox{
-				BoxModel: box,
-				offset:   c.constraint.Min.Min.Sub(constraint.Min.Min),
-			}
-		}
-
-		return box
+	if c.valid && c.constraint.Equals(constraint) {
+		return c.cache
 	}
 
 	// Update cache
@@ -70,7 +57,12 @@ func (c *Cache) Constraint() Constraint {
 	return c.constraint
 }
 
-// Box return the cached BoxModel of the last flow.
+// Get returns the cached box.
+func (c *Cache) Get() *Box {
+	return c.cache
+}
+
+// Box returns the cached BoxModel of the last flow.
 func (c *Cache) Box() BoxModel {
 	return c.cache
 }

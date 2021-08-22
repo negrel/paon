@@ -33,16 +33,19 @@ func (bo boxOffset) y() int {
 }
 
 func (bo boxOffset) applyOn(rectangle geometry.Rectangle) geometry.Rectangle {
-	return geometry.Rectangle{
-		Min: rectangle.Min.Add(
-			geometry.Pt(bo.left(), bo.top()),
-		),
-		Max: rectangle.Max.Sub(
-			geometry.Pt(bo.right(), bo.bottom()),
-		),
-	}
-}
+	min := rectangle.Min.Add(
+		geometry.Pt(bo.left(), bo.top()),
+	)
+	max := rectangle.Max.Sub(
+		geometry.Pt(bo.right(), bo.bottom()),
+	)
 
-func (bo boxOffset) reverse() boxOffset {
-	return boxOffset{-bo.left(), -bo.top(), -bo.right(), -bo.bottom()}
+	if min.X() > max.X() || min.Y() > max.Y() {
+		return geometry.Rectangle{}
+	}
+
+	return geometry.Rectangle{
+		Min: min,
+		Max: max,
+	}
 }

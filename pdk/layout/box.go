@@ -10,7 +10,7 @@ type Boxed interface {
 	Box() BoxModel
 }
 
-// BoxModel define a sized box with margin, border and padding in a 2D geometric plane.
+// BoxModel define a box with margin, border and padding in a 2D geometric plane.
 type BoxModel interface {
 	MarginBox() geometry.Rectangle
 	BorderBox() geometry.Rectangle
@@ -18,55 +18,36 @@ type BoxModel interface {
 	ContentBox() geometry.Rectangle
 }
 
-var _ BoxModel = movedBox{}
-
-// movedBox is a wrapper around a BoxModel object.
-// This allow layout optimization for object that has the same size constraint
-// but has moved.
-type movedBox struct {
-	BoxModel
-	offset geometry.Point
-}
-
-func (mb movedBox) MarginBox() geometry.Rectangle {
-	return mb.BoxModel.MarginBox().Add(mb.offset)
-}
-
-func (mb movedBox) BorderBox() geometry.Rectangle {
-	return mb.BoxModel.BorderBox().Add(mb.offset)
-}
-
-func (mb movedBox) PaddingBox() geometry.Rectangle {
-	return mb.BoxModel.PaddingBox().Add(mb.offset)
-}
-
-func (mb movedBox) ContentBox() geometry.Rectangle {
-	return mb.BoxModel.ContentBox().Add(mb.offset)
-}
+var _ BoxModel = &Box{}
 
 // Box define a basic BoxModel implementation.
 type Box struct {
-	borderBox geometry.Rectangle
-	marginBoxOffset,
+	origin geometry.Point
+
+	boxSize geometry.Size
+	borderBoxOffset,
 	paddingBoxOffset,
 	contentBoxOffset boxOffset
 }
 
 // NewBox return a new Box with the given content box.
-func NewBox(rectangle geometry.Rectangle) *Box {
+func NewBox(size geometry.Size) *Box {
 	return &Box{
-		borderBox: rectangle,
+		boxSize: size,
 	}
 }
 
 // MarginBox implements the BoxModel interface.
 func (b *Box) MarginBox() geometry.Rectangle {
-	return b.marginBoxOffset.applyOn(b.borderBox)
+	return geometry.Rectangle{
+		Min: b.origin,
+		Max: b.origin.Add(geometry.Pt(b.boxSize.Width(), b.boxSize.Height())),
+	}
 }
 
 // BorderBox implements the BoxModel interface.
 func (b *Box) BorderBox() geometry.Rectangle {
-	return b.borderBox
+	return b.borderBoxOffset.applyOn(b.MarginBox())
 }
 
 // PaddingBox implements the BoxModel interface.
@@ -81,41 +62,28 @@ func (b *Box) ContentBox() geometry.Rectangle {
 
 // Resize change the size of the margin box.
 func (b *Box) Resize(size geometry.Size) {
-	marginBox := b.MarginBox()
-	diffW := size.Width() - marginBox.Width()
-	diffH := size.Height() - marginBox.Height()
+	b.boxSize = size
+}
 
-	b.borderBox.Max = b.borderBox.Max.Add(
-		geometry.Pt(diffW, diffH),
-	)
+// SetOrigin sets the origin coordinate of the top-left corner of the margin box.
+func (b *Box) SetOrigin(pt geometry.Point) {
+	b.origin = pt
 }
 
 // ApplyMargin applies the margin of the given style to the box.
-func (b *Box) ApplyMargin(style styles.Style) {
+func (b *Box) ApplyMargin(style styles.Style) *Box {
 	b.applyMargin(marginOf(style))
+	return b
 }
 
 func (b *Box) applyMargin(margin boxOffset) {
-	b.borderBox.Min = b.borderBox.Min.Add(
-		geometry.Pt(b.marginBoxOffset.left(), b.marginBoxOffset.top()),
-	)
-	b.borderBox.Max = b.borderBox.Max.Add(
-		geometry.Pt(b.marginBoxOffset.left(), b.marginBoxOffset.top()),
-	)
-
-	b.marginBoxOffset = margin.reverse()
-
-	b.borderBox.Min = b.borderBox.Min.Add(
-		geometry.Pt(margin.left(), margin.top()),
-	)
-	b.borderBox.Max = b.borderBox.Max.Add(
-		geometry.Pt(margin.left(), margin.top()),
-	)
+	b.borderBoxOffset = margin
 }
 
 // ApplyBorder applies the border of the given style to the box.
-func (b *Box) ApplyBorder(style styles.Style) {
+func (b *Box) ApplyBorder(style styles.Style) *Box {
 	b.applyBorder(borderOf(style))
+	return b
 }
 
 func (b *Box) applyBorder(border boxOffset) {
@@ -123,8 +91,9 @@ func (b *Box) applyBorder(border boxOffset) {
 }
 
 // ApplyPadding applies the padding of the given style to the box.
-func (b *Box) ApplyPadding(style styles.Style) {
+func (b *Box) ApplyPadding(style styles.Style) *Box {
 	b.applyPadding(paddingOf(style))
+	return b
 }
 
 func (b *Box) applyPadding(padding boxOffset) {
