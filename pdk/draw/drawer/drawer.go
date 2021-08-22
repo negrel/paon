@@ -7,22 +7,20 @@ import (
 	"github.com/negrel/paon/styles/property"
 )
 
-// NoDrawer is a draw.DrawerFn that don't draw anything.
-func NoDrawer(ctx *draw.Context) {
-
-}
-
 // Box draws a given BoxModel with the given styles.Style on the given draw.Context.
 func Box(styled styles.Styled, boxed layout.Boxed) draw.DrawerFn {
-	return func(ctx *draw.Context) {
+	return func(c draw.Canvas) {
 		style := styled.Style()
 		box := boxed.Box()
 
 		// Background color
 		bgColor, ok := style.Get(property.BackgroundColorID()).(property.Color)
 		if ok {
-			ctx.SetFillColor(bgColor.Color)
+			ctx := draw.NewContext(c)
+			ctx.FillRectangle(box.PaddingBox(), draw.CellStyle{
+				Background: bgColor.Color,
+			})
 		}
-		ctx.FillRectangle(box.PaddingBox())
 	}
+
 }
