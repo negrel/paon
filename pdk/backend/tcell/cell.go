@@ -31,10 +31,10 @@ func fromTcellStyle(style tcell.Style) draw.CellStyle {
 	}
 
 	if fg != defaultFg {
-		cellstyle.Foreground = value.ColorFromHex(fg.Hex())
+		cellstyle.Foreground = fromTcellColor(fg)
 	}
 	if bg != defaultBg {
-		cellstyle.Background = value.ColorFromHex(bg.Hex())
+		cellstyle.Background = fromTcellColor(bg)
 	}
 
 	return cellstyle
@@ -54,17 +54,25 @@ func toTcellStyle(cellstyle draw.CellStyle) tcell.Style {
 		Italic(cellstyle.Italic).
 		StrikeThrough(cellstyle.StrikeThrough)
 
-	if cellstyle.Foreground.IsSet() {
+	if cellstyle.Foreground.A() != 0 {
 		style = style.Foreground(
-			tcell.NewHexColor(cellstyle.Foreground.Hex()),
+			toTcellColor(cellstyle.Foreground),
 		)
 	}
 
-	if cellstyle.Background.IsSet() {
+	if cellstyle.Background.A() != 0 {
 		style = style.Background(
-			tcell.NewHexColor(cellstyle.Background.Hex()),
+			toTcellColor(cellstyle.Background),
 		)
 	}
 
 	return style
+}
+
+func toTcellColor(color value.Color) tcell.Color {
+	return tcell.NewHexColor(int32(color.Hex()) & 0xFFFFFF)
+}
+
+func fromTcellColor(color tcell.Color) value.Color {
+	return value.ColorFromHex(uint32(color.Hex()) & 0xFFFFFF)
 }

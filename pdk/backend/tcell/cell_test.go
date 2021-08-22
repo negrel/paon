@@ -57,7 +57,7 @@ func strikethrough(style tcell.Style) bool {
 }
 
 func randColor() value.Color {
-	return value.ColorFromHex(rand.Int31())
+	return value.ColorFromHex(rand.Uint32())
 }
 
 func randBool() bool {
@@ -92,8 +92,8 @@ func TestToCellStyle(t *testing.T) {
 	}
 
 	style = toTcellStyle(cellstyle)
-	assert.Equal(t, cellstyle.Foreground.Hex(), foreground(style).Hex())
-	assert.Equal(t, cellstyle.Background.Hex(), background(style).Hex())
+	assert.Equal(t, cellstyle.Foreground.Hex(), uint32(foreground(style).Hex()))
+	assert.Equal(t, cellstyle.Background.Hex(), uint32(background(style).Hex()))
 
 	// Attributes
 	cellstyle = draw.CellStyle{
@@ -145,8 +145,8 @@ func TestFromTcellStyle(t *testing.T) {
 		Background(tcell.NewHexColor(rand.Int31()))
 
 	cellstyle = fromTcellStyle(style)
-	assert.Equal(t, cellstyle.Foreground, value.ColorFromHex(foreground(style).Hex()))
-	assert.Equal(t, cellstyle.Background, value.ColorFromHex(background(style).Hex()))
+	assert.Equal(t, cellstyle.Foreground, fromTcellColor(foreground(style)))
+	assert.Equal(t, cellstyle.Background, fromTcellColor(background(style)))
 }
 
 func TestFromCell_Content(t *testing.T) {

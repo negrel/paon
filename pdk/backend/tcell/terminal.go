@@ -1,7 +1,6 @@
 package tcell
 
 import (
-	stdcontext "context"
 	"sync"
 
 	"github.com/gdamore/tcell/v2"
@@ -25,17 +24,14 @@ type Terminal struct {
 	screen tcell.Screen
 
 	done chan struct{}
-	// The drawing buffer used by drawing contexts
-	// We allocate it once.
-	drawBuf []func(draw.Canvas)
+
+	ctx *draw.Context
 }
 
 // NewTerminal returns a new Terminal object configured with the
 // given options.
 func NewTerminal(options ...Option) (*Terminal, error) {
-	terminal := &Terminal{
-		drawBuf: make([]func(draw.Canvas), 0, 256),
-	}
+	terminal := &Terminal{}
 
 	var err error
 	for _, option := range options {
@@ -72,12 +68,6 @@ func (c *Terminal) Set(pos geometry.Point, cell draw.Cell) {
 	c.screen.SetContent(pos.X(), pos.Y(), mainc, combc, style)
 }
 
-// NewContext implements the draw.Canvas interface.
-func (c *Terminal) NewContext(ctx stdcontext.Context, bounds geometry.Rectangle) *draw.Context {
-	dctx := draw.NewContext(ctx, c, bounds, &c.drawBuf)
-	return dctx
-}
-
 // Clear implements the backend.Terminal interface.
 func (c *Terminal) Clear() {
 	c.screen.Clear()
@@ -102,7 +92,7 @@ func (c *Terminal) Start(evch chan<- pdkevents.Event) error {
 	}
 
 	c.done = make(chan struct{})
-	go eventLoop(c.done, evch, c.screen.PollEvent)
+	go c.eventLoop(c.done, evch, c.screen.PollEvent)
 
 	return nil
 }
@@ -125,7 +115,7 @@ func (c *Terminal) Stop() {
 
 var oldSize = geometry.Size{}
 
-func adaptEvent(event tcell.Event) pdkevents.Event {
+func (c *Terminal) adaptEvent(event tcell.Event) pdkevents.Event {
 	switch ev := event.(type) {
 	case *tcell.EventError:
 		_ = ev
@@ -143,7 +133,7 @@ func adaptEvent(event tcell.Event) pdkevents.Event {
 	}
 }
 
-func eventLoop(done <-chan struct{}, eventChannel chan<- pdkevents.Event, pollEvent func() tcell.Event) {
+func (c *Terminal) eventLoop(done <-chan struct{}, eventChannel chan<- pdkevents.Event, pollEvent func() tcell.Event) {
 	ch := make(chan pdkevents.Event)
 
 	go func(ch chan<- pdkevents.Event) {
@@ -152,7 +142,7 @@ func eventLoop(done <-chan struct{}, eventChannel chan<- pdkevents.Event, pollEv
 			if event == nil {
 				return
 			}
-			ch <- adaptEvent(event)
+			ch <- c.adaptEvent(event)
 		}
 	}(ch)
 
