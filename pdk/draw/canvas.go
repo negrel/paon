@@ -1,8 +1,6 @@
 package draw
 
 import (
-	stdcontext "context"
-
 	"github.com/negrel/paon/internal/geometry"
 )
 
@@ -12,13 +10,57 @@ type Canvas interface {
 	Bounds() geometry.Rectangle
 
 	// Get returns the cell at the given position.
-	// If the position is out of bound, an Cell with default value
+	// If the position is out of bound, a Cell with default value
 	// is returned.
 	Get(geometry.Point) Cell
 
 	// Set sets the cell at the given position.
+	// If the position is out of bounds, the cell is dropped.
 	Set(geometry.Point, Cell)
+}
 
-	// NewContext creates a new Context that can draw on this Canvas within the given bounds.
-	NewContext(ctx stdcontext.Context, bounds geometry.Rectangle) *Context
+var _ Canvas = SubCanvas{}
+
+// SubCanvas define a subset of a Canvas. It get/set cells
+// relative to it's own bound.
+type SubCanvas struct {
+	bounds geometry.Rectangle
+	canvas Canvas
+}
+
+// NewSubCanvas wraps the given Canvas to rebound it under the given subbounds.
+func NewSubCanvas(c Canvas, subbounds geometry.Rectangle) SubCanvas {
+	if canvas, ok := c.(SubCanvas); ok {
+		c = canvas.canvas
+		subbounds = geometry.Rectangle{
+			Min: canvas.bounds.Min.Add(subbounds.Min),
+			Max: canvas.bounds.Max.Add(subbounds.Max),
+		}
+	}
+
+	return SubCanvas{
+		bounds: c.Bounds().Mask(subbounds),
+		canvas: c,
+	}
+}
+
+// Bounds implement the Canvas interface.
+func (sc SubCanvas) Bounds() geometry.Rectangle {
+	return sc.bounds
+}
+
+// Get implements the Canvas interface.
+func (sc SubCanvas) Get(pt geometry.Point) Cell {
+	pt = pt.Add(sc.bounds.Min)
+	if sc.bounds.Contains(pt) {
+		return sc.canvas.Get(pt)
+	}
+
+	return ZeroCell()
+}
+
+// Set implements the Canvas interface.
+func (sc SubCanvas) Set(pt geometry.Point, cell Cell) {
+	pt = pt.Add(sc.bounds.Min)
+	sc.canvas.Set(pt, cell)
 }
