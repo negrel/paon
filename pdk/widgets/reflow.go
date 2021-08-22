@@ -3,11 +3,8 @@ package widgets
 import (
 	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/pdk/events"
-	"github.com/negrel/paon/pdk/id"
 	"github.com/negrel/paon/pdk/layout"
 )
-
-var mockID = id.New()
 
 var reflowEventType = events.NewType("reflow")
 
@@ -22,7 +19,7 @@ func ReflowListener(handler func(ReflowEvent)) *events.Listener {
 	return &events.Listener{
 		Type: reflowEventType,
 		Handle: func(event events.Event) {
-			assert.IsType(event, NewReflowEvent(mockID, nil))
+			assert.IsType(event, NewReflowEvent(nil))
 			handler(event.(ReflowEvent))
 		},
 	}
@@ -33,16 +30,13 @@ var _ events.Event = ReflowEvent{}
 // ReflowEvent is triggered when a Widget need a layout.
 type ReflowEvent struct {
 	events.Event
-
-	ResourceID id.ID
-	Manager    layout.Manager
+	Manager layout.Manager
 }
 
 // NewReflowEvent returns a new ReflowEvent.
-func NewReflowEvent(id id.ID, man layout.Manager) ReflowEvent {
+func NewReflowEvent(manager layout.Manager) ReflowEvent {
 	return ReflowEvent{
-		Event:      events.NewEvent(reflowEventType),
-		ResourceID: id,
-		Manager:    man,
+		Event:   events.NewEvent(reflowEventType),
+		Manager: manager,
 	}
 }
