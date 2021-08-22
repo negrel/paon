@@ -130,17 +130,28 @@ func (r Rectangle) Height() int {
 // Size object.
 func (r Rectangle) Size() Size {
 	return Size{
-		x: r.Width(),
-		y: r.Height(),
+		width:  r.Width(),
+		height: r.Height(),
 	}
 }
 
-// Add returns a new Rectangle with the given offset.
-func (r Rectangle) Add(n Point) Rectangle {
+// Area returns the area of the rectangle.
+func (r Rectangle) Area() int {
+	return r.Width() * r.Height()
+}
+
+// MoveBy returns a new Rectangle moved by the given offset.
+func (r Rectangle) MoveBy(n Point) Rectangle {
 	return Rectangle{
 		Min: r.Min.Add(n),
 		Max: r.Max.Add(n),
 	}
+}
+
+// MoveTo returns a new Rectangle with the same dimensions with
+// the given Point as origin.
+func (r Rectangle) MoveTo(n Point) Rectangle {
+	return Rect(n.X(), n.Y(), n.X()+r.Width(), n.Y()+r.Height())
 }
 
 // GrowLeft returns a new rectangle growing by n to the left.
@@ -194,6 +205,10 @@ func (r Rectangle) Contains(point Point) bool {
 // Intersect returns the largest rectangle contained by both this rectangle and the other. If the
 // two rectangles do not overlap then the zero rectangle will be returned.
 func (r Rectangle) Intersect(other Rectangle) Rectangle {
+	if r.Empty() || !r.Overlaps(other) {
+		return Rectangle{}
+	}
+
 	if r.Min.x < other.Min.x {
 		r.Min.x = other.Min.x
 	}
@@ -206,10 +221,6 @@ func (r Rectangle) Intersect(other Rectangle) Rectangle {
 	}
 	if r.Max.y < other.Max.y {
 		r.Max.y = other.Max.y
-	}
-
-	if r.Empty() {
-		return Rectangle{}
 	}
 
 	return r
