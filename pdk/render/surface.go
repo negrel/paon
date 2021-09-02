@@ -3,6 +3,7 @@ package render
 import (
 	"bytes"
 	"io"
+	"math"
 
 	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/pdk/draw"
@@ -76,4 +77,72 @@ func (bs BufferSurface) Dump(w io.Writer) {
 		}
 		buf.WriteRune(cell.Content)
 	}
+}
+
+// Region size for infinite layers
+const (
+	RegionWidth  = 1024
+	RegionHeight = 1024
+)
+
+var _ draw.Canvas = InfiniteSurface{}
+
+// InfiniteSurface define a surface with maximum bounds size.
+type InfiniteSurface struct {
+	origin *geometry.Point
+
+	regions map[int]map[int]BufferSurface
+}
+
+// NewInfiniteSurface ...
+func NewInfiniteSurface(origin geometry.Point) InfiniteSurface {
+	return InfiniteSurface{
+		origin:  &origin,
+		regions: make(map[int]map[int]BufferSurface),
+	}
+}
+
+// Bounds implement the draw.Canvas interface.
+func (is InfiniteSurface) Bounds() geometry.Rectangle {
+	return geometry.Rectangle{
+		Min: *is.origin,
+		Max: is.origin.Add(geometry.Pt(math.MaxInt, math.MaxInt)),
+	}
+}
+
+// Get implement the draw.Canvas interface.
+func (is InfiniteSurface) Get(pt geometry.Point) draw.Cell {
+	return is.GetSurface(pt).Get(pt)
+}
+
+// GetSurface returns the surface containing the given point. This method is here
+// for performance purpose. If you're going to draw within a single region only, you may
+// want to use this method to avoid surface lookup on each Get/Set call.
+func (is InfiniteSurface) GetSurface(pt geometry.Point) BufferSurface {
+	var row map[int]BufferSurface
+	var layer BufferSurface
+
+	if r, ok := is.regions[pt.Y()%RegionHeight]; ok {
+		row = r
+	} else {
+		row = make(map[int]BufferSurface)
+		is.regions[pt.Y()%RegionHeight] = row
+	}
+
+	if l, ok := row[pt.X()%RegionWidth]; ok {
+		layer = l
+	} else {
+		layer = NewBufferSurface(geometry.Rectangle{
+			Min: geometry.Point{},
+			Max: geometry.Pt(RegionWidth, RegionHeight),
+		})
+		row[pt.X()%RegionWidth] = layer
+	}
+
+	return layer
+}
+
+// Set implement the draw.Canvas interface.
+func (is InfiniteSurface) Set(pt geometry.Point, c draw.Cell) {
+	is.GetSurface(pt).Set(pt, c)
 }
