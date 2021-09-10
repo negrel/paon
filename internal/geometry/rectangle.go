@@ -2,11 +2,11 @@ package geometry
 
 var _ Sized = &Rectangle{}
 
-// Rectangle define a rectangle with two points
+// Rectangle define a rectangle with two 2D vectors
 // for the minimum (top-left corner) and the
 // maximum (bottom-right corner).
 type Rectangle struct {
-	Min, Max Point
+	Min, Max Vec2D
 }
 
 // Rect returns always a well-formed rectangle with the
@@ -19,23 +19,23 @@ func Rect(x0, y0, x1, y1 int) Rectangle {
 		y0, y1 = y1, y0
 	}
 	return Rectangle{
-		Min: Pt(x0, y0),
-		Max: Pt(x1, y1),
+		Min: NewVec2D(x0, y0),
+		Max: NewVec2D(x1, y1),
 	}
 }
 
 // RectFromCenter returns a Rectangle with the given
-// Size and the given center Point.
-func RectFromCenter(center Point, size Size) Rectangle {
+// Size and the given center position.
+func RectFromCenter(center Vec2D, size Size) Rectangle {
 	return Rectangle{
-		Min: Pt(
-			center.x-size.Width()/2,
-			center.y-size.Height()/2,
-		),
-		Max: Pt(
-			center.x+size.Width()/2,
-			center.y+size.Height()/2,
-		),
+		Min: Vec2D{
+			center.x - size.Width()/2,
+			center.y - size.Height()/2,
+		},
+		Max: Vec2D{
+			center.x + size.Width()/2,
+			center.y + size.Height()/2,
+		},
 	}
 }
 
@@ -47,37 +47,37 @@ func (r Rectangle) Bottom() int {
 
 // BottomCenter returns the offset to the center of the
 // bottom center of this rectangle.
-func (r Rectangle) BottomCenter() Point {
-	return Pt(r.Width()/2, r.Max.y)
+func (r Rectangle) BottomCenter() Vec2D {
+	return NewVec2D(r.Width()/2, r.Max.y)
 }
 
 // BottomLeft returns the offset to the bottom left
 // corner of the bottom center of this rectangle.
-func (r Rectangle) BottomLeft() Point {
-	return Pt(r.Max.y, r.Max.x)
+func (r Rectangle) BottomLeft() Vec2D {
+	return NewVec2D(r.Max.y, r.Max.x)
 }
 
 // BottomRight returns the offset to the bottom right
 // corner of the bottom center of this rectangle.
-func (r Rectangle) BottomRight() Point {
-	return Pt(r.Right(), r.Bottom())
+func (r Rectangle) BottomRight() Vec2D {
+	return NewVec2D(r.Right(), r.Bottom())
 }
 
 // Center returns the center of the rectangle.
-func (r Rectangle) Center() Point {
-	return Pt(r.Min.x+r.Width()/2, r.Min.y+r.Height()/2)
+func (r Rectangle) Center() Vec2D {
+	return NewVec2D(r.Min.x+r.Width()/2, r.Min.y+r.Height()/2)
 }
 
 // CenterLeft returns the offset to the center of the left edge
 // of this rectangle.
-func (r Rectangle) CenterLeft() Point {
-	return Pt(r.Min.x, r.Min.y+r.Height()/2)
+func (r Rectangle) CenterLeft() Vec2D {
+	return NewVec2D(r.Min.x, r.Min.y+r.Height()/2)
 }
 
 // CenterRight returns the offset to the center of the right edge
 // of this rectangle.
-func (r Rectangle) CenterRight() Point {
-	return Pt(r.Max.x, r.Min.y+r.Height()/2)
+func (r Rectangle) CenterRight() Vec2D {
+	return NewVec2D(r.Max.x, r.Min.y+r.Height()/2)
 }
 
 // Left returns the offset of the left edge of this
@@ -100,19 +100,19 @@ func (r Rectangle) Top() int {
 
 // TopCenter returns the offset to the center of the
 // top center of this rectangle.
-func (r Rectangle) TopCenter() Point {
-	return Pt(r.Width()/2, r.Min.y)
+func (r Rectangle) TopCenter() Vec2D {
+	return NewVec2D(r.Width()/2, r.Min.y)
 }
 
 // TopLeft returns the offset to the bottom left
 // corner of the top center of this rectangle.
-func (r Rectangle) TopLeft() Point {
-	return Pt(r.Left(), r.Top())
+func (r Rectangle) TopLeft() Vec2D {
+	return NewVec2D(r.Left(), r.Top())
 }
 
 // TopRight returns the offset to the bottom right
 // corner of the bottom center of this rectangle.
-func (r Rectangle) TopRight() Point {
+func (r Rectangle) TopRight() Vec2D {
 	return r.Max
 }
 
@@ -141,7 +141,7 @@ func (r Rectangle) Area() int {
 }
 
 // MoveBy returns a new Rectangle moved by the given offset.
-func (r Rectangle) MoveBy(n Point) Rectangle {
+func (r Rectangle) MoveBy(n Vec2D) Rectangle {
 	return Rectangle{
 		Min: r.Min.Add(n),
 		Max: r.Max.Add(n),
@@ -150,14 +150,14 @@ func (r Rectangle) MoveBy(n Point) Rectangle {
 
 // MoveTo returns a new Rectangle with the same dimensions with
 // the given Point as origin.
-func (r Rectangle) MoveTo(n Point) Rectangle {
+func (r Rectangle) MoveTo(n Vec2D) Rectangle {
 	return Rect(n.X(), n.Y(), n.X()+r.Width(), n.Y()+r.Height())
 }
 
 // GrowLeft returns a new rectangle growing by n to the left.
 func (r Rectangle) GrowLeft(n int) Rectangle {
 	return Rectangle{
-		Min: r.Min.Add(Pt(-n, 0)),
+		Min: r.Min.Add(NewVec2D(-n, 0)),
 		Max: r.Max,
 	}
 }
@@ -165,7 +165,7 @@ func (r Rectangle) GrowLeft(n int) Rectangle {
 // GrowTop returns a new rectangle growing by n to the top.
 func (r Rectangle) GrowTop(n int) Rectangle {
 	return Rectangle{
-		Min: r.Min.Add(Pt(0, -n)),
+		Min: r.Min.Add(NewVec2D(0, -n)),
 		Max: r.Max,
 	}
 }
@@ -174,7 +174,7 @@ func (r Rectangle) GrowTop(n int) Rectangle {
 func (r Rectangle) GrowRight(n int) Rectangle {
 	return Rectangle{
 		Min: r.Min,
-		Max: r.Max.Add(Pt(n, 0)),
+		Max: r.Max.Add(NewVec2D(n, 0)),
 	}
 }
 
@@ -182,7 +182,7 @@ func (r Rectangle) GrowRight(n int) Rectangle {
 func (r Rectangle) GrowBottom(n int) Rectangle {
 	return Rectangle{
 		Min: r.Min,
-		Max: r.Max.Add(Pt(0, n)),
+		Max: r.Max.Add(NewVec2D(0, n)),
 	}
 }
 
@@ -196,10 +196,10 @@ func (r Rectangle) Equals(other Rectangle) bool {
 	return r.Min.Equals(other.Min) && r.Max.Equals(other.Max)
 }
 
-// Contains returns whether or not the given Point is contained in the Rectangle.
-func (r Rectangle) Contains(point Point) bool {
-	return point.x >= r.Min.x && point.x < r.Max.x &&
-		point.y >= r.Min.y && point.y < r.Max.y
+// Contains returns whether or not the given 2D vector is contained in the Rectangle.
+func (r Rectangle) Contains(v2 Vec2D) bool {
+	return v2.x >= r.Min.x && v2.x < r.Max.x &&
+		v2.y >= r.Min.y && v2.y < r.Max.y
 }
 
 // Intersect returns the largest rectangle contained by both this rectangle and the other. If the
