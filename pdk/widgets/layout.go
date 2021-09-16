@@ -1,12 +1,11 @@
 package widgets
 
 import (
-	"github.com/negrel/paon/pdk/draw"
 	"github.com/negrel/paon/pdk/tree"
 )
 
 // Layout is an extension of the Widget interface that adds the support for
-// children widgets. Howerver, it is strongly recommended to create custom
+// children widgets. However, it is strongly recommended to create custom
 // layouts using the BaseLayout implementation.
 type Layout interface {
 	Widget
@@ -75,13 +74,6 @@ func newBaseLayout(options ...LayoutOption) *BaseLayout {
 		widgetOptions: []WidgetOption{
 			Wrap(layout),
 			NodeConstructor(tree.NewNode),
-			Drawer(draw.DrawerFn(func(c draw.Context) {
-				child := layout.FirstChild()
-				for child != nil {
-					child.Draw(c)
-					child = child.NextSibling()
-				}
-			})),
 		},
 	}
 
@@ -109,7 +101,7 @@ func (bl *BaseLayout) AppendChild(newChild Widget) error {
 	err := bl.node.AppendChild(newChild.Node())
 	if err == nil && newChild.LifeCycleStage() == LCSBeforeMount {
 		newChild.DispatchEvent(NewLifeCycleEvent(newChild, LCSMounted))
-		Reflow(bl.BaseWidget)
+		NewNeedRenderEvent(bl.BaseWidget)
 	}
 
 	return err
@@ -120,7 +112,7 @@ func (bl *BaseLayout) InsertBefore(reference, newChild Widget) error {
 	err := bl.node.InsertBefore(nodeOrNil(reference), nodeOrNil(newChild))
 	if err == nil && newChild.LifeCycleStage() == LCSBeforeMount {
 		newChild.DispatchEvent(NewLifeCycleEvent(newChild, LCSMounted))
-		Reflow(bl.BaseWidget)
+		NewNeedRenderEvent(bl.BaseWidget)
 	}
 
 	return err
@@ -131,7 +123,7 @@ func (bl *BaseLayout) RemoveChild(child Widget) error {
 	err := bl.node.RemoveChild(nodeOrNil(child))
 	if err != nil && child.LifeCycleStage() == LCSBeforeUnmount {
 		child.DispatchEvent(NewLifeCycleEvent(child, LCSUnmounted))
-		Reflow(bl.BaseWidget)
+		NewNeedRenderEvent(bl.BaseWidget)
 	}
 
 	return err

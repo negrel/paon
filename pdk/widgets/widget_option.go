@@ -3,8 +3,7 @@ package widgets
 import (
 	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/pdk/events"
-	"github.com/negrel/paon/pdk/draw"
-	"github.com/negrel/paon/pdk/layout"
+	"github.com/negrel/paon/pdk/render"
 	"github.com/negrel/paon/pdk/tree"
 	"github.com/negrel/paon/styles"
 )
@@ -67,23 +66,11 @@ func Listeners(listeners ...*events.Listener) WidgetOption {
 	}
 }
 
-// LayoutManager returns a WidgetOption that sets the layout algorithm
-// used to compute the flow of the widget.
-func LayoutManager(man layout.Manager) WidgetOption {
-	assert.NotNil(man)
-
+// Renderable returns a WidgetOption that sets the internal renderable object
+// used to render the widget.
+func Renderable(renderable render.Renderable) WidgetOption {
 	return func(bwo *baseWidgetOption) {
-		bwo.cache = layout.NewCache(man)
-	}
-}
-
-// Drawer returns a WidgetOption that sets the drawer used to
-// draw the Widget on a Canvas.
-func Drawer(drawer draw.Drawer) WidgetOption {
-	assert.NotNil(drawer)
-
-	return func(bwo *baseWidgetOption) {
-		bwo.drawer = drawer
+		bwo.renderable = renderable
 	}
 }
 

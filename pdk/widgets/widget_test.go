@@ -1,186 +1,176 @@
 package widgets
 
-import (
-	"math/rand"
-	"testing"
+// type widgetTest struct {
+// 	name string
+// 	test func(t *testing.T)
+// }
 
-	"github.com/golang/mock/gomock"
-	"github.com/negrel/paon/internal/geometry"
-	"github.com/negrel/paon/pdk/layout"
-	"github.com/negrel/paon/pdk/tree"
-	"github.com/stretchr/testify/assert"
-)
+// func TestWidget(t *testing.T) {
+// 	for _, methodTest := range generateWidgetsTests() {
+// 		t.Run(methodTest.name, methodTest.test)
+// 	}
+// }
 
-type widgetTest struct {
-	name string
-	test func(t *testing.T)
-}
+// func generateWidgetsTests() []widgetTest {
+// 	tests := []widgetTest{
+// 		{
+// 			name: "ID",
+// 			test: TestWidgetID,
+// 		},
+// 		{
+// 			name: "LifeCycleStage",
+// 			test: TestWidgetLifeCycleStage,
+// 		},
+// 		{
+// 			name: "Node",
+// 			test: TestWidgetNode,
+// 		},
+// 		{
+// 			name: "Box",
+// 			test: TestWidgetBox,
+// 		},
+// 		{
+// 			name: "Theme",
+// 			test: TestWidgetTheme,
+// 		},
+// 		{
+// 			name: "Parent",
+// 			test: TestWidgetParent,
+// 		},
+// 		// {
+// 		// 	name: "Draw",
+// 		// 	test: TestWidgetDraw,
+// 		// },
+// 		{
+// 			name: "Siblings",
+// 			test: TestWidgetSiblings,
+// 		},
+// 	}
 
-func TestWidget(t *testing.T) {
-	for _, methodTest := range generateWidgetsTests() {
-		t.Run(methodTest.name, methodTest.test)
-	}
-}
+// 	return tests
+// }
 
-func generateWidgetsTests() []widgetTest {
-	tests := []widgetTest{
-		{
-			name: "ID",
-			test: TestWidgetID,
-		},
-		{
-			name: "LifeCycleStage",
-			test: TestWidgetLifeCycleStage,
-		},
-		{
-			name: "Node",
-			test: TestWidgetNode,
-		},
-		{
-			name: "Box",
-			test: TestWidgetBox,
-		},
-		{
-			name: "Theme",
-			test: TestWidgetTheme,
-		},
-		{
-			name: "Parent",
-			test: TestWidgetParent,
-		},
-		{
-			name: "Draw",
-			test: TestWidgetDraw,
-		},
-		{
-			name: "Siblings",
-			test: TestWidgetSiblings,
-		},
-	}
+// func TestWidgetID(t *testing.T) {
+// 	widget := newWidget()
+// 	other := newWidget()
 
-	return tests
-}
+// 	assert.NotEqual(t, widget, other)
+// 	assert.NotEqual(t, widget.ID(), other.ID())
 
-func TestWidgetID(t *testing.T) {
-	widget := newWidget()
-	other := newWidget()
+// 	assert.Equal(t, widget.ID(), widget.Node().ID())
+// }
 
-	assert.NotEqual(t, widget, other)
-	assert.NotEqual(t, widget.ID(), other.ID())
+// func TestWidgetLifeCycleStage(t *testing.T) {
+// 	for i := 0; i < int(_maxLifeCycle); i++ {
+// 		lcs := LifeCycleStage(i)
 
-	assert.Equal(t, widget.ID(), widget.Node().ID())
-}
+// 		widget := newWidget(initialLCS(lcs))
+// 		assert.Equal(t, lcs, widget.LifeCycleStage())
+// 	}
+// }
 
-func TestWidgetLifeCycleStage(t *testing.T) {
-	for i := 0; i < int(_maxLifeCycle); i++ {
-		lcs := LifeCycleStage(i)
+// func TestWidgetNode(t *testing.T) {
+// 	type wrapper struct {
+// 		*BaseWidget
+// 	}
 
-		widget := newWidget(initialLCS(lcs))
-		assert.Equal(t, lcs, widget.LifeCycleStage())
-	}
-}
+// 	var node tree.Node
+// 	wWrapper := wrapper{}
 
-func TestWidgetNode(t *testing.T) {
-	type wrapper struct {
-		*BaseWidget
-	}
+// 	constructor := func(data interface{}) tree.Node {
+// 		wWrapper.BaseWidget = data.(*BaseWidget)
 
-	var node tree.Node
-	wWrapper := wrapper{}
+// 		node = tree.NewNode(wWrapper)
+// 		return node
+// 	}
+// 	widget := newWidget(NodeConstructor(constructor))
 
-	constructor := func(data interface{}) tree.Node {
-		wWrapper.BaseWidget = data.(*BaseWidget)
+// 	assert.Equal(t, node.Unwrap(), wWrapper)
+// 	assert.True(t, widget.Node().IsSame(node))
+// }
 
-		node = tree.NewNode(wWrapper)
-		return node
-	}
-	widget := newWidget(NodeConstructor(constructor))
+// func TestWidgetBox(t *testing.T) {
+// 	expectedBox := layout.NewBox(
+// 		geometry.Rect(
+// 			rand.Int(), rand.Int(), rand.Int(), rand.Int(),
+// 		),
+// 	)
 
-	assert.Equal(t, node.Unwrap(), wWrapper)
-	assert.True(t, widget.Node().IsSame(node))
-}
+// 	widget := newWidget(
+// 		LayoutManager(layout.ManagerFn(func(c layout.Constraint) layout.BoxModel {
+// 			return expectedBox
+// 		})),
+// 	)
 
-func TestWidgetBox(t *testing.T) {
-	expectedBox := layout.NewBox(
-		geometry.Rect(
-			rand.Int(), rand.Int(), rand.Int(), rand.Int(),
-		),
-	)
+// 	constraint := layout.Constraint{
+// 		MinSize: geometry.Rectangle{},
+// 		MaxSize: expectedBox.ContentBox().
+// 			GrowLeft(5).GrowRight(5).
+// 			GrowTop(5).GrowBottom(5),
+// 		ParentSize: geometry.Size{},
+// 		RootSize:   geometry.Size{},
+// 	}
 
-	widget := newWidget(
-		LayoutManager(layout.ManagerFn(func(c layout.Constraint) layout.BoxModel {
-			return expectedBox
-		})),
-	)
+// 	box := widget.Layout(constraint)
 
-	constraint := layout.NewConstraint(
-		geometry.Rectangle{},
-		expectedBox.ContentBox().
-			GrowLeft(5).GrowRight(5).
-			GrowTop(5).GrowBottom(5),
-		geometry.Size{}, geometry.Size{},
-	)
+// 	assert.Equal(t, expectedBox, box)
+// }
 
-	box := widget.Layout(constraint)
+// func TestWidgetTheme(t *testing.T) {
+// 	t.Run("Default", TestWidgetThemeDefault)
+// }
 
-	assert.Equal(t, expectedBox, box)
-}
+// func TestWidgetThemeDefault(t *testing.T) {
+// 	widget := newWidget()
 
-func TestWidgetTheme(t *testing.T) {
-	t.Run("Default", TestWidgetThemeDefault)
-}
+// 	assert.NotNil(t, widget.Theme())
+// }
 
-func TestWidgetThemeDefault(t *testing.T) {
-	widget := newWidget()
+// func TestWidgetParent(t *testing.T) {
+// 	parent := newMountedLayout()
+// 	widget := newWidget()
 
-	assert.NotNil(t, widget.Theme())
-}
+// 	err := parent.AppendChild(widget)
+// 	assert.Nil(t, err)
 
-func TestWidgetParent(t *testing.T) {
-	parent := newMountedLayout()
-	widget := newWidget()
+// 	assert.Equal(t, parent, widget.Parent())
+// }
 
-	err := parent.AppendChild(widget)
-	assert.Nil(t, err)
+// // func TestWidgetDraw(t *testing.T) {
+// // 	ctrl := gomock.NewController(t)
+// // 	defer ctrl.Finish()
 
-	assert.Equal(t, parent, widget.Parent())
-}
+// // 	drawer := NewMockDrawer(ctrl)
+// // 	context := NewMockContext(ctrl)
 
-func TestWidgetDraw(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+// // 	widget := newWidget(Drawer(drawer))
+// // 	drawer.EXPECT().Draw(context).MinTimes(1)
 
-	drawer := NewMockDrawer(ctrl)
-	context := NewMockContext(ctrl)
+// // 	widget.Draw(context)
+// // }
 
-	widget := newWidget(Drawer(drawer))
-	drawer.EXPECT().Draw(context).MinTimes(1)
+// func TestWidgetSiblings(t *testing.T) {
+// 	parent := newLayout()
+// 	child := newWidget()
+// 	prev := newWidget()
+// 	next := newWidget()
 
-	widget.Draw(context)
-}
+// 	var err error
+// 	err = parent.AppendChild(prev)
+// 	assert.Nil(t, err)
+// 	err = parent.AppendChild(child)
+// 	assert.Nil(t, err)
+// 	err = parent.AppendChild(next)
+// 	assert.Nil(t, err)
 
-func TestWidgetSiblings(t *testing.T) {
-	parent := newLayout()
-	child := newWidget()
-	prev := newWidget()
-	next := newWidget()
+// 	assert.Equal(t, parent, prev.Parent())
+// 	assert.Equal(t, parent, child.Parent())
+// 	assert.Equal(t, parent, next.Parent())
 
-	var err error
-	err = parent.AppendChild(prev)
-	assert.Nil(t, err)
-	err = parent.AppendChild(child)
-	assert.Nil(t, err)
-	err = parent.AppendChild(next)
-	assert.Nil(t, err)
-
-	assert.Equal(t, parent, prev.Parent())
-	assert.Equal(t, parent, child.Parent())
-	assert.Equal(t, parent, next.Parent())
-
-	assert.Nil(t, prev.PreviousSibling())
-	assert.Equal(t, prev, child.PreviousSibling())
-	assert.Equal(t, child, prev.NextSibling())
-	assert.Equal(t, next, child.NextSibling())
-	assert.Equal(t, child, next.PreviousSibling())
-	assert.Nil(t, next.NextSibling())
-}
+// 	assert.Nil(t, prev.PreviousSibling())
+// 	assert.Equal(t, prev, child.PreviousSibling())
+// 	assert.Equal(t, child, prev.NextSibling())
+// 	assert.Equal(t, next, child.NextSibling())
+// 	assert.Equal(t, child, next.PreviousSibling())
+// 	assert.Nil(t, next.NextSibling())
+// }

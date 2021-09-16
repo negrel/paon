@@ -3,30 +3,28 @@ package widgets
 import (
 	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/pdk/events"
-	"github.com/negrel/paon/pdk/draw"
 	"github.com/negrel/paon/pdk/id"
-	"github.com/negrel/paon/pdk/layout"
+	"github.com/negrel/paon/pdk/render"
 	"github.com/negrel/paon/pdk/tree"
 	"github.com/negrel/paon/styles"
-	"github.com/negrel/paon/styles/property"
 )
 
 // Widget is a generic interface that define any component part of the widget/element tree.
-// Any types that implement the Widget interface can be added to the widget tree. However, it is strongly
-// recommended to create custom widgets using the BaseWidget implementation.
+// A widget is basically a renderable object in a tree. It support events and styling/theming.
+//
+// Any types that implements the Widget interface can be added to the widget tree. The recommended
+// way to create custom widgets is using the BaseWidget implementation.
 type Widget interface {
 	id.Identifiable
 	events.Target
-	draw.Drawer
-	layout.Manager
-	layout.Boxed
 	styles.Styled
 	styles.Themed
+	render.Renderable
 
 	// LifeCycleStage returns the current LifeCycleStage of this Widget.
 	LifeCycleStage() LifeCycleStage
 
-	// Node returns the underlying tree.Node used by this Widget.
+	// Node returns a tree.Node containing this Widget.
 	Node() tree.Node
 
 	// Parent returns the parent Layout of this Node.
@@ -58,20 +56,6 @@ func nodeOrNil(w Widget) tree.Node {
 	return w.Node()
 }
 
-// Reflow dispatch a ReflowEvent event to the parent widget.
-func Reflow(bw *BaseWidget) {
-	if !bw.cache.IsValid() || bw.Parent() == nil {
-		return
-	}
-
-	bw.reflow()
-}
-
-// Redraw enqueue the widget to the redraw queue if
-func Redraw(bw *BaseWidget) {
-	bw.root.DispatchEvent(NewRedrawEvent(bw.ID(), bw.Widget()))
-}
-
 var _ Widget = &BaseWidget{}
 
 // Type alias to avoid collision with Widget.Node method.
@@ -81,7 +65,7 @@ type node = tree.Node
 // BaseWidget can either be used alone (see NewBaseWidget for the required options)
 // or in composite struct.
 // BaseWidget takes care of the following things for you:
-// - Constant access time to the root.
+// - O(1) access time to the root.
 // - Caching the layout.BoxModel
 // - Updating the lifecycle stage
 // - Limit the draw area of the context to the widget border box.
@@ -89,11 +73,10 @@ type BaseWidget struct {
 	node node
 	events.Target
 
-	root   *Root
-	stage  LifeCycleStage
-	theme  styles.Theme
-	cache  *layout.Cache
-	drawer draw.Drawer
+	root       *Root
+	stage      LifeCycleStage
+	theme      styles.Theme
+	renderable render.Renderable
 }
 
 // NewBaseWidget returns a new BaseWidget object configured with
@@ -106,17 +89,25 @@ func NewBaseWidget(options ...WidgetOption) *BaseWidget {
 		widget.stage = event.Stage
 
 		// Update root field on mount/unmount
-		if event.Stage == LCSMounted {
+		switch event.Stage {
+		case LCSMounted:
 			root := widget.Parent().Root()
 			assert.NotNil(root)
 			widget.root = root
-		} else if event.Stage == LCSUnmounted {
+
+			widget.needRender()
+
+		case LCSBeforeUnmount:
+			// Clean node before unmounting (drop layer in layer tree)
+
+		case LCSUnmounted:
 			widget.root = nil
+			widget.cache.Invalidate()
 		}
 	}))
 
-	widget.AddEventListener(ReflowListener(func(re ReflowEvent) {
-		widget.reflow()
+	widget.AddEventListener(NeedRenderListener(func(nre NeedRenderEvent) {
+		widget.needRender()
 	}))
 
 	return widget
@@ -126,6 +117,7 @@ func newBaseWidget(options ...WidgetOption) *BaseWidget {
 	widget := &BaseWidget{
 		stage: LCSInitial,
 	}
+
 	widgetConf := &baseWidgetOption{
 		BaseWidget:      widget,
 		nodeConstructor: tree.NewLeafNode,
@@ -151,9 +143,6 @@ func newBaseWidget(options ...WidgetOption) *BaseWidget {
 		widget.theme = styles.NewTheme(styles.NewWeighted(widgetConf.defaultStyle, -1))
 	}
 
-	assert.NotNil(widget.cache)
-	assert.NotNil(widget.drawer)
-
 	return widget
 }
 
@@ -167,29 +156,10 @@ func (bw *BaseWidget) IsSame(other id.Identifiable) bool {
 	return bw.node.IsSame(other)
 }
 
-// HaveFixedSize returns true if this widget have a fixed size.
-func (bw *BaseWidget) HaveFixedSize() bool {
-	return bw.theme.Get(property.WidthID()) != nil && bw.theme.Get(property.HeightID()) != nil
-}
-
 // Widget is an helper method that returns the Widget wrapped by the internal tree.Node.
 // This method act kinda like the `this` keyword in Java.
 func (bw *BaseWidget) Widget() Widget {
 	return widgetOrNil(bw.node)
-}
-
-// Draw implements the draw.Drawer interface.
-func (bw *BaseWidget) Draw(ctx draw.Context) {
-	boxCtx := draw.SubContext(ctx, bw.Box().BorderBox())
-	_ = boxCtx
-
-	contentCtx := ctx.Canvas().NewContext(bw.Box().ContentBox())
-	bw.drawer.Draw(contentCtx)
-}
-
-// Layout implements the layout.Algo interface.
-func (bw *BaseWidget) Layout(c layout.Constraint) layout.BoxModel {
-	return bw.cache.Layout(c)
 }
 
 // Node implements the Widget interface.
@@ -203,11 +173,6 @@ func (bw *BaseWidget) Node() tree.Node {
 // LifeCycleStage implements the Widget interface
 func (bw *BaseWidget) LifeCycleStage() LifeCycleStage {
 	return bw.stage
-}
-
-// Box implements the Widget interface.
-func (bw *BaseWidget) Box() layout.BoxModel {
-	return bw.cache.Box()
 }
 
 // Theme implements the styles.Themed interface.
@@ -244,15 +209,17 @@ func (bw *BaseWidget) PreviousSibling() Widget {
 	return widgetOrNil(bw.node.Previous())
 }
 
-func (bw *BaseWidget) reflow() {
-	if bw.HaveFixedSize() {
-		bw.root.DispatchEvent(NewReflowEvent(bw.ID(), bw.Widget()))
-	} else {
-		bw.Parent().DispatchEvent(NewReflowEvent(bw.ID(), bw.Widget()))
+func (bw *BaseWidget) needRender() {
+	if bw.Parent() == nil {
+		return
 	}
 
-	Redraw(bw)
-	bw.cache.Invalidate()
+	bw.Parent().DispatchEvent(NewNeedRenderEvent(bw))
+}
+
+// Render implements the render.Renderable interface.
+func (bw *BaseWidget) Render(ctx render.Context) {
+	bw.renderable.Render(ctx)
 }
 
 type nodeWrapper struct {

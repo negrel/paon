@@ -1,65 +1,60 @@
 package layout
 
-import (
-	"github.com/negrel/debuggo/pkg/assert"
-)
-
-var _ Boxed = &Cache{}
-var _ Manager = &Cache{}
+var _ BoxedObject = &Cache{}
+var _ Object = &Cache{}
 
 // Cache is a wrapper for Flowable object.
 type Cache struct {
-	Manager
-	valid      bool
-	cache      *Box
+	Object
+	isExpired  bool
+	cache      BoxModel
 	constraint Constraint
 }
 
 // NewCache returns a new Cache wrapper for the given Flowable.
-func NewCache(man Manager) *Cache {
+func NewCache(obj Object) *Cache {
 	return &Cache{
-		Manager: man,
-		cache:   nil,
+		Object: obj,
 	}
 }
 
-// Layout implements the Algo interface.
-func (c *Cache) Layout(constraint Constraint) *Box {
-	assert.NotNil(c.Manager)
+// Layout implements the Object interface.
+func (c *Cache) Layout(constraint Constraint) BoxModel {
+	c.constraint = constraint
 
 	// the cache is still valid if the new constraint has the same size
 	// than the cached constraint and the distance between the Min and Max
 	// rectangle remains the same.
-	if c.valid && c.constraint.Equals(constraint) {
+	if c.IsValid(constraint) {
 		return c.cache
+	} else {
+		box := c.Object.Layout(constraint)
+		c.cache = box
+		c.isExpired = true
+
+		return box
 	}
-
-	// Update cache
-	c.constraint = constraint
-	c.cache = c.Manager.Layout(constraint)
-	c.valid = true
-
-	return c.cache
 }
 
 // IsValid returns true if the cache data is valid.
-func (c *Cache) IsValid() bool {
-	return c.valid
+func (c *Cache) IsValid(co Constraint) bool {
+	mbSize := c.Box().MarginBox().Size()
+	return c.isExpired && co.ApplyOnSize(mbSize).Equals(mbSize)
 }
 
-// Invalidate marks the cache as invalid.
-func (c *Cache) Invalidate() {
-	c.valid = false
+// IsExpired returns true if the cache is marked as expired.
+func (c *Cache) IsExpired() bool {
+	return c.isExpired
+}
+
+// Expire marks the cache as expired.
+func (c *Cache) Expire() {
+	c.isExpired = true
 }
 
 // Constraint returns the cached constraint of the last layout.
 func (c *Cache) Constraint() Constraint {
 	return c.constraint
-}
-
-// Get returns the cached box.
-func (c *Cache) Get() *Box {
-	return c.cache
 }
 
 // Box returns the cached BoxModel of the last flow.

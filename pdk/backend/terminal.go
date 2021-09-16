@@ -1,13 +1,14 @@
 package backend
 
 import (
-	"github.com/negrel/paon/pdk/draw"
 	"github.com/negrel/paon/pdk/events"
+	"github.com/negrel/paon/pdk/render"
 )
 
 // Terminal define a generic terminal in raw mode used for rendering and event loops.
 type Terminal interface {
-	draw.Canvas
+	// Compositor returns a rendering compositor that will be used for rendering.
+	Compositor() render.Compositor
 
 	// Clear clears the entire console surface and replace cell by empty black one.
 	Clear()

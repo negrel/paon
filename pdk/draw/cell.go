@@ -16,3 +16,20 @@ type Cell struct {
 	Style   CellStyle
 	Content rune
 }
+
+func (c Cell) Merge(other Cell) Cell {
+	if c.Content == '\000' {
+		return other
+	} else if other.Content == '\000' {
+		return c
+	}
+
+	return Cell{}
+}
+
+// ZeroCell returns the zero value of a Cell.
+func ZeroCell() Cell {
+	return Cell{
+		Content: '\000',
+	}
+}

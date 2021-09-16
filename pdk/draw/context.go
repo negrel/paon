@@ -30,7 +30,7 @@ func (c Context) Canvas() Canvas {
 func (c Context) FillRectangle(rectangle geometry.Rectangle, cs CellStyle) {
 	for i := rectangle.Min.X(); i < rectangle.Max.X(); i++ {
 		for j := rectangle.Min.Y(); j < rectangle.Max.Y(); j++ {
-			pos := geometry.Pt(i, j)
+			pos := geometry.NewVec2D(i, j)
 
 			c.canvas.Set(pos, Cell{
 				Content: '\000',
@@ -42,14 +42,14 @@ func (c Context) FillRectangle(rectangle geometry.Rectangle, cs CellStyle) {
 
 // FillTextH draws the given text horizontally from the given origin on this Canvas.
 // If the text overflow the Canvas of the context, the overflowing chars are dropped.
-func (c Context) FillTextH(origin geometry.Point, cs CellStyle, text string) {
+func (c Context) FillTextH(origin geometry.Vec2D, cs CellStyle, text string) {
 	c.FillRunesH(origin, cs, []rune(text)...)
 }
 
 // FillRunesH is equivalent to FillTextH but receive a list of rune instead of a string.
-func (c Context) FillRunesH(origin geometry.Point, cs CellStyle, runes ...rune) {
+func (c Context) FillRunesH(origin geometry.Vec2D, cs CellStyle, runes ...rune) {
 	for i, char := range runes {
-		pos := geometry.Pt(origin.X()+i, origin.Y())
+		pos := geometry.NewVec2D(origin.X()+i, origin.Y())
 
 		c.canvas.Set(pos, Cell{
 			Content: char,
@@ -60,14 +60,14 @@ func (c Context) FillRunesH(origin geometry.Point, cs CellStyle, runes ...rune) 
 
 // FillTextV draws the given text vertically from the given origin on this Canvas.
 // If the text overflow this canvas, the overflowing chars are dropped.
-func (c Context) FillTextV(origin geometry.Point, cs CellStyle, text string) {
+func (c Context) FillTextV(origin geometry.Vec2D, cs CellStyle, text string) {
 	c.FillRunesV(origin, cs, []rune(text)...)
 }
 
 // FillRunesV is equivalent to FillTextV but receive a list of rune instead of a string.
-func (c *Context) FillRunesV(origin geometry.Point, cs CellStyle, runes ...rune) {
+func (c *Context) FillRunesV(origin geometry.Vec2D, cs CellStyle, runes ...rune) {
 	for i, char := range runes {
-		pos := geometry.Pt(origin.X(), origin.Y()+i)
+		pos := geometry.NewVec2D(origin.X(), origin.Y()+i)
 
 		c.canvas.Set(pos, Cell{
 			Content: char,
@@ -76,7 +76,7 @@ func (c *Context) FillRunesV(origin geometry.Point, cs CellStyle, runes ...rune)
 	}
 }
 
-// FillLine draws a line between the two given geometry.Point.
-func (c *Context) FillLine(from, to geometry.Point) {
+// FillLine draws a line between the two given geometry.Vec2D.
+func (c *Context) FillLine(from, to geometry.Vec2D) {
 	panic("implement me")
 }

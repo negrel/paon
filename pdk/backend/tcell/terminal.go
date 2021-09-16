@@ -10,6 +10,7 @@ import (
 	"github.com/negrel/paon/pdk/backend"
 	"github.com/negrel/paon/pdk/draw"
 	pdkevents "github.com/negrel/paon/pdk/events"
+	"github.com/negrel/paon/pdk/render"
 )
 
 var _ backend.Terminal = &Terminal{}
@@ -21,11 +22,9 @@ type Terminal struct {
 
 	// the wrapped tcell.Screen.
 	// It is initialized in NewTerminal and never reassigned.
-	screen tcell.Screen
-
-	done chan struct{}
-
-	ctx *draw.Context
+	screen     tcell.Screen
+	done       chan struct{}
+	compositor render.Compositor
 }
 
 // NewTerminal returns a new Terminal object configured with the
@@ -48,6 +47,8 @@ func NewTerminal(options ...Option) (*Terminal, error) {
 		}
 	}
 
+	terminal.compositor = render.NewCompositor(terminal)
+
 	return terminal, nil
 }
 
@@ -58,12 +59,12 @@ func (c *Terminal) Bounds() geometry.Rectangle {
 }
 
 // Get implements the draw.Canvas interface.
-func (c *Terminal) Get(pos geometry.Point) draw.Cell {
+func (c *Terminal) Get(pos geometry.Vec2D) draw.Cell {
 	return fromTcell(c.screen.GetContent(pos.X(), pos.Y()))
 }
 
 // Set implements the draw.Canvas interface.
-func (c *Terminal) Set(pos geometry.Point, cell draw.Cell) {
+func (c *Terminal) Set(pos geometry.Vec2D, cell draw.Cell) {
 	mainc, combc, style := toTcell(cell)
 	c.screen.SetContent(pos.X(), pos.Y(), mainc, combc, style)
 }
@@ -80,6 +81,11 @@ func (c *Terminal) Flush() {
 	}
 }
 
+// Compositor implements the backend.Terminal interface.
+func (c *Terminal) Compositor() render.Compositor {
+	return c.compositor
+}
+
 // Start implements the backend.Terminal interface.
 func (c *Terminal) Start(evch chan<- pdkevents.Event) error {
 	assert.NotNil(evch)
@@ -92,7 +98,7 @@ func (c *Terminal) Start(evch chan<- pdkevents.Event) error {
 	}
 
 	c.done = make(chan struct{})
-	go c.eventLoop(c.done, evch, c.screen.PollEvent)
+	go c.eventLoop(evch)
 
 	return nil
 }
@@ -133,12 +139,12 @@ func (c *Terminal) adaptEvent(event tcell.Event) pdkevents.Event {
 	}
 }
 
-func (c *Terminal) eventLoop(done <-chan struct{}, eventChannel chan<- pdkevents.Event, pollEvent func() tcell.Event) {
+func (c *Terminal) eventLoop(eventChannel chan<- pdkevents.Event) {
 	ch := make(chan pdkevents.Event)
 
 	go func(ch chan<- pdkevents.Event) {
 		for {
-			event := pollEvent()
+			event := c.screen.PollEvent()
 			if event == nil {
 				return
 			}
@@ -152,7 +158,7 @@ loop:
 		case ev := <-ch:
 			eventChannel <- ev
 
-		case <-done:
+		case <-c.done:
 			close(ch)
 			break loop
 		}
