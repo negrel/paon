@@ -3,6 +3,7 @@ package events
 import (
 	"fmt"
 
+	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/pdk/events"
 	pdkevents "github.com/negrel/paon/pdk/events"
@@ -13,6 +14,18 @@ var resizeType = pdkevents.NewType("resize")
 // ResizeType returns the type for Resize events.
 func ResizeType() pdkevents.Type {
 	return resizeType
+}
+
+// ResizeListener returns an events.Listener that will call the given handler
+// on resize events.
+func ResizeListener(handler func(Resize)) *events.Listener {
+	return &events.Listener{
+		Type: resizeType,
+		Handle: func(event events.Event) {
+			assert.IsType(event, Resize{})
+			handler(event.(Resize))
+		},
+	}
 }
 
 // Resize define an event that is triggered when the terminal is resized.
