@@ -10,9 +10,9 @@ import (
 var _ events.Target = target{}
 
 type target struct {
-	node tree.Node
 	events.Target
 
+	node            tree.Node
 	bubbleListeners map[events.Type][]events.Listener
 }
 
@@ -33,7 +33,7 @@ func (t target) AddEventListener(tpe events.Type, listener events.Listener) {
 			t.bubbleListeners[tpe] = append(t.bubbleListeners[tpe], l)
 		}
 	} else {
-		t.AddEventListener(tpe, listener)
+		t.Target.AddEventListener(tpe, listener)
 	}
 }
 

@@ -28,7 +28,8 @@ const (
 )
 
 // Event define a wrapper around events.Event interface for
-// tree events.
+// tree events. Tree events are propagated to the target node
+// if it is present in the tree.
 type Event struct {
 	events.Event
 	Phase  Phase
