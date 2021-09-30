@@ -9,8 +9,8 @@ import (
 
 // Target define an object that can receive events and may have listeners for them.
 type Target interface {
-	AddEventListener(*Listener)
-	RemoveEventListener(*Listener)
+	AddEventListener(Type, Listener)
+	RemoveEventListener(Type, Listener)
 	DispatchEvent(event Event)
 }
 
@@ -19,42 +19,42 @@ var _ Target = &target{}
 // target is an implementation of the Target interface.
 type target struct {
 	sync.RWMutex
-	listeners map[Type][]*Listener
+	listeners map[Type][]Listener
 }
 
 // NewTarget return a new event Target with no listeners.
 func NewTarget() Target {
 	return &target{
-		listeners: make(map[Type][]*Listener),
+		listeners: make(map[Type][]Listener),
 	}
 }
 
-func (t *target) AddEventListener(listener *Listener) {
+func (t *target) AddEventListener(tpe Type, listener Listener) {
 	assert.NotNil(listener, "listener must be not nil")
 	t.Lock()
 	defer t.Unlock()
 
-	if t.listeners[listener.Type] == nil {
-		t.listeners[listener.Type] = make([]*Listener, 0, 8)
+	if t.listeners[tpe] == nil {
+		t.listeners[tpe] = make([]Listener, 0, 8)
 	}
 
-	t.listeners[listener.Type] = append(t.listeners[listener.Type], listener)
+	t.listeners[tpe] = append(t.listeners[tpe], listener)
 }
 
 // RemoveEventListener removes an event listener of a specific event type from the target.
-func (t *target) RemoveEventListener(listener *Listener) {
+func (t *target) RemoveEventListener(tpe Type, listener Listener) {
 	assert.NotNil(listener, "listener must be not nil")
 	t.Lock()
 	defer t.Unlock()
 
-	if t.listeners[listener.Type] == nil {
-		log.Infof("can't remove event listener %v, no such event listener registered for %v event type", listener, listener.Type)
+	if t.listeners[tpe] == nil {
+		log.Infof("can't remove event listener %v, no such event listener registered for %v event type", listener, tpe)
 		return
 	}
 
-	for i, l := range t.listeners[listener.Type] {
+	for i, l := range t.listeners[tpe] {
 		if l == listener {
-			t.listeners[listener.Type] = append(t.listeners[listener.Type][:i], t.listeners[listener.Type][i+1:]...)
+			t.listeners[tpe] = append(t.listeners[tpe][:i], t.listeners[tpe][i+1:]...)
 			return
 		}
 	}
@@ -68,6 +68,6 @@ func (t *target) DispatchEvent(event Event) {
 	defer t.RUnlock()
 
 	for _, listener := range t.listeners[event.Type()] {
-		listener.Handle(event)
+		listener.HandleEvent(event)
 	}
 }

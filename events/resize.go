@@ -18,14 +18,11 @@ func ResizeType() pdkevents.Type {
 
 // ResizeListener returns an events.Listener that will call the given handler
 // on resize events.
-func ResizeListener(handler func(Resize)) *events.Listener {
-	return &events.Listener{
-		Type: resizeType,
-		Handle: func(event events.Event) {
-			assert.IsType(event, Resize{})
-			handler(event.(Resize))
-		},
-	}
+func ResizeListener(handler func(Resize)) (events.Type, events.Listener) {
+	return ResizeType(), events.ListenerFunc(func(event events.Event) {
+		assert.IsType(event, Resize{})
+		handler(event.(Resize))
+	})
 }
 
 // Resize define an event that is triggered when the terminal is resized.
