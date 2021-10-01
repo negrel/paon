@@ -28,7 +28,7 @@ type Node interface {
 	SetParent(Node)
 
 	// RootNode defines the root of the Node tree.
-	Root() Node
+	Root() *Root
 
 	// Returns the first child Node of this.
 	FirstChild() Node

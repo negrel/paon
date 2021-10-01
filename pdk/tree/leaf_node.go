@@ -85,7 +85,7 @@ func (ln *leafNode) SetParent(parent Node) {
 	ln.parent = parent
 }
 
-func (ln *leafNode) Root() Node {
+func (ln *leafNode) Root() *Root {
 	if ln.parent != nil {
 		return ln.parent.Root()
 	}
