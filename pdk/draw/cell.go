@@ -16,3 +16,10 @@ type Cell struct {
 	Style   CellStyle
 	Content rune
 }
+
+// ZeroCell returns the zero value of a Cell.
+func ZeroCell() Cell {
+	return Cell{
+		Content: '\000',
+	}
+}
