@@ -1,6 +1,6 @@
 package layout
 
-import "github.com/negrel/paon/internal/geometry"
+import "github.com/negrel/paon/geometry"
 
 type boxOffset [4]int
 
@@ -34,10 +34,10 @@ func (bo boxOffset) y() int {
 
 func (bo boxOffset) applyOn(rectangle geometry.Rectangle) geometry.Rectangle {
 	min := rectangle.Min.Add(
-		geometry.Pt(bo.left(), bo.top()),
+		geometry.NewVec2D(bo.left(), bo.top()),
 	)
 	max := rectangle.Max.Sub(
-		geometry.Pt(bo.right(), bo.bottom()),
+		geometry.NewVec2D(bo.right(), bo.bottom()),
 	)
 
 	if min.X() > max.X() || min.Y() > max.Y() {

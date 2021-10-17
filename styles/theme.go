@@ -15,7 +15,7 @@ type Themed interface {
 }
 
 // Theme define a set of Style. These styles are read-only and can't be modified
-// throught the Theme object. Theme also implements the Style interface because
+// through the Theme object. Theme also implements the Style interface because
 // it embed a read-write Style object.
 type Theme interface {
 	Style

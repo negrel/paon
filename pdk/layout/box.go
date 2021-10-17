@@ -1,13 +1,13 @@
 package layout
 
 import (
-	"github.com/negrel/paon/internal/geometry"
+	"github.com/negrel/paon/geometry"
 	"github.com/negrel/paon/styles"
 )
 
-// Boxed define any objects that can returns a BoxModel.
-type Boxed interface {
-	Box() BoxModel
+// BoxedObject define an object with a BoxModel.
+type BoxedObject interface {
+	BoxModel() BoxModel
 }
 
 // BoxModel define a box with margin, border and padding in a 2D geometric plane.
@@ -18,12 +18,45 @@ type BoxModel interface {
 	ContentBox() geometry.Rectangle
 }
 
+var _ BoxModel = PositionedBoxModel{}
+var _ geometry.Positioned = PositionedBoxModel{}
+
+// PositionedBoxModel is a BoxModel wrapper that implement the
+// geometry.Positioned interface.
+type PositionedBoxModel struct {
+	Origin geometry.Vec2D
+	BoxModel
+}
+
+// Position implements the geometry.Positioned interface.
+func (pbm PositionedBoxModel) Position() geometry.Vec2D {
+	return pbm.Origin
+}
+
+// MarginBox implements the BoxModel interface.
+func (pbm PositionedBoxModel) MarginBox() geometry.Rectangle {
+	return pbm.BoxModel.MarginBox().MoveBy(pbm.Origin)
+}
+
+// BorderBox implements the BoxModel interface.
+func (pbm PositionedBoxModel) BorderBox() geometry.Rectangle {
+	return pbm.BoxModel.BorderBox().MoveBy(pbm.Origin)
+}
+
+// PaddingBox implements the BoxModel interface.
+func (pbm PositionedBoxModel) PaddingBox() geometry.Rectangle {
+	return pbm.BoxModel.PaddingBox().MoveBy(pbm.Origin)
+}
+
+// ContentBox implements the BoxModel interface.
+func (pbm PositionedBoxModel) ContentBox() geometry.Rectangle {
+	return pbm.BoxModel.ContentBox().MoveBy(pbm.Origin)
+}
+
 var _ BoxModel = &Box{}
 
 // Box define a basic BoxModel implementation.
 type Box struct {
-	origin geometry.Point
-
 	boxSize geometry.Size
 	borderBoxOffset,
 	paddingBoxOffset,
@@ -31,71 +64,66 @@ type Box struct {
 }
 
 // NewBox return a new Box with the given content box.
-func NewBox(size geometry.Size) *Box {
-	return &Box{
+func NewBox(size geometry.Size) Box {
+	return Box{
 		boxSize: size,
 	}
 }
 
 // MarginBox implements the BoxModel interface.
-func (b *Box) MarginBox() geometry.Rectangle {
+func (b Box) MarginBox() geometry.Rectangle {
 	return geometry.Rectangle{
-		Min: b.origin,
-		Max: b.origin.Add(geometry.Pt(b.boxSize.Width(), b.boxSize.Height())),
+		Min: geometry.Vec2D{},
+		Max: geometry.NewVec2D(b.boxSize.Width(), b.boxSize.Height()),
 	}
 }
 
 // BorderBox implements the BoxModel interface.
-func (b *Box) BorderBox() geometry.Rectangle {
+func (b Box) BorderBox() geometry.Rectangle {
 	return b.borderBoxOffset.applyOn(b.MarginBox())
 }
 
 // PaddingBox implements the BoxModel interface.
-func (b *Box) PaddingBox() geometry.Rectangle {
+func (b Box) PaddingBox() geometry.Rectangle {
 	return b.paddingBoxOffset.applyOn(b.BorderBox())
 }
 
 // ContentBox implements the BoxModel interface.
-func (b *Box) ContentBox() geometry.Rectangle {
+func (b Box) ContentBox() geometry.Rectangle {
 	return b.contentBoxOffset.applyOn(b.PaddingBox())
 }
 
 // Resize change the size of the margin box.
-func (b *Box) Resize(size geometry.Size) {
+func (b Box) Resize(size geometry.Size) {
 	b.boxSize = size
 }
 
-// SetOrigin sets the origin coordinate of the top-left corner of the margin box.
-func (b *Box) SetOrigin(pt geometry.Point) {
-	b.origin = pt
-}
-
 // ApplyMargin applies the margin of the given style to the box.
-func (b *Box) ApplyMargin(style styles.Style) *Box {
+func (b Box) ApplyMargin(style styles.Style) Box {
 	b.applyMargin(marginOf(style))
 	return b
 }
 
-func (b *Box) applyMargin(margin boxOffset) {
+func (b Box) applyMargin(margin boxOffset) {
 	b.borderBoxOffset = margin
 }
 
 // ApplyBorder applies the border of the given style to the box.
-func (b *Box) ApplyBorder(style styles.Style) *Box {
+func (b Box) ApplyBorder(style styles.Style) Box {
 	b.applyBorder(borderOf(style))
 	return b
 }
 
-func (b *Box) applyBorder(border boxOffset) {
+func (b Box) applyBorder(border boxOffset) {
 	b.paddingBoxOffset = border
 }
 
 // ApplyPadding applies the padding of the given style to the box.
-func (b *Box) ApplyPadding(style styles.Style) *Box {
+func (b Box) ApplyPadding(style styles.Style) Box {
 	b.applyPadding(paddingOf(style))
 	return b
 }
 
-func (b *Box) applyPadding(padding boxOffset) {
+func (b Box) applyPadding(padding boxOffset) {
 	b.contentBoxOffset = padding
 }

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0px;
+      padding: 0px;
+    }
+
+    .vbox {
+      display: flex;
+      flex-flow: row nowrap;
+    }
+
+    .hbox {
+      display: flex;
+      flex-flow: column nowrap;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root" class="vbox">
+  </div>
+  <script>
+    const iter = 256
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+    function randomChar() {
+      return charset.charAt(Math.random() * charset.length)
+    }
+
+    function randomColor() {
+      let letters = '0123456789ABCDEF';
+      let color = '#';
+      for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+      }
+      return color;
+    }
+
+    function newVBox() {
+      const el = document.createElement('div')
+      el.classList.add('vbox')
+
+      return el
+    }
+
+    function newHBox() {
+      const el = document.createElement('div')
+      el.classList.add('hbox')
+
+      return el
+    }
+
+    function newText(content) {
+      const el = document.createElement('span')
+      el.innerText = content
+
+      return el
+    }
+
+    function sleep(ms) {
+      return new Promise((res, rej) => {
+        setTimeout(res, ms)
+      })
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const root = document.querySelector('#root');
+      const texts = []
+      for (let i = 0; i < iter; i++) {
+        texts.push(randomChar())
+      }
+
+      console.log(texts);
+
+      (async () => {
+        for (let i = 0; i < iter; i++) {
+          root.appendChild(newHBox())
+
+          for (const child of root.children) {
+            const txt = newText(randomChar())
+            txt.style.color = randomColor()
+            child.appendChild(txt)
+          }
+
+          await sleep(1)
+        }
+      })()
+    })
+  </script>
+</body>
+
+</html>
