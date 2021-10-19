@@ -1,68 +1,83 @@
 package layout
 
 import (
-	"github.com/negrel/debuggo/pkg/assert"
+	"github.com/negrel/paon/geometry"
 )
 
-var _ Boxed = &Cache{}
-var _ Manager = &Cache{}
+var _ BoxedObject = &Cache{}
+var _ BoxPacker = &Cache{}
 
 // Cache is a wrapper for Flowable object.
 type Cache struct {
-	Manager
-	valid      bool
-	cache      *Box
+	BoxPacker
+
+	isExpired  bool
+	cache      PositionedBoxModel
 	constraint Constraint
 }
 
 // NewCache returns a new Cache wrapper for the given Flowable.
-func NewCache(man Manager) *Cache {
+func NewCache(p BoxPacker) *Cache {
 	return &Cache{
-		Manager: man,
-		cache:   nil,
+		BoxPacker: p,
+		isExpired: true,
 	}
-}
-
-// Layout implements the Algo interface.
-func (c *Cache) Layout(constraint Constraint) *Box {
-	assert.NotNil(c.Manager)
-
-	// the cache is still valid if the new constraint has the same size
-	// than the cached constraint and the distance between the Min and Max
-	// rectangle remains the same.
-	if c.valid && c.constraint.Equals(constraint) {
-		return c.cache
-	}
-
-	// Update cache
-	c.constraint = constraint
-	c.cache = c.Manager.Layout(constraint)
-	c.valid = true
-
-	return c.cache
 }
 
 // IsValid returns true if the cache data is valid.
-func (c *Cache) IsValid() bool {
-	return c.valid
+func (c Cache) IsValid(co Constraint) bool {
+	if c.cache.BoxModel == nil {
+		return false
+	}
+
+	mbSize := c.BoxModel().MarginBox().Size()
+	return !c.isExpired && co.ApplyOnSize(mbSize).Equals(mbSize)
 }
 
-// Invalidate marks the cache as invalid.
-func (c *Cache) Invalidate() {
-	c.valid = false
+// IsExpired returns true if the cache is marked as expired.
+func (c Cache) IsExpired() bool {
+	return c.isExpired
+}
+
+// Expire marks the cache as expired.
+func (c *Cache) Expire() {
+	c.isExpired = true
 }
 
 // Constraint returns the cached constraint of the last layout.
-func (c *Cache) Constraint() Constraint {
+func (c Cache) Constraint() Constraint {
 	return c.constraint
 }
 
-// Get returns the cached box.
-func (c *Cache) Get() *Box {
+// BoxModel implements the BoxedObject interface.
+func (c Cache) BoxModel() BoxModel {
 	return c.cache
 }
 
-// Box returns the cached BoxModel of the last flow.
-func (c *Cache) Box() BoxModel {
-	return c.cache
+// Position implements the geometry.Positioned interface.
+func (c Cache) Position() geometry.Vec2D {
+	return c.cache.Origin
+}
+
+// SetPosition sets the position of the BoxModel.
+func (c *Cache) SetPosition(origin geometry.Vec2D) {
+	c.cache.Origin = origin
+}
+
+// Pack implements the BoxPacker interface.
+func (c *Cache) Pack(co Constraint) BoxModel {
+	box := c.BoxPacker.Pack(co)
+	c.Store(co, box)
+
+	return box
+}
+
+// Store updates cache validity, Constraint and BoxModel.
+// Don't forget to call SetPosition to sets the position.
+// This function is called by Cache.Pack to store the result
+// of the BoxPacker.
+func (c *Cache) Store(co Constraint, bm BoxModel) {
+	c.constraint = co
+	c.isExpired = false
+	c.cache.BoxModel = bm
 }

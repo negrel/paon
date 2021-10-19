@@ -1,14 +1,14 @@
 package layout
 
 import (
-	"github.com/negrel/paon/internal/geometry"
+	"github.com/negrel/paon/geometry"
 	"github.com/negrel/paon/pdk/math"
 	"github.com/negrel/paon/styles"
 	"github.com/negrel/paon/styles/property"
 	"github.com/negrel/paon/styles/value"
 )
 
-// Constraint define the constraint an flow must respect.
+// Constraint define layout constraint.
 type Constraint struct {
 	MinSize, MaxSize geometry.Size
 	ParentSize       geometry.Size
