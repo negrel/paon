@@ -2,7 +2,6 @@ package styles
 
 import (
 	"sort"
-	"sync"
 
 	"github.com/negrel/paon/pdk/events"
 	"github.com/negrel/paon/styles/property"
@@ -15,7 +14,7 @@ type Themed interface {
 }
 
 // Theme define a set of Style. These styles are read-only and can't be modified
-// throught the Theme object. Theme also implements the Style interface because
+// through the Theme object. Theme also implements the Style interface because
 // it embed a read-write Style object.
 type Theme interface {
 	Style
@@ -31,7 +30,6 @@ type Theme interface {
 
 // theme is a composition of Style object.
 type theme struct {
-	sync.RWMutex
 	events.Target
 
 	style  Style
@@ -50,24 +48,14 @@ func NewTheme(defaultStyle WeightedStyle) Theme {
 	}
 }
 
-func (t *theme) sortShared() {
-	t.Lock()
-	defer t.Unlock()
-
-	sort.Sort(t.shared)
-}
-
 // Get implements the Style interface.
 func (t *theme) Get(id property.ID) property.Property {
-	if !t.sorted {
-		t.sortShared()
-	}
-
-	t.RLock()
-	defer t.RUnlock()
-
 	if prop := t.style.Get(id); prop != nil {
 		return prop
+	}
+
+	if !t.sorted {
+		sort.Sort(t.shared)
 	}
 
 	for i := len(t.shared) - 1; i >= 0; i-- {
@@ -91,25 +79,22 @@ func (t *theme) Del(prop property.ID) {
 
 // Styles implements the Theme interface.
 func (t *theme) Styles() []WeightedStyle {
-	t.RLock()
-	defer t.RUnlock()
-
 	return t.shared
 }
 
 // AddStyle implements the Theme interface.
 func (t *theme) AddStyle(s WeightedStyle) {
+	t.sorted = false
 	t.shared = append(t.shared, s)
-	sort.Sort(t.shared)
 }
 
 // DelStyle implements the Theme interface.
 func (t *theme) DelStyle(s WeightedStyle) {
+	t.sorted = false
 	for i, style := range t.shared {
 		if style == s {
 			t.shared[len(t.shared)-1], t.shared[i] = t.shared[i], t.shared[len(t.shared)-1]
 			t.shared = t.shared[:len(t.shared)-1]
 		}
 	}
-	sort.Sort(t.shared)
 }
