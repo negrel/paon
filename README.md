@@ -18,7 +18,8 @@
 # :peacock: - Paon
 *A framework to build efficient, thread-aware, highly composable widgets based terminal user interface.*
 
-> **NOTE**: Paon is still under active development and is not ready yet.
+> **NOTE**: Paon is still under active development and is not ready yet.  
+> **NOTE**: It's coming soon. :eyes:
 
 ## Widgets
 - [ ] Text
