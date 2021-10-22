@@ -71,3 +71,24 @@ func (t *target) DispatchEvent(event Event) {
 		listener.HandleEvent(event)
 	}
 }
+
+type noOpTarget struct{}
+
+// NewNoOpTarget returns a new Target that ignore events listener
+// and events.
+func NewNoOpTarget() Target {
+	return noOpTarget{}
+}
+
+func (not noOpTarget) AddEventListener(tpe Type, listener Listener) {
+
+}
+
+// RemoveEventListener removes an event listener of a specific event type from the target.
+func (not noOpTarget) RemoveEventListener(tpe Type, listener Listener) {
+}
+
+// DispatchEvent dispatch the given event to listeners.
+func (not noOpTarget) DispatchEvent(event Event) {
+
+}
