@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/negrel/debuggo/pkg/assert"
-	"github.com/negrel/paon/internal/geometry"
+	"github.com/negrel/paon/geometry"
 	"github.com/negrel/paon/pdk/events"
 	pdkevents "github.com/negrel/paon/pdk/events"
 )

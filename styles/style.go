@@ -82,18 +82,21 @@ type WeightedStyle interface {
 	Weight() int
 }
 
-var _ WeightedStyle = weightedStyle{}
+var _ WeightedStyle = Weighted{}
 
-type weightedStyle struct {
+// Weighted is a simple wrapper around Style that implements
+// the WeightedStyle interface.
+type Weighted struct {
 	Style
 	weight int
 }
 
 // NewWeighted returns a new WeightedStyle object.
-func NewWeighted(style Style, weight int) WeightedStyle {
-	return weightedStyle{Style: style, weight: weight}
+func NewWeighted(style Style, weight int) Weighted {
+	return Weighted{Style: style, weight: weight}
 }
 
-func (ws weightedStyle) Weight() int {
+// Weight implements the WeightedStyle interface.
+func (ws Weighted) Weight() int {
 	return ws.weight
 }

@@ -17,6 +17,7 @@ type Themed interface {
 // through the Theme object. Theme also implements the Style interface because
 // it embed a read-write Style object.
 type Theme interface {
+	events.Target
 	Style
 
 	// AddStyle adds the given Style to the StyleList.

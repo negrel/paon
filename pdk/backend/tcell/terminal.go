@@ -1,15 +1,16 @@
 package tcell
 
 import (
-	"sync"
+	"context"
 
 	"github.com/gdamore/tcell/v2"
-	"github.com/negrel/debuggo/pkg/assert"
+	"github.com/negrel/debuggo/pkg/log"
 	"github.com/negrel/paon/events"
-	"github.com/negrel/paon/internal/geometry"
+	"github.com/negrel/paon/geometry"
 	"github.com/negrel/paon/pdk/backend"
 	"github.com/negrel/paon/pdk/draw"
 	pdkevents "github.com/negrel/paon/pdk/events"
+	"github.com/negrel/paon/pdk/render"
 )
 
 var _ backend.Terminal = &Terminal{}
@@ -17,15 +18,12 @@ var _ backend.Terminal = &Terminal{}
 // Terminal is a wrapper around https://www.github.com/gdamore/tcell Screen
 // that satisfy the backend.Terminal interface.
 type Terminal struct {
-	mu sync.Mutex
-
 	// the wrapped tcell.Screen.
 	// It is initialized in NewTerminal and never reassigned.
-	screen tcell.Screen
+	screen     tcell.Screen
+	compositor *render.Compositor
 
-	done chan struct{}
-
-	ctx *draw.Context
+	eventLoopCancel context.CancelFunc
 }
 
 // NewTerminal returns a new Terminal object configured with the
@@ -48,22 +46,24 @@ func NewTerminal(options ...Option) (*Terminal, error) {
 		}
 	}
 
+	terminal.compositor = render.NewCompositor(terminal)
+
 	return terminal, nil
 }
 
-// Bounds implements the draw.Canvas interface.
-func (c *Terminal) Bounds() geometry.Rectangle {
+// Size implements the geometry.Sized interface.
+func (c *Terminal) Size() geometry.Size {
 	w, h := c.screen.Size()
-	return geometry.Rect(0, 0, w, h)
+	return geometry.NewSize(w, h)
 }
 
 // Get implements the draw.Canvas interface.
-func (c *Terminal) Get(pos geometry.Point) draw.Cell {
+func (c *Terminal) Get(pos geometry.Vec2D) draw.Cell {
 	return fromTcell(c.screen.GetContent(pos.X(), pos.Y()))
 }
 
 // Set implements the draw.Canvas interface.
-func (c *Terminal) Set(pos geometry.Point, cell draw.Cell) {
+func (c *Terminal) Set(pos geometry.Vec2D, cell draw.Cell) {
 	mainc, combc, style := toTcell(cell)
 	c.screen.SetContent(pos.X(), pos.Y(), mainc, combc, style)
 }
@@ -75,47 +75,35 @@ func (c *Terminal) Clear() {
 
 // Flush implements the backend.Terminal interface.
 func (c *Terminal) Flush() {
-	if c.done != nil {
-		c.screen.Show()
-	}
+	c.screen.Show()
+}
+
+// Compositor implements the backend.Terminal interface.
+func (c *Terminal) Compositor() *render.Compositor {
+	return c.compositor
 }
 
 // Start implements the backend.Terminal interface.
 func (c *Terminal) Start(evch chan<- pdkevents.Event) error {
-	assert.NotNil(evch)
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
 	err := c.screen.Init()
 	if err != nil {
 		return err
 	}
 
-	c.done = make(chan struct{})
-	go c.eventLoop(c.done, evch, c.screen.PollEvent)
+	go eventLoop(c.screen.PollEvent, evch)
 
 	return nil
 }
 
 // Stop implements the backend.Terminal interface.
 func (c *Terminal) Stop() {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	if c.done == nil {
-		return
-	}
-
+	c.compositor.Stop()
 	c.screen.Fini()
-
-	c.done <- struct{}{}
-	close(c.done)
-	c.done = nil
 }
 
 var oldSize = geometry.Size{}
 
-func (c *Terminal) adaptEvent(event tcell.Event) pdkevents.Event {
+func adaptEvent(event tcell.Event) pdkevents.Event {
 	switch ev := event.(type) {
 	case *tcell.EventError:
 		_ = ev
@@ -133,28 +121,25 @@ func (c *Terminal) adaptEvent(event tcell.Event) pdkevents.Event {
 	}
 }
 
-func (c *Terminal) eventLoop(done <-chan struct{}, eventChannel chan<- pdkevents.Event, pollEvent func() tcell.Event) {
-	ch := make(chan pdkevents.Event)
-
-	go func(ch chan<- pdkevents.Event) {
+func eventLoop(pollFunc func() tcell.Event, evch chan<- pdkevents.Event) {
+	pollCh := make(chan pdkevents.Event)
+	go func(pollCh chan<- pdkevents.Event) {
 		for {
-			event := pollEvent()
-			if event == nil {
-				return
+			event := pollFunc()
+			if event != nil {
+				pollCh <- adaptEvent(event)
+			} else {
+				pollCh <- nil
 			}
-			ch <- c.adaptEvent(event)
 		}
-	}(ch)
+	}(pollCh)
 
-loop:
 	for {
-		select {
-		case ev := <-ch:
-			eventChannel <- ev
-
-		case <-done:
-			close(ch)
-			break loop
+		ev := <-pollCh
+		if ev == nil {
+			log.Debug("EVENT LOOP DONE")
+			break
 		}
+		evch <- ev
 	}
 }

@@ -3,62 +3,53 @@ package widgets
 import (
 	"errors"
 
+	"github.com/negrel/paon/events"
+	"github.com/negrel/paon/geometry"
+	"github.com/negrel/paon/internal/metrics"
 	"github.com/negrel/paon/pdk/draw"
+	pdkevents "github.com/negrel/paon/pdk/events"
 	"github.com/negrel/paon/pdk/layout"
+	"github.com/negrel/paon/pdk/render"
 	"github.com/negrel/paon/pdk/tree"
-	"github.com/negrel/paon/styles/value"
 )
 
 // Root define the root of a widget tree.
 type Root struct {
 	*BaseWidget
 
-	child                  Widget
-	needReflow, needRedraw bool
-	reflowQ                []layout.Manager
-	redrawQ                []draw.Drawer
+	dst draw.Surface
+
+	child     Widget
+	childRect geometry.Rectangle
+	layer     render.Layer
 }
 
 var _ Layout = &Root{}
 
 // NewRoot returns a new Widget that can be used as a root.
-func NewRoot() *Root {
-	root := &Root{}
-	root.enqueueReflow()
+func NewRoot(target pdkevents.Target, dst draw.Surface) *Root {
+	root := &Root{
+		layer: render.Layer{
+			BufferSurface: render.NewBufferSurface(geometry.NewSize(80, 24)),
+		},
+		dst: dst,
+	}
+
+	// Update root layer size on resize.
+	target.AddEventListener(events.ResizeListener(func(r events.Resize) {
+		root.layer.BufferSurface = root.layer.BufferSurface.Resize(r.New)
+	}))
 
 	root.BaseWidget = newBaseWidget(
-		initialLCS(LCSMounted),
 		Wrap(root),
-		NodeConstructor(func(data interface{}) tree.Node { return tree.NewRoot(data) }),
-		LayoutManager(layout.ManagerFn(func(c layout.Constraint) layout.BoxModel {
-			return root.child.Layout(c)
-		})),
-		Drawer(draw.DrawerFn(func(c draw.Context) {
-			root.Draw(c)
-		})),
-		Listeners(
-			ReflowListener(func(re ReflowEvent) {
-				if root.needReflow {
-					// Event is from direct child, we can redraw the entire tree.
-					if re.ResourceID == root.ID() {
-						root.enqueueReflow()
-						return
-					}
-					root.reflowQ = append(root.reflowQ, re.Manager)
-				}
-			}),
-			RedrawListener(func(re RedrawEvent) {
-				if root.needRedraw {
-					if re.ResourceID == root.ID() {
-						root.enqueueRedraw()
-						return
-					}
-					root.redrawQ = append(root.redrawQ, re.Drawer)
-				}
-			}),
+		Target(target),
+		NodeConstructor(
+			func(data interface{}) tree.Node {
+				return tree.NewRoot(data)
+			},
 		),
 	)
-	root.BaseWidget.root = root
+	root.layer.Node = root.BaseWidget.node
 
 	return root
 }
@@ -93,12 +84,12 @@ func (r *Root) RemoveChild(child Widget) error {
 }
 
 // FirstChild implements the Layout interface.
-func (r *Root) FirstChild() Widget {
+func (r Root) FirstChild() Widget {
 	return r.child
 }
 
 // LastChild implements the Layout interface.
-func (r *Root) LastChild() Widget {
+func (r Root) LastChild() Widget {
 	return r.child
 }
 
@@ -110,55 +101,65 @@ func (r *Root) Root() *Root {
 // SetChild sets the direct child of the root.
 // If a child is already present, it is unmounted.
 func (r *Root) SetChild(child Widget) {
-	if oldChild := r.child; oldChild != nil {
-		oldChild.Node().SetParent(nil)
-		oldChild.DispatchEvent(NewLifeCycleEvent(oldChild, LCSUnmounted))
+	if r.child != nil {
+		r.BaseWidget.Node().RemoveChild(r.child.Node())
 	}
-
-	childNode := child.Node()
-	childNode.SetParent(r.Node())
-	childNode.SetPrevious(nil)
-	childNode.SetNext(nil)
 
 	r.child = child
-	child.DispatchEvent(NewLifeCycleEvent(child, LCSMounted))
-}
-
-// Draw implements the draw.Drawable interface.
-func (r *Root) Draw(ctx draw.Context) {
-	ctx.SetFillColor(value.Color{})
-	ctx.FillRectangle(ctx.Bounds())
-	ctx.Commit()
-
-	r.child.Draw(
-		draw.SubContext(ctx, r.child.Box().BorderBox()),
-	)
-}
-
-func (r *Root) enqueueReflow() {
-	r.needReflow = false
-	r.reflowQ = []layout.Manager{r}
-	r.enqueueRedraw()
-}
-
-func (r *Root) enqueueRedraw() {
-	r.needRedraw = false
-	r.redrawQ = []draw.Drawer{r}
-}
-
-// Update flush the reflow & redraw queue and trigger a redraw and a reflow if needed.
-func (r *Root) Update(canvas draw.Canvas) {
-	lenReflowQ := len(r.reflowQ)
-	for i := 0; i < lenReflowQ; i++ {
-		r.reflowQ[i].Layout(layout.Constraint{})
+	if child != nil {
+		r.BaseWidget.Node().AppendChild(child.Node())
 	}
-	r.reflowQ = r.reflowQ[lenReflowQ:]
-	r.needReflow = true
+}
 
-	lenRedrawQ := len(r.redrawQ)
-	for i := 0; i < lenRedrawQ; i++ {
-		r.redrawQ[i].Draw(canvas.NewContext(canvas.Bounds()))
+// Layer implements the render.Renderable interface.
+func (r *Root) Layer() *render.Layer {
+	return &r.layer
+}
+
+// Render implements the render.Renderable interface.
+func (r Root) Render(ctx render.Context) {
+	metrics.StartRenderTimer()
+	defer metrics.StopRenderTimer()
+
+	r.child.Render(ctx)
+}
+
+func (r Root) layoutConstraint() layout.Constraint {
+	return layout.Constraint{
+		MinSize:    geometry.Size{},
+		MaxSize:    r.layer.Size(),
+		RootSize:   r.layer.Size(),
+		ParentSize: r.layer.Size(),
 	}
-	r.redrawQ = r.redrawQ[lenRedrawQ:]
-	r.needRedraw = true
+}
+
+// PerformRender starts the rendering of the Root layer.
+func (r Root) PerformRender() {
+	ctx := render.Context{
+		Layer:      r.layer,
+		Layout:     r,
+		Constraint: r.layoutConstraint(),
+	}
+
+	r.Render(ctx)
+
+	for x := 0; x < r.dst.Size().Width(); x++ {
+		for y := 0; y < r.dst.Size().Height(); y++ {
+			pos := geometry.NewVec2D(x, y)
+			r.dst.Set(pos, r.layer.Get(pos))
+		}
+	}
+}
+
+// Layout implements the layout.Layout interface.
+func (r Root) Layout(sized geometry.Sized) geometry.Rectangle {
+	size := sized.Size()
+
+	// Resizing to the same size clear the layer
+	r.layer.BufferSurface.Resize(r.layer.BufferSurface.Size())
+
+	return geometry.Rectangle{
+		Min: geometry.Vec2D{},
+		Max: geometry.NewVec2D(size.Width(), size.Height()),
+	}
 }
