@@ -3,9 +3,14 @@ package styles
 import (
 	"testing"
 
+	"github.com/negrel/paon/pdk/events"
 	"github.com/negrel/paon/styles/property"
 	"github.com/stretchr/testify/assert"
 )
+
+func newTestStyle() Style {
+	return New(events.NewTarget())
+}
 
 type styleTest struct {
 	name      string
@@ -18,7 +23,7 @@ func TestStyle(t *testing.T) {
 	for _, methodTests := range styleTests {
 		for _, tests := range methodTests.functions {
 			t.Run(methodTests.name, func(t *testing.T) {
-				tests(t, newStyle())
+				tests(t, newTestStyle())
 			})
 		}
 	}

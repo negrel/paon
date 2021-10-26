@@ -1,6 +1,7 @@
 package styles
 
 import (
+	"math"
 	"sort"
 
 	"github.com/negrel/paon/pdk/events"
@@ -32,24 +33,43 @@ type Theme interface {
 type theme struct {
 	events.Target
 
-	style  Style
+	cache  Style
+	style  Weighted
 	shared styleSlice
 	sorted bool
 }
 
 // NewTheme return a new Theme object with the given internal Style.
 func NewTheme(defaultStyle WeightedStyle) Theme {
+	return newTheme(defaultStyle)
+}
+
+func newTheme(defaultStyle WeightedStyle) *theme {
 	shared := make([]WeightedStyle, 0, 8)
 	shared = append(shared, defaultStyle)
 
 	return &theme{
-		style:  New(),
+		cache:  New(nil),
+		style:  NewWeighted(New(nil), math.MinInt),
 		shared: shared,
 	}
 }
 
 // Get implements the Style interface.
 func (t *theme) Get(id property.ID) property.Property {
+	if prop := t.cache.Get(id); prop != nil {
+		return prop
+	}
+
+	prop := t.get(id)
+	if prop != nil {
+		t.cache.Set(prop)
+	}
+
+	return prop
+}
+
+func (t *theme) get(id property.ID) property.Property {
 	if prop := t.style.Get(id); prop != nil {
 		return prop
 	}
@@ -86,6 +106,9 @@ func (t *theme) Styles() []WeightedStyle {
 func (t *theme) AddStyle(s WeightedStyle) {
 	t.sorted = false
 	t.shared = append(t.shared, s)
+
+	// Empty cache
+	t.cache = New(nil)
 }
 
 // DelStyle implements the Theme interface.
@@ -95,6 +118,10 @@ func (t *theme) DelStyle(s WeightedStyle) {
 		if style == s {
 			t.shared[len(t.shared)-1], t.shared[i] = t.shared[i], t.shared[len(t.shared)-1]
 			t.shared = t.shared[:len(t.shared)-1]
+
+			// Empty cache
+			t.cache = New(nil)
+			return
 		}
 	}
 }

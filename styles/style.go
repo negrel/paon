@@ -1,6 +1,7 @@
 package styles
 
 import (
+	"github.com/negrel/paon/pdk/events"
 	"github.com/negrel/paon/styles/property"
 )
 
@@ -12,6 +13,8 @@ type Styled interface {
 // Style is a set of property.Property object.
 // Property change can be observed by listening to EventPropertyChange events.
 type Style interface {
+	events.Target
+
 	// Set sets the given property.
 	Set(property.Property)
 
@@ -22,25 +25,30 @@ type Style interface {
 	Del(property.ID)
 }
 
-func idToIndex(id property.ID) int {
-	return int(id - property.FirstID())
-}
-
 var _ Style = &style{}
 
 type style struct {
+	events.Target
+
 	props       []property.Property
 	customProps map[property.ID]property.Property
 }
 
+var noOpTarget = events.NewNoOpTarget()
+
 // New returns a new Style object configured with the given options.
-func New() Style {
-	return newStyle()
+func New(target events.Target) Style {
+	if target == nil {
+		target = noOpTarget
+	}
+
+	return newStyle(target)
 }
 
-func newStyle() *style {
+func newStyle(target events.Target) *style {
 	style := &style{
-		props:       make([]property.Property, property.LastID()-property.FirstID()+1),
+		Target:      target,
+		props:       make([]property.Property, property.LastID()+1),
 		customProps: make(map[property.ID]property.Property, 8),
 	}
 
@@ -50,7 +58,7 @@ func newStyle() *style {
 // Del implements the Style interface.
 func (s *style) Del(id property.ID) {
 	if !property.IsCustomPropID(id) {
-		s.props[idToIndex(id)] = nil
+		s.props[uint32(id)] = nil
 	} else {
 		delete(s.customProps, id)
 	}
@@ -59,16 +67,16 @@ func (s *style) Del(id property.ID) {
 // Set implements the Style interface.
 func (s *style) Set(prop property.Property) {
 	if !property.IsCustomPropID(prop.ID()) {
-		s.props[idToIndex(prop.ID())] = prop
+		s.props[uint32(prop.ID())] = prop
 	} else {
 		s.customProps[prop.ID()] = prop
 	}
 }
 
 // Get implements the Style interface.
-func (s *style) Get(id property.ID) property.Property {
+func (s style) Get(id property.ID) property.Property {
 	if !property.IsCustomPropID(id) {
-		return s.props[idToIndex(id)]
+		return s.props[uint32(id)]
 	}
 
 	return s.customProps[id]
@@ -82,18 +90,21 @@ type WeightedStyle interface {
 	Weight() int
 }
 
-var _ WeightedStyle = weightedStyle{}
+var _ WeightedStyle = Weighted{}
 
-type weightedStyle struct {
+// Weighted is a simple wrapper around Style that implements
+// the WeightedStyle interface.
+type Weighted struct {
 	Style
 	weight int
 }
 
 // NewWeighted returns a new WeightedStyle object.
-func NewWeighted(style Style, weight int) WeightedStyle {
-	return weightedStyle{Style: style, weight: weight}
+func NewWeighted(style Style, weight int) Weighted {
+	return Weighted{Style: style, weight: weight}
 }
 
-func (ws weightedStyle) Weight() int {
+// Weight implements the WeightedStyle interface.
+func (ws Weighted) Weight() int {
 	return ws.weight
 }

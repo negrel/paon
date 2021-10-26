@@ -28,13 +28,13 @@ func benchmarksStyleSet(b *testing.B) {
 }
 
 func benchmarkStyleSet(b *testing.B, n int) {
-	style := New()
+	style := newTestStyle()
 	props := make([]property.Property, n)
 
-	builtInPropsCount := int(property.LastID()) - int(property.FirstID())
+	builtInPropsCount := int(property.LastID())
 
 	for j := 0; j < n; j++ {
-		id := property.ID(int(property.FirstID()) + j%builtInPropsCount)
+		id := property.ID(j % builtInPropsCount)
 		props = append(props, property.NewProp(id))
 	}
 
@@ -47,7 +47,7 @@ func benchmarkStyleSet(b *testing.B, n int) {
 }
 
 func benchmarkStyleSetCustomProp(b *testing.B, n int) {
-	style := New()
+	style := newTestStyle()
 	props := make([]property.Property, n)
 
 	for j := 0; j < n; j++ {
@@ -74,14 +74,13 @@ func benchmarksStyleGet(b *testing.B) {
 }
 
 func benchmarkStyleGet(b *testing.B, n int) {
-	style := New()
+	style := newTestStyle()
 	ids := []property.ID{}
 
-	first := int(property.FirstID())
 	last := int(property.LastID())
 
 	for i := 0; i < n; i++ {
-		ids = append(ids, property.ID(i%(last-first)+first))
+		ids = append(ids, property.ID(i%last))
 	}
 
 	b.ResetTimer()
@@ -93,7 +92,7 @@ func benchmarkStyleGet(b *testing.B, n int) {
 }
 
 func benchmarkStyleGetCustomProps(b *testing.B, n int) {
-	style := New()
+	style := newTestStyle()
 	ids := []property.ID{}
 
 	for i := 0; i < n; i++ {
