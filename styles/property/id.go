@@ -6,10 +6,11 @@ import (
 	"github.com/negrel/paon/pdk/id"
 )
 
-// ID define a unique int32 number.
+// ID define a unique uint32 number.
 type ID id.ID
 
 var idName = id.NewMap()
+var propRegistry = id.Registry{}
 
 func (i ID) name() string {
 	return idName.Get(id.ID(i))
@@ -19,8 +20,9 @@ func (i ID) String() string {
 	return fmt.Sprintf("%v (%d)", i.name(), i)
 }
 
+// NewID generates a unique property ID with the given name.
 func NewID(name string) ID {
-	i := id.New()
+	i := propRegistry.New()
 	idName.Set(i, name)
 	return ID(i)
 }
@@ -57,15 +59,10 @@ var (
 
 // IsCustomPropID returns true if the given ID is not one of the built-in property ID.
 func IsCustomPropID(id ID) bool {
-	return id < FirstID() || id > LastID()
+	return id > LastID()
 }
 
-// FirstID returns the first declared ID.
-func FirstID() ID {
-	return _IDWidth
-}
-
-// LastID returns the last declared ID.
+// LastID returns the last property ID parts this package.
 func LastID() ID {
 	return _IDForegroundColor
 }
