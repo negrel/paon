@@ -30,8 +30,7 @@ var _ Style = &style{}
 type style struct {
 	events.Target
 
-	props       []property.Property
-	customProps map[property.ID]property.Property
+	props []property.Property
 }
 
 var noOpTarget = events.NewNoOpTarget()
@@ -47,9 +46,8 @@ func New(target events.Target) Style {
 
 func newStyle(target events.Target) *style {
 	style := &style{
-		Target:      target,
-		props:       make([]property.Property, property.LastID()+1),
-		customProps: make(map[property.ID]property.Property, 8),
+		Target: target,
+		props:  make([]property.Property, property.LastID()+1),
 	}
 
 	return style
@@ -57,29 +55,17 @@ func newStyle(target events.Target) *style {
 
 // Del implements the Style interface.
 func (s *style) Del(id property.ID) {
-	if !property.IsCustomPropID(id) {
-		s.props[uint32(id)] = nil
-	} else {
-		delete(s.customProps, id)
-	}
+	s.props[uint32(id)] = nil
 }
 
 // Set implements the Style interface.
 func (s *style) Set(prop property.Property) {
-	if !property.IsCustomPropID(prop.ID()) {
-		s.props[uint32(prop.ID())] = prop
-	} else {
-		s.customProps[prop.ID()] = prop
-	}
+	s.props[uint32(prop.ID())] = prop
 }
 
 // Get implements the Style interface.
 func (s style) Get(id property.ID) property.Property {
-	if !property.IsCustomPropID(id) {
-		return s.props[uint32(id)]
-	}
-
-	return s.customProps[id]
+	return s.props[uint32(id)]
 }
 
 // WeightedStyle extends the Style interface with a Weight method.
