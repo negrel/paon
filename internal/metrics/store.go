@@ -1,3 +1,4 @@
+//go:build !metrics
 // +build !metrics
 
 package metrics
@@ -7,12 +8,8 @@ import (
 )
 
 var store = struct {
-	layout *durationSlice
-	draw   *durationSlice
-}{
-	layout: nil,
-	draw:   nil,
-}
+	render *durationSlice
+}{}
 
 // Report write the metrics report to the given io.Writer.
 func Report(w io.Writer) {

@@ -5,7 +5,6 @@ import (
 	"github.com/negrel/paon/pdk/math"
 	"github.com/negrel/paon/styles"
 	"github.com/negrel/paon/styles/property"
-	"github.com/negrel/paon/styles/value"
 )
 
 // Constraint define layout constraint.
@@ -34,22 +33,22 @@ func (c Constraint) Equals(other Constraint) bool {
 }
 
 // ToCellUnit converts the given value to a Cell based value.Unit and returns it.
-func (c Constraint) ToCellUnit(unit value.Unit) int {
-	switch unit.UnitID {
-	case value.CellUnit:
-		return unit.Value
+func (c Constraint) ToCellUnit(unit *property.IntUnit) int {
+	switch unit.Unit() {
+	case property.CellUnit:
+		return unit.Value()
 
-	case value.PercentageWidthUnit:
-		return c.ParentSize.Width() / 100 * unit.Value
+	case property.PercentageWidthUnit:
+		return c.ParentSize.Width() * unit.Value() / 100
 
-	case value.PercentageHeightUnit:
-		return c.ParentSize.Height() / 100 * unit.Value
+	case property.PercentageHeightUnit:
+		return c.ParentSize.Height() * unit.Value() / 100
 
-	case value.WindowWidthUnit:
-		return c.RootSize.Width() / 100 * unit.Value
+	case property.WindowWidthUnit:
+		return c.RootSize.Width() * unit.Value() / 100
 
-	case value.WindowHeightUnit:
-		return c.RootSize.Height() / 100 * unit.Value
+	case property.WindowHeightUnit:
+		return c.RootSize.Height() * unit.Value() / 100
 
 	default:
 		panic("invalid unit")
@@ -67,23 +66,23 @@ func (c Constraint) NewFromStyle(style styles.Style) Constraint {
 
 	minWidth := c.MinSize.Width()
 	maxWidth := c.MaxSize.Width()
-	minWidthProp, ok := UnitProp(style, property.MinWidthID())
-	if ok {
+
+	if minWidthProp := style.IntUnit(property.MinWidth()); minWidthProp != nil {
 		minWidth = c.ApplyOnWidthProp(minWidthProp)
 	}
-	maxWidthProp, ok := UnitProp(style, property.MaxWidthID())
-	if ok {
+
+	if maxWidthProp := style.IntUnit(property.MaxWidth()); maxWidthProp != nil {
 		maxWidth = c.ApplyOnWidthProp(maxWidthProp)
 	}
 
 	minHeight := c.MinSize.Height()
 	maxHeight := c.MaxSize.Height()
-	minHeightProp, ok := UnitProp(style, property.MinHeightID())
-	if ok {
+	if minHeightProp := style.IntUnit(property.MinHeight()); minHeightProp != nil {
 		minHeight = c.ApplyOnHeightProp(minHeightProp)
 	}
-	maxHeightProp, ok := UnitProp(style, property.MaxHeightID())
-	if ok {
+
+	maxHeightProp := style.IntUnit(property.MaxHeight())
+	if maxHeightProp != nil {
 		maxHeight = c.ApplyOnHeightProp(maxHeightProp)
 	}
 
@@ -104,8 +103,8 @@ func (c Constraint) ApplyOnSize(size geometry.Size) geometry.Size {
 
 // ApplyOnWidthProp applies the width constraints on the given width property and
 // return the constrained width as an int (CellUnit).
-func (c Constraint) ApplyOnWidthProp(widthProp property.Unit) int {
-	width := c.ToCellUnit(widthProp.Value)
+func (c Constraint) ApplyOnWidthProp(widthProp *property.IntUnit) int {
+	width := c.ToCellUnit(widthProp)
 	return c.ApplyOnWidth(width)
 }
 
@@ -118,8 +117,8 @@ func (c Constraint) ApplyOnWidth(width int) int {
 
 // ApplyOnHeightProp applies the height constraints on the given height property and
 // return the constrained height as an int (CellUnit).
-func (c Constraint) ApplyOnHeightProp(heightProp property.Unit) int {
-	height := c.ToCellUnit(heightProp.Value)
+func (c Constraint) ApplyOnHeightProp(heightProp *property.IntUnit) int {
+	height := c.ToCellUnit(heightProp)
 	return c.ApplyOnHeight(height)
 }
 

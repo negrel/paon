@@ -1,11 +1,11 @@
 package draw
 
-import "github.com/negrel/paon/styles/value"
+import "github.com/negrel/paon/styles/property"
 
 // CellStyle define the style of a single terminal Cell.
 type CellStyle struct {
-	Foreground value.Color
-	Background value.Color
+	Foreground property.Color
+	Background property.Color
 
 	Bold, Blink, Reverse, Underline,
 	Dim, Italic, StrikeThrough bool

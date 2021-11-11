@@ -2,7 +2,6 @@ package styles
 
 import (
 	"github.com/negrel/paon/pdk/events"
-	"github.com/negrel/paon/styles/property"
 )
 
 // Styled is a generic interface for object that have a Style.
@@ -14,31 +13,29 @@ type Styled interface {
 // Property change can be observed by listening to EventPropertyChange events.
 type Style interface {
 	events.Target
-
-	// Set sets the given property.
-	Set(property.Property)
-
-	// Get gets a property.
-	Get(property.ID) property.Property
-
-	// Del deletes a property.
-	Del(property.ID)
+	ColorStyle
+	IntStyle
+	IntUnitStyle
+	IfaceStyle
 }
 
 var _ Style = &style{}
 
 type style struct {
 	events.Target
-
-	props []property.Property
+	colorStyle
+	intStyle
+	intUnitStyle
+	ifaceStyle
 }
 
-var noOpTarget = events.NewNoOpTarget()
-
-// New returns a new Style object configured with the given options.
+// New returns a new Style object with the given target.
+// This function panic if the target is nil.
+// The returned Style will support properties ID (Color, Int, Iface...)
+// created before the Style itself.
 func New(target events.Target) Style {
 	if target == nil {
-		target = noOpTarget
+		panic("style events.Target must no be nil")
 	}
 
 	return newStyle(target)
@@ -46,26 +43,14 @@ func New(target events.Target) Style {
 
 func newStyle(target events.Target) *style {
 	style := &style{
-		Target: target,
-		props:  make([]property.Property, property.LastID()+1),
+		Target:       target,
+		colorStyle:   newColorStyle(),
+		intStyle:     newIntStyle(),
+		intUnitStyle: newIntUnitStyle(),
+		ifaceStyle:   newIfaceStyle(),
 	}
 
 	return style
-}
-
-// Del implements the Style interface.
-func (s *style) Del(id property.ID) {
-	s.props[uint32(id)] = nil
-}
-
-// Set implements the Style interface.
-func (s *style) Set(prop property.Property) {
-	s.props[uint32(prop.ID())] = prop
-}
-
-// Get implements the Style interface.
-func (s style) Get(id property.ID) property.Property {
-	return s.props[uint32(id)]
 }
 
 // WeightedStyle extends the Style interface with a Weight method.

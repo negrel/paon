@@ -6,7 +6,6 @@ import "sync"
 type StringMap interface {
 	Set(p ID, name string)
 	Get(p ID) string
-	Del(p ID)
 }
 
 var _ StringMap = &idMap{}
@@ -16,8 +15,8 @@ type idMap struct {
 	m map[ID]string
 }
 
-// NewMap returns a new empty StringMap
-func NewMap() StringMap {
+// NewStringMap returns a new empty StringMap
+func NewStringMap() StringMap {
 	return &idMap{
 		m: make(map[ID]string),
 	}
@@ -33,10 +32,4 @@ func (im *idMap) Get(p ID) string {
 	im.RLock()
 	defer im.RUnlock()
 	return im.m[p]
-}
-
-func (im *idMap) Del(p ID) {
-	im.Lock()
-	defer im.Unlock()
-	delete(im.m, p)
 }

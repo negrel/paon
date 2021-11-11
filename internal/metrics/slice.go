@@ -19,12 +19,17 @@ func (ds *durationSlice) push(duration time.Duration) {
 
 	if duration < ds.min {
 		ds.min = duration
-	} else if duration > ds.max {
+	}
+	if duration > ds.max {
 		ds.max = duration
 	}
 }
 
 func (ds *durationSlice) mean() time.Duration {
+	if len(ds.data) == 0 {
+		return 0
+	}
+
 	var result int
 	for _, duration := range ds.data {
 		result += int(duration)

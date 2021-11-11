@@ -1,0 +1,40 @@
+[2021-08-07 14:41:50.833] [info] Resources files: /home/negrel/.config/waybar/config, /home/negrel/.config/waybar/style.css
+[2021-08-07 14:41:50.845] [warning] For a functional tray you must have libappindicator-* installed and export XDG_CURRENT_DESKTOP=Unity
+
+** (waybar:84432): WARNING **: 14:41:50.862: gtk-layer-shell v0.6.0 may not work on GTK v3.24.30. If you experience crashes, check https://github.com/wmww/gtk-layer-shell/blob/master/compatibility.md
+
+(waybar:84432): GLib-GObject-WARNING **: 14:41:50.863: ../glib/gobject/gsignal.c:2081: type 'GtkWindow' is already overridden for signal id '73'
+
+(waybar:84432): GLib-GObject-WARNING **: 14:41:50.863: ../glib/gobject/gsignal.c:2081: type 'GtkWindow' is already overridden for signal id '72'
+[2021-08-07 14:41:50.869] [warning] For a functional tray you must have libappindicator-* installed and export XDG_CURRENT_DESKTOP=Unity
+[2021-08-07 14:41:51.125] [info] Bar configured (width: 1920, height: 24) for output: DP-2
+[2021-08-07 14:41:51.125] [info] Bar configured (width: 1500, height: 24) for output: eDP-1
+[2021-08-07 14:41:51.136] [info] Bar configured (width: 1920, height: 24) for output: DP-2
+[2021-08-07 14:41:55.527] [info] Resources files: /home/negrel/.config/waybar/config, /home/negrel/.config/waybar/style.css
+[2021-08-07 14:41:55.538] [warning] For a functional tray you must have libappindicator-* installed and export XDG_CURRENT_DESKTOP=Unity
+
+** (waybar:84493): WARNING **: 14:41:55.556: gtk-layer-shell v0.6.0 may not work on GTK v3.24.30. If you experience crashes, check https://github.com/wmww/gtk-layer-shell/blob/master/compatibility.md
+
+(waybar:84493): GLib-GObject-WARNING **: 14:41:55.556: ../glib/gobject/gsignal.c:2081: type 'GtkWindow' is already overridden for signal id '73'
+
+(waybar:84493): GLib-GObject-WARNING **: 14:41:55.556: ../glib/gobject/gsignal.c:2081: type 'GtkWindow' is already overridden for signal id '72'
+[2021-08-07 14:41:55.561] [warning] For a functional tray you must have libappindicator-* installed and export XDG_CURRENT_DESKTOP=Unity
+[2021-08-07 14:41:55.834] [info] Bar configured (width: 1920, height: 24) for output: DP-2
+[2021-08-07 14:41:55.834] [info] Bar configured (width: 1500, height: 24) for output: eDP-1
+[2021-08-07 14:41:55.849] [info] Bar configured (width: 1920, height: 24) for output: DP-2
+[2021-08-07 14:42:04.548] [error] Host: GDBus.Error:org.freedesktop.DBus.Error.InvalidArgs: Status Notifier Host with bus name ':1.320' and object path '/StatusNotifierHost/0' is already registered
+[2021-08-07 14:42:04.549] [error] Host: GDBus.Error:org.freedesktop.DBus.Error.InvalidArgs: Status Notifier Host with bus name ':1.320' and object path '/StatusNotifierHost/1' is already registered
+terminate called without an active exception
+[2021-08-08 15:00:06.626] [info] Resources files: /home/negrel/.config/waybar/config, /home/negrel/.config/waybar/style.css
+[2021-08-08 15:00:06.639] [warning] For a functional tray you must have libappindicator-* installed and export XDG_CURRENT_DESKTOP=Unity
+
+** (waybar:160277): WARNING **: 15:00:06.655: gtk-layer-shell v0.6.0 may not work on GTK v3.24.30. If you experience crashes, check https://github.com/wmww/gtk-layer-shell/blob/master/compatibility.md
+
+(waybar:160277): GLib-GObject-WARNING **: 15:00:06.656: ../glib/gobject/gsignal.c:2081: type 'GtkWindow' is already overridden for signal id '73'
+
+(waybar:160277): GLib-GObject-WARNING **: 15:00:06.656: ../glib/gobject/gsignal.c:2081: type 'GtkWindow' is already overridden for signal id '72'
+[2021-08-08 15:00:06.667] [warning] For a functional tray you must have libappindicator-* installed and export XDG_CURRENT_DESKTOP=Unity
+[2021-08-08 15:00:06.924] [info] Bar configured (width: 1920, height: 24) for output: DP-2
+[2021-08-08 15:00:06.924] [info] Bar configured (width: 1500, height: 24) for output: eDP-1
+[2021-08-08 15:00:06.932] [info] Bar configured (width: 1920, height: 24) for output: DP-2
+terminate called without an active exception

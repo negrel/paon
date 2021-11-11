@@ -18,7 +18,7 @@ func (t Type) String() string {
 	return fmt.Sprintf("%v", t.name())
 }
 
-var typeName = id.NewMap()
+var typeName = id.NewStringMap()
 
 // NewType returns a new Type that can be used for custom events
 // type.

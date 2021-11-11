@@ -2,8 +2,11 @@ package id
 
 import "sync/atomic"
 
+// ID define a unique number.
+type ID uint32
+
 // Registry define an identifier registry.
-// All id generated from a registry are unique.
+// All id generated from the same registry are unique.
 type Registry struct {
 	counter uint32
 }
@@ -14,8 +17,11 @@ func (r *Registry) New() ID {
 	return ID(id)
 }
 
-// ID define a unique number.
-type ID uint32
+// Last returns the most recent ID generated.
+func (r *Registry) Last() ID {
+	id := atomic.LoadUint32(&r.counter)
+	return ID(id)
+}
 
 var globalReg = Registry{
 	counter: 0,

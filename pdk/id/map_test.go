@@ -8,7 +8,7 @@ import (
 
 func Test_ConcurrentReadWrite(t *testing.T) {
 	idCount := 1000
-	ids := NewMap()
+	ids := NewStringMap()
 
 	var wg sync.WaitGroup
 	wg.Add(idCount)
