@@ -1,114 +1,209 @@
 package styles
 
 import (
+	"math/rand"
+	"reflect"
 	"testing"
+	"time"
 
-	"github.com/negrel/paon/pdk/events"
 	"github.com/negrel/paon/styles/property"
 	"github.com/stretchr/testify/assert"
 )
 
-func newTestStyle() Style {
-	return New(events.NewTarget())
+type styleDescription struct {
+	styleType    reflect.Type
+	defaultValue interface{}
+
+	new      func() reflect.Value
+	newID    func() reflect.Value
+	newValue func() reflect.Value
+
+	getMethodName string
+	setMethodName string
 }
 
-type styleTest struct {
-	name      string
-	functions []func(t *testing.T, s Style)
-}
+var stylesDesc = []styleDescription{}
 
-func TestStyle(t *testing.T) {
-	styleTests := generateStyleTests()
-
-	for _, methodTests := range styleTests {
-		for _, tests := range methodTests.functions {
-			t.Run(methodTests.name, func(t *testing.T) {
-				tests(t, newTestStyle())
-			})
+func TestStyles(t *testing.T) {
+	for _, styleDesc := range stylesDesc {
+		if styleDesc.styleType.Kind() == reflect.Ptr {
+			styleDesc.styleType = styleDesc.styleType.Elem()
 		}
+
+		t.Run(styleDesc.styleType.Name(), func(t *testing.T) {
+			testStyle(t, styleDesc)
+		})
 	}
 }
 
-func generateStyleTests() []styleTest {
-	tests := []styleTest{
-		{
-			name: "Set",
-			functions: []func(t *testing.T, s Style){
-				testStyleSet,
-				testStyleSetCustomProp,
-			},
-		},
-		{
-			name: "Get",
-			functions: []func(t *testing.T, s Style){
-				testStyleGet,
-				testStyleGetCustomProp,
-			},
-		},
-		{
-			name: "Del",
-			functions: []func(t *testing.T, s Style){
-				testStyleDel,
-			},
-		},
-	}
+func testStyle(t *testing.T, styleDesc styleDescription) {
+	t.Run(styleDesc.setMethodName, func(t *testing.T) {
+		styleProp := styleDesc.newID()
+		style := styleDesc.new()
+		set := style.MethodByName(styleDesc.setMethodName)
+		in := make([]reflect.Value, 2)
+		in[0] = styleProp
+		in[1] = styleDesc.newValue()
 
-	return tests
+		t.Run("Property", func(t *testing.T) {
+			results := set.Call(in)
+			assert.Len(t, results, 0)
+
+			get := style.MethodByName(styleDesc.getMethodName)
+			results = get.Call(in[:1])
+			assert.Equal(t, in[1].Interface(), results[0].Interface())
+		})
+
+		t.Run("NewProperty", func(t *testing.T) {
+			in[0] = styleDesc.newID()
+			assert.Panics(t, func() {
+				set.Call(in)
+			})
+		})
+	})
+
+	t.Run(styleDesc.getMethodName, func(t *testing.T) {
+		styleProp := styleDesc.newID()
+		style := styleDesc.new()
+
+		get := style.MethodByName(styleDesc.getMethodName)
+
+		t.Run("DefaultValue", func(t *testing.T) {
+			result := get.Call([]reflect.Value{styleProp})[0]
+			assert.Equal(t, styleDesc.defaultValue, result.Interface())
+		})
+
+		t.Run("NewProperty", func(t *testing.T) {
+			assert.Panics(t, func() {
+				get.Call([]reflect.Value{
+					styleDesc.newID(),
+				})
+			})
+		})
+	})
 }
 
-func testStyleSet(t *testing.T, s Style) {
-	p := s.Get(property.WidthID())
-	assert.Nil(t, p)
-
-	prop := property.NewProp(property.WidthID())
-	assert.NotNil(t, prop)
-	s.Set(prop)
-
-	p = s.Get(property.WidthID())
-	assert.Equal(t, prop, p)
+func TestStyleEvents(t *testing.T) {
+	t.Run("Color", testStyleEventsColor)
+	t.Run("Iface", testStyleEventsIface)
+	t.Run("Int", testStyleEventsInt)
+	t.Run("IntUnit", testStyleEventsIntUnit)
 }
 
-func testStyleSetCustomProp(t *testing.T, s Style) {
-	id := property.NewID("test-id")
+func testStyleEventsColor(t *testing.T) {
+	var old, new *property.Color
+	var eventTriggered bool
+	id := property.NewColorID("test-color")
 
-	p := s.Get(id)
-	assert.Nil(t, p)
+	style := New(nil)
+	style.AddEventListener(ColorChangedListener(func(cce ColorChangedEvent) {
+		eventTriggered = true
+		assert.Equal(t, id, cce.ColorID)
+		assert.Equal(t, old, cce.Old)
+		assert.Equal(t, new, cce.New)
+	}))
 
-	prop := property.NewProp(id)
-	assert.NotNil(t, prop)
-	s.Set(prop)
+	new = &property.ColorBlueViolet
+	style.SetColor(id, new)
 
-	p = s.Get(id)
-	assert.Equal(t, prop, p)
+	old = new
+	new = &property.ColorPink
+	style.SetColor(id, new)
+
+	old = new
+	new = nil
+	style.SetColor(id, new)
+
+	assert.True(t, eventTriggered)
 }
 
-func testStyleGet(t *testing.T, s Style) {
-	prop := property.NewProp(property.PaddingBottomID())
+func testStyleEventsIface(t *testing.T) {
+	var old, new interface{}
+	var eventTriggered bool
+	id := property.NewIfaceID("test-iface")
 
-	s.Set(prop)
+	style := New(nil)
+	style.AddEventListener(IfaceChangedListener(func(ice IfaceChangedEvent) {
+		eventTriggered = true
+		assert.Equal(t, id, ice.IfaceID)
+		assert.Equal(t, old, ice.Old)
+		assert.Equal(t, new, ice.New)
+	}))
 
-	actual := s.Get(property.PaddingBottomID())
+	new = time.Now()
+	style.SetIface(id, new)
 
-	assert.Equal(t, prop.ID(), actual.ID())
-	assert.Equal(t, prop, actual)
+	old = new
+	new = rand.Int()
+	style.SetIface(id, new)
+
+	old = new
+	new = nil
+	style.SetIface(id, new)
+
+	assert.True(t, eventTriggered)
 }
 
-func testStyleGetCustomProp(t *testing.T, s Style) {
-	id := property.NewID("mock")
-	prop := property.NewProp(id)
-
-	s.Set(prop)
-
-	actual := s.Get(id)
-
-	assert.Equal(t, prop.ID(), actual.ID())
-	assert.Equal(t, prop, actual)
+func randomPropInt() *property.Int {
+	a := property.NewInt(rand.Int())
+	return &a
 }
 
-func testStyleDel(t *testing.T, s Style) {
-	prop := property.NewProp(property.WidthID())
-	s.Set(prop)
-	s.Del(property.WidthID())
+func testStyleEventsInt(t *testing.T) {
+	var old, new *property.Int
+	var eventTriggered bool
+	id := property.NewIntID("test-int")
 
-	assert.Nil(t, s.Get(property.WidthID()))
+	style := New(nil)
+	style.AddEventListener(IntChangedListener(func(ice IntChangedEvent) {
+		eventTriggered = true
+		assert.Equal(t, id, ice.IntID)
+		assert.Equal(t, old, ice.Old)
+		assert.Equal(t, new, ice.New)
+	}))
+
+	new = randomPropInt()
+	style.SetInt(id, new)
+
+	old = new
+	new = randomPropInt()
+	style.SetInt(id, new)
+
+	old = new
+	new = nil
+	style.SetInt(id, new)
+
+	assert.True(t, eventTriggered)
+}
+
+func randomPropIntUnit() *property.IntUnit {
+	a := property.NewIntUnit(rand.Int(), property.CellUnit)
+	return &a
+}
+
+func testStyleEventsIntUnit(t *testing.T) {
+	var old, new *property.IntUnit
+	var eventTriggered bool
+	id := property.NewIntUnitID("test-int-unit")
+
+	style := New(nil)
+	style.AddEventListener(IntUnitChangedListener(func(iuce IntUnitChangedEvent) {
+		eventTriggered = true
+		assert.Equal(t, id, iuce.IntID)
+		assert.Equal(t, old, iuce.Old)
+		assert.Equal(t, new, iuce.New)
+	}))
+
+	new = randomPropIntUnit()
+	style.SetIntUnit(id, new)
+
+	old = new
+	new = randomPropIntUnit()
+	style.SetIntUnit(id, new)
+
+	old = new
+	new = nil
+	style.SetIntUnit(id, new)
+
+	assert.True(t, eventTriggered)
 }

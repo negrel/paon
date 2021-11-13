@@ -1,109 +1,82 @@
 package styles
 
 import (
-	"fmt"
+	"strconv"
 	"testing"
 
-	"github.com/negrel/paon/styles/property"
+	"github.com/negrel/paon/pdk/events"
 )
 
-func BenchmarkMain(b *testing.B) {
-	b.Run("Style", benchmarkStyle)
-}
-
-func benchmarkStyle(b *testing.B) {
-	b.Run("Set", benchmarksStyleSet)
-	b.Run("Get", benchmarksStyleGet)
-}
-
-func benchmarksStyleSet(b *testing.B) {
-	for i := 8; i < 1024; i *= 2 {
-		b.Run(fmt.Sprintf("%d", i), func(b *testing.B) {
-			benchmarkStyleSet(b, i)
+func BenchmarkStyle(b *testing.B) {
+	b.Run("Color", func(b *testing.B) {
+		benchmarkColorStyle(b, func() ColorStyle {
+			return newStyle(events.NewTarget())
 		})
-		b.Run(fmt.Sprintf("custom-prop %d", i), func(b *testing.B) {
-			benchmarkStyleSetCustomProp(b, i)
+
+		for i := 4; i <= 16; i = i << 1 {
+			b.Run("Set-With-"+strconv.Itoa(i)+"-Listeners", func(b *testing.B) {
+				benchmarkColorStyleSet(b, func() ColorStyle {
+					s := newStyle(events.NewTarget())
+					for j := 0; j < i; j++ {
+						s.AddEventListener(ColorChangedListener(func(cce ColorChangedEvent) {}))
+					}
+					return s
+				})
+			})
+		}
+	})
+
+	b.Run("Iface", func(b *testing.B) {
+		benchmarkIfaceStyle(b, func() IfaceStyle {
+			return newStyle(events.NewTarget())
 		})
-	}
-}
 
-func benchmarkStyleSet(b *testing.B, n int) {
-	style := newTestStyle()
-	props := make([]property.Property, n)
-
-	builtInPropsCount := int(property.LastID())
-
-	for j := 0; j < n; j++ {
-		id := property.ID(j % builtInPropsCount)
-		props = append(props, property.NewProp(id))
-	}
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		for j := 0; j < n; j++ {
-			style.Set(props[n])
+		for i := 4; i <= 16; i = i << 1 {
+			b.Run("Set-With-"+strconv.Itoa(i)+"-Listeners", func(b *testing.B) {
+				benchmarkIfaceStyleSet(b, func() IfaceStyle {
+					s := newStyle(events.NewTarget())
+					for j := 0; j < i; j++ {
+						s.AddEventListener(IfaceChangedListener(func(ice IfaceChangedEvent) {}))
+					}
+					return s
+				})
+			})
 		}
-	}
-}
+	})
 
-func benchmarkStyleSetCustomProp(b *testing.B, n int) {
-	style := newTestStyle()
-	props := make([]property.Property, n)
-
-	for j := 0; j < n; j++ {
-		props = append(props, property.NewProp(property.NewID("test")))
-	}
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		for j := 0; j < n; j++ {
-			style.Set(props[n])
-		}
-	}
-}
-
-func benchmarksStyleGet(b *testing.B) {
-	for i := 8; i < 1024; i *= 2 {
-		b.Run(fmt.Sprintf("%d", i), func(b *testing.B) {
-			benchmarkStyleGet(b, i)
+	b.Run("Int", func(b *testing.B) {
+		benchmarkIntStyle(b, func() IntStyle {
+			return newStyle(events.NewTarget())
 		})
-		b.Run(fmt.Sprintf("custom-prop %d", i), func(b *testing.B) {
-			benchmarkStyleGetCustomProps(b, i)
+
+		for i := 4; i <= 16; i = i << 1 {
+			b.Run("Set-With-"+strconv.Itoa(i)+"-Listeners", func(b *testing.B) {
+				benchmarkIntStyleSet(b, func() IntStyle {
+					s := newStyle(events.NewTarget())
+					for j := 0; j < i; j++ {
+						s.AddEventListener(IfaceChangedListener(func(ice IfaceChangedEvent) {}))
+					}
+					return s
+				})
+			})
+		}
+	})
+
+	b.Run("IntUnit", func(b *testing.B) {
+		benchmarkIntUnitStyle(b, func() IntUnitStyle {
+			return newStyle(events.NewTarget())
 		})
-	}
-}
 
-func benchmarkStyleGet(b *testing.B, n int) {
-	style := newTestStyle()
-	ids := []property.ID{}
-
-	last := int(property.LastID())
-
-	for i := 0; i < n; i++ {
-		ids = append(ids, property.ID(i%last))
-	}
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		for _, id := range ids {
-			_ = style.Get(id)
+		for i := 4; i <= 16; i = i << 1 {
+			b.Run("Set-With-"+strconv.Itoa(i)+"-Listeners", func(b *testing.B) {
+				benchmarkIntUnitStyleSet(b, func() IntUnitStyle {
+					s := newStyle(events.NewTarget())
+					for j := 0; j < i; j++ {
+						s.AddEventListener(IntUnitChangedListener(func(ice IntUnitChangedEvent) {}))
+					}
+					return s
+				})
+			})
 		}
-	}
-}
-
-func benchmarkStyleGetCustomProps(b *testing.B, n int) {
-	style := newTestStyle()
-	ids := []property.ID{}
-
-	for i := 0; i < n; i++ {
-		ids = append(ids, property.NewID(fmt.Sprintf("mock-%d", i)))
-		style.Set(property.NewInt(ids[i], i))
-	}
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		for _, id := range ids {
-			_ = style.Get(id)
-		}
-	}
+	})
 }

@@ -14,31 +14,29 @@ type Styled interface {
 // Property change can be observed by listening to EventPropertyChange events.
 type Style interface {
 	events.Target
-
-	// Set sets the given property.
-	Set(property.Property)
-
-	// Get gets a property.
-	Get(property.ID) property.Property
-
-	// Del deletes a property.
-	Del(property.ID)
+	ColorStyle
+	IntStyle
+	IntUnitStyle
+	IfaceStyle
 }
 
 var _ Style = &style{}
 
 type style struct {
 	events.Target
-
-	props []property.Property
+	colorStyle
+	intStyle
+	intUnitStyle
+	ifaceStyle
 }
 
-var noOpTarget = events.NewNoOpTarget()
-
-// New returns a new Style object configured with the given options.
+// New returns a new Style object with the given target.
+// A new target is created if tge given is nil.
+// The returned Style will support properties ID (Color, Int, Iface...)
+// created before the Style itself.
 func New(target events.Target) Style {
 	if target == nil {
-		target = noOpTarget
+		target = events.NewTarget()
 	}
 
 	return newStyle(target)
@@ -46,26 +44,46 @@ func New(target events.Target) Style {
 
 func newStyle(target events.Target) *style {
 	style := &style{
-		Target: target,
-		props:  make([]property.Property, property.LastID()+1),
+		Target:       target,
+		colorStyle:   newColorStyle(),
+		intStyle:     newIntStyle(),
+		intUnitStyle: newIntUnitStyle(),
+		ifaceStyle:   newIfaceStyle(),
 	}
 
 	return style
 }
 
-// Del implements the Style interface.
-func (s *style) Del(id property.ID) {
-	s.props[uint32(id)] = nil
+func (s *style) SetColor(id property.ColorID, c *property.Color) {
+	old := s.colorStyle.Color(id)
+	if old != c {
+		s.colorStyle.SetColor(id, c)
+		s.DispatchEvent(NewColorChanged(id, old, c))
+	}
 }
 
-// Set implements the Style interface.
-func (s *style) Set(prop property.Property) {
-	s.props[uint32(prop.ID())] = prop
+func (s *style) SetIface(id property.IfaceID, i interface{}) {
+	old := s.ifaceStyle.Iface(id)
+	if old != i {
+		s.ifaceStyle.SetIface(id, i)
+		s.DispatchEvent(NewIfaceChanged(id, old, i))
+	}
 }
 
-// Get implements the Style interface.
-func (s style) Get(id property.ID) property.Property {
-	return s.props[uint32(id)]
+func (s *style) SetInt(id property.IntID, i *property.Int) {
+	old := s.intStyle.Int(id)
+	if old != i {
+		s.intStyle.SetInt(id, i)
+		s.DispatchEvent(NewIntChanged(id, old, i))
+	}
+}
+
+func (s *style) SetIntUnit(id property.IntUnitID, i *property.IntUnit) {
+	old := s.intUnitStyle.IntUnit(id)
+	if old != i {
+		s.intUnitStyle.SetIntUnit(id, i)
+		s.DispatchEvent(NewIntUnitChanged(id, old, i))
+	}
 }
 
 // WeightedStyle extends the Style interface with a Weight method.
