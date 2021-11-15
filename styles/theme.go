@@ -1,9 +1,6 @@
 package styles
 
 import (
-	"math"
-	"sort"
-
 	"github.com/negrel/paon/pdk/events"
 	"github.com/negrel/paon/styles/property"
 )
@@ -15,8 +12,11 @@ type Themed interface {
 }
 
 // Theme define a set of Style. These styles are read-only and can't be modified
-// through the Theme object. Theme also implements the Style interface because
-// it embed a read-write Style object.
+// through the Theme object. Getting a property value returns the value of the
+// Style with the biggest weight containing the property.
+//
+// Theme also implements the Style interface because it embed one read-write Style object.
+// The embedded Style has an higher weight than any other Style objects.
 type Theme interface {
 	Style
 
@@ -31,10 +31,9 @@ type Theme interface {
 
 // theme is a composition of Style object.
 type theme struct {
-	events.Target
+	Style
 
 	cache  Style
-	style  Weighted
 	shared styleSlice
 	sorted bool
 }
@@ -44,42 +43,40 @@ func NewTheme(defaultStyle WeightedStyle) Theme {
 	return newTheme(defaultStyle)
 }
 
+var noOpTarget = events.NewNoOpTarget()
+
 func newTheme(defaultStyle WeightedStyle) *theme {
 	shared := make([]WeightedStyle, 0, 8)
-	shared = append(shared, defaultStyle)
+	if defaultStyle != nil {
+		shared = append(shared, defaultStyle)
+	}
 
 	return &theme{
-		cache:  New(nil),
-		style:  NewWeighted(New(nil), math.MinInt),
+		cache:  New(noOpTarget),
+		Style:  New(events.NewTarget()),
 		shared: shared,
 	}
 }
 
-// Get implements the Style interface.
-func (t *theme) Get(id property.ID) property.Property {
-	if prop := t.cache.Get(id); prop != nil {
+// Int implements the IntStyle interface.
+func (t *theme) Int(id property.IntID) *property.Int {
+	if prop := t.cache.Int(id); prop != nil {
 		return prop
 	}
 
-	prop := t.get(id)
-	if prop != nil {
-		t.cache.Set(prop)
-	}
+	prop := t.getInt(id)
+	t.cache.SetInt(id, prop)
 
 	return prop
 }
 
-func (t *theme) get(id property.ID) property.Property {
-	if prop := t.style.Get(id); prop != nil {
+func (t *theme) getInt(id property.IntID) *property.Int {
+	if prop := t.Style.Int(id); prop != nil {
 		return prop
 	}
 
-	if !t.sorted {
-		sort.Sort(t.shared)
-	}
-
 	for i := len(t.shared) - 1; i >= 0; i-- {
-		if prop := t.shared[i].Get(id); prop != nil {
+		if prop := t.shared[i].Int(id); prop != nil {
 			return prop
 		}
 	}
@@ -87,14 +84,82 @@ func (t *theme) get(id property.ID) property.Property {
 	return nil
 }
 
-// Set implements the Style interface.
-func (t *theme) Set(prop property.Property) {
-	t.style.Set(prop)
+// Color implements the ColorStyle interface.
+func (t *theme) Color(id property.ColorID) *property.Color {
+	if prop := t.cache.Color(id); prop != nil {
+		return prop
+	}
+
+	prop := t.getColor(id)
+	t.cache.SetColor(id, prop)
+
+	return prop
 }
 
-// Del implements the Style interface.
-func (t *theme) Del(prop property.ID) {
-	t.style.Del(prop)
+func (t *theme) getColor(id property.ColorID) *property.Color {
+	if prop := t.Style.Color(id); prop != nil {
+		return prop
+	}
+
+	for i := len(t.shared) - 1; i >= 0; i-- {
+		if prop := t.shared[i].Color(id); prop != nil {
+			return prop
+		}
+	}
+
+	return nil
+}
+
+// Iface implements the IfaceStyle interface.
+func (t *theme) Iface(id property.IfaceID) interface{} {
+	if prop := t.cache.Iface(id); prop != nil {
+		return prop
+	}
+
+	prop := t.getIface(id)
+	t.cache.SetIface(id, prop)
+
+	return prop
+}
+
+func (t *theme) getIface(id property.IfaceID) interface{} {
+	if prop := t.Style.Iface(id); prop != nil {
+		return prop
+	}
+
+	for i := len(t.shared) - 1; i >= 0; i-- {
+		if prop := t.shared[i].Iface(id); prop != nil {
+			return prop
+		}
+	}
+
+	return nil
+}
+
+// IntUnit implements the IntUnitStyle interface.
+func (t *theme) IntUnit(id property.IntUnitID) *property.IntUnit {
+	if prop := t.cache.IntUnit(id); prop != nil {
+		return prop
+	}
+
+	prop := t.getIntUnit(id)
+	t.cache.SetIntUnit(id, prop)
+
+	return prop
+}
+
+func (t *theme) getIntUnit(id property.IntUnitID) *property.IntUnit {
+	if prop := t.Style.IntUnit(id); prop != nil {
+		return prop
+	}
+
+	for i := len(t.shared) - 1; i >= 0; i-- {
+		if prop := t.shared[i].IntUnit(id); prop != nil {
+			return prop
+		}
+	}
+
+	return nil
 }
 
 // Styles implements the Theme interface.

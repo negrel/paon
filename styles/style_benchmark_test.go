@@ -1,6 +1,8 @@
 package styles
 
 import (
+	"fmt"
+	"math"
 	"strconv"
 	"testing"
 
@@ -8,15 +10,38 @@ import (
 )
 
 func BenchmarkStyle(b *testing.B) {
-	b.Run("Color", func(b *testing.B) {
-		benchmarkColorStyle(b, func() ColorStyle {
+	b.Run("Style", func(b *testing.B) {
+		benchmarkStyle(b, func() Style {
 			return newStyle(events.NewTarget())
 		})
+	})
 
-		for i := 4; i <= 16; i = i << 1 {
+	b.Run("Theme", func(b *testing.B) {
+		for i := 1; i < 64; i = i << 1 {
+			b.Run(fmt.Sprintf("With-%d-Style", i), func(b *testing.B) {
+				benchmarkStyle(b, func() Style {
+					theme := NewTheme(nil)
+					for j := 0; j < i; j++ {
+						theme.AddStyle(NewWeighted(newStyle(events.NewTarget()), math.MinInt))
+					}
+
+					return theme
+				})
+			})
+		}
+	})
+}
+
+func benchmarkStyle(b *testing.B, newStyle func() Style) {
+	b.Run("Color", func(b *testing.B) {
+		benchmarkColorStyle(b, func() ColorStyle {
+			return newStyle()
+		})
+
+		for i := 1; i <= 16; i = i << 1 {
 			b.Run("Set-With-"+strconv.Itoa(i)+"-Listeners", func(b *testing.B) {
 				benchmarkColorStyleSet(b, func() ColorStyle {
-					s := newStyle(events.NewTarget())
+					s := newStyle()
 					for j := 0; j < i; j++ {
 						s.AddEventListener(ColorChangedListener(func(cce ColorChangedEvent) {}))
 					}
@@ -28,13 +53,13 @@ func BenchmarkStyle(b *testing.B) {
 
 	b.Run("Iface", func(b *testing.B) {
 		benchmarkIfaceStyle(b, func() IfaceStyle {
-			return newStyle(events.NewTarget())
+			return newStyle()
 		})
 
-		for i := 4; i <= 16; i = i << 1 {
+		for i := 1; i <= 16; i = i << 1 {
 			b.Run("Set-With-"+strconv.Itoa(i)+"-Listeners", func(b *testing.B) {
 				benchmarkIfaceStyleSet(b, func() IfaceStyle {
-					s := newStyle(events.NewTarget())
+					s := newStyle()
 					for j := 0; j < i; j++ {
 						s.AddEventListener(IfaceChangedListener(func(ice IfaceChangedEvent) {}))
 					}
@@ -46,13 +71,13 @@ func BenchmarkStyle(b *testing.B) {
 
 	b.Run("Int", func(b *testing.B) {
 		benchmarkIntStyle(b, func() IntStyle {
-			return newStyle(events.NewTarget())
+			return newStyle()
 		})
 
-		for i := 4; i <= 16; i = i << 1 {
+		for i := 1; i <= 16; i = i << 1 {
 			b.Run("Set-With-"+strconv.Itoa(i)+"-Listeners", func(b *testing.B) {
 				benchmarkIntStyleSet(b, func() IntStyle {
-					s := newStyle(events.NewTarget())
+					s := newStyle()
 					for j := 0; j < i; j++ {
 						s.AddEventListener(IfaceChangedListener(func(ice IfaceChangedEvent) {}))
 					}
@@ -64,13 +89,13 @@ func BenchmarkStyle(b *testing.B) {
 
 	b.Run("IntUnit", func(b *testing.B) {
 		benchmarkIntUnitStyle(b, func() IntUnitStyle {
-			return newStyle(events.NewTarget())
+			return newStyle()
 		})
 
-		for i := 4; i <= 16; i = i << 1 {
+		for i := 1; i <= 16; i = i << 1 {
 			b.Run("Set-With-"+strconv.Itoa(i)+"-Listeners", func(b *testing.B) {
 				benchmarkIntUnitStyleSet(b, func() IntUnitStyle {
-					s := newStyle(events.NewTarget())
+					s := newStyle()
 					for j := 0; j < i; j++ {
 						s.AddEventListener(IntUnitChangedListener(func(ice IntUnitChangedEvent) {}))
 					}
