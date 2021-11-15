@@ -3,7 +3,7 @@ package tcell
 import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/negrel/paon/pdk/draw"
-	"github.com/negrel/paon/styles/value"
+	"github.com/negrel/paon/styles/property"
 )
 
 var _, _, defaultAttr = tcell.StyleDefault.Decompose()
@@ -69,10 +69,10 @@ func toTcellStyle(cellstyle draw.CellStyle) tcell.Style {
 	return style
 }
 
-func toTcellColor(color value.Color) tcell.Color {
+func toTcellColor(color property.Color) tcell.Color {
 	return tcell.NewHexColor(int32(color.Hex()) & 0xFFFFFF)
 }
 
-func fromTcellColor(color tcell.Color) value.Color {
-	return value.ColorFromHex(uint32(color.Hex()) & 0xFFFFFF)
+func fromTcellColor(color tcell.Color) property.Color {
+	return property.ColorFromHex(uint32(color.Hex()) & 0xFFFFFF)
 }

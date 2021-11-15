@@ -7,7 +7,7 @@ import (
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/negrel/paon/pdk/draw"
-	"github.com/negrel/paon/styles/value"
+	"github.com/negrel/paon/styles/property"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -56,8 +56,8 @@ func strikethrough(style tcell.Style) bool {
 	return attrs&tcell.AttrStrikeThrough != 0
 }
 
-func randColor() value.Color {
-	return value.ColorFromHex(rand.Uint32())
+func randColor() property.Color {
+	return property.ColorFromHex(rand.Uint32())
 }
 
 func randBool() bool {
@@ -129,8 +129,8 @@ func TestFromTcellStyle(t *testing.T) {
 	// Default
 	cellstyle := fromTcellStyle(tcell.StyleDefault)
 
-	assert.Equal(t, cellstyle.Foreground, value.ColorUnset())
-	assert.Equal(t, cellstyle.Background, value.ColorUnset())
+	assert.Equal(t, cellstyle.Foreground, property.ColorUnset())
+	assert.Equal(t, cellstyle.Background, property.ColorUnset())
 	assert.Equal(t, cellstyle.Blink, blink(tcell.StyleDefault))
 	assert.Equal(t, cellstyle.Bold, bold(tcell.StyleDefault))
 	assert.Equal(t, cellstyle.Dim, dim(tcell.StyleDefault))
