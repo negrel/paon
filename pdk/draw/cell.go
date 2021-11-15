@@ -8,7 +8,7 @@ type CellStyle struct {
 	Background property.Color
 
 	Bold, Blink, Reverse, Underline,
-	Dim, Italic, StrikeThrough bool
+	Dim, Italic, StrikeThrough property.Bool
 }
 
 // Cell define a terminal Surface cell.

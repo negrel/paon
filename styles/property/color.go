@@ -1,11 +1,10 @@
 package property
 
 import (
-	"github.com/gdamore/tcell/v2"
 	"github.com/negrel/paon/pdk/id"
 )
 
-// ColorID define a uniqueID to accross colors properties.
+// ColorID define a unique ID accross all Color properties.
 type ColorID id.ID
 
 var (
@@ -28,7 +27,6 @@ func (ci ColorID) String() string {
 
 // ColorIDCount returns the number of ColorID generated.
 func ColorIDCount() uint32 {
-	_ = tcell.Color100
 	return uint32(colorRegistry.Last())
 }
 

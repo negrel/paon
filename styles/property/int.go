@@ -4,7 +4,7 @@ import (
 	"github.com/negrel/paon/pdk/id"
 )
 
-// IntID define a unique ID accross Int properties.
+// IntID define a unique ID accross all Int properties.
 type IntID id.ID
 
 var (

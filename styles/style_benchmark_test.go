@@ -33,6 +33,24 @@ func BenchmarkStyle(b *testing.B) {
 }
 
 func benchmarkStyle(b *testing.B, newStyle func() Style) {
+	b.Run("Bool", func(b *testing.B) {
+		benchmarkBoolStyle(b, func() BoolStyle {
+			return newStyle()
+		})
+
+		for i := 1; i <= 16; i = i << 1 {
+			b.Run("Set-With-"+strconv.Itoa(i)+"-Listeners", func(b *testing.B) {
+				benchmarkBoolStyleSet(b, func() BoolStyle {
+					s := newStyle()
+					for j := 0; j < i; j++ {
+						s.AddEventListener(BoolChangedListener(func(bce BoolChangedEvent) {}))
+					}
+					return s
+				})
+			})
+		}
+	})
+
 	b.Run("Color", func(b *testing.B) {
 		benchmarkColorStyle(b, func() ColorStyle {
 			return newStyle()

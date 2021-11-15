@@ -6,6 +6,40 @@ import (
 	"github.com/negrel/paon/styles/property"
 )
 
+var boolChangedEventType = events.NewType("bool-changed")
+
+// BoolChangedEventType returns the events.Type of BoolChangedEvent events.
+func BoolChangedEventType() events.Type {
+	return colorChangedEventType
+}
+
+// BoolChangedListener returns an events.Listener that will call the given handler
+// on BoolChangedEvent events.
+func BoolChangedListener(handler func(BoolChangedEvent)) (events.Type, events.Listener) {
+	return BoolChangedEventType(), events.ListenerFunc(func(event events.Event) {
+		assert.IsType(event, BoolChangedEvent{})
+		handler(event.(BoolChangedEvent))
+	})
+}
+
+// BoolChangedEvent event is triggered after the value of a
+// property.Bool property changed.
+type BoolChangedEvent struct {
+	events.Event
+	BoolID   property.BoolID
+	Old, New *property.Bool
+}
+
+// NewBoolChanged returns a new BoolChangedEvent event.
+func NewBoolChanged(id property.BoolID, old, new *property.Bool) BoolChangedEvent {
+	return BoolChangedEvent{
+		Event:  events.NewEvent(boolChangedEventType),
+		BoolID: id,
+		Old:    old,
+		New:    new,
+	}
+}
+
 var colorChangedEventType = events.NewType("color-changed")
 
 // ColorChangedEventType returns the events.Type of ColorChangedEvent events.

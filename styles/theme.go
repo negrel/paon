@@ -58,6 +58,32 @@ func newTheme(defaultStyle WeightedStyle) *theme {
 	}
 }
 
+// Bool implements the BoolStyle interface.
+func (t *theme) Bool(id property.BoolID) *property.Bool {
+	if prop := t.cache.Bool(id); prop != nil {
+		return prop
+	}
+
+	prop := t.getBool(id)
+	t.cache.SetBool(id, prop)
+
+	return prop
+}
+
+func (t *theme) getBool(id property.BoolID) *property.Bool {
+	if prop := t.Style.Bool(id); prop != nil {
+		return prop
+	}
+
+	for i := len(t.shared) - 1; i >= 0; i-- {
+		if prop := t.shared[i].Bool(id); prop != nil {
+			return prop
+		}
+	}
+
+	return nil
+}
+
 // Int implements the IntStyle interface.
 func (t *theme) Int(id property.IntID) *property.Int {
 	if prop := t.cache.Int(id); prop != nil {

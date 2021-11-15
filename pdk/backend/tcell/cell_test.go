@@ -61,6 +61,10 @@ func randColor() property.Color {
 }
 
 func randBool() bool {
+	return bool(randPropBool())
+}
+
+func randPropBool() property.Bool {
 	return rand.Int()%2 == 0
 }
 
@@ -97,13 +101,13 @@ func TestToCellStyle(t *testing.T) {
 
 	// Attributes
 	cellstyle = draw.CellStyle{
-		Blink:         randBool(),
-		Bold:          randBool(),
-		Dim:           randBool(),
-		Italic:        randBool(),
-		Reverse:       randBool(),
-		Underline:     randBool(),
-		StrikeThrough: randBool(),
+		Blink:         randPropBool(),
+		Bold:          randPropBool(),
+		Dim:           randPropBool(),
+		Italic:        randPropBool(),
+		Reverse:       randPropBool(),
+		Underline:     randPropBool(),
+		StrikeThrough: randPropBool(),
 	}
 
 	style = toTcellStyle(cellstyle)

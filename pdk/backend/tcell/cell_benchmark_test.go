@@ -12,13 +12,13 @@ func randomCellStyle() draw.CellStyle {
 	return draw.CellStyle{
 		Foreground:    randColor(),
 		Background:    randColor(),
-		Bold:          randBool(),
-		Blink:         randBool(),
-		Dim:           randBool(),
-		Reverse:       randBool(),
-		Underline:     randBool(),
-		Italic:        randBool(),
-		StrikeThrough: randBool(),
+		Bold:          randPropBool(),
+		Blink:         randPropBool(),
+		Dim:           randPropBool(),
+		Reverse:       randPropBool(),
+		Underline:     randPropBool(),
+		Italic:        randPropBool(),
+		StrikeThrough: randPropBool(),
 	}
 }
 

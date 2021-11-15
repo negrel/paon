@@ -46,13 +46,13 @@ func toTcell(cell draw.Cell) (rune, []rune, tcell.Style) {
 
 func toTcellStyle(cellstyle draw.CellStyle) tcell.Style {
 	style := tcell.StyleDefault.
-		Bold(cellstyle.Bold).
-		Blink(cellstyle.Blink).
-		Reverse(cellstyle.Reverse).
-		Underline(cellstyle.Underline).
-		Dim(cellstyle.Dim).
-		Italic(cellstyle.Italic).
-		StrikeThrough(cellstyle.StrikeThrough)
+		Bold(bool(cellstyle.Bold)).
+		Blink(bool(cellstyle.Blink)).
+		Reverse(bool(cellstyle.Reverse)).
+		Underline(bool(cellstyle.Underline)).
+		Dim(bool(cellstyle.Dim)).
+		Italic(bool(cellstyle.Italic)).
+		StrikeThrough(bool(cellstyle.StrikeThrough))
 
 	if cellstyle.Foreground.A() != 0 {
 		style = style.Foreground(

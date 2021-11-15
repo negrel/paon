@@ -18,6 +18,7 @@ type Style interface {
 	IntStyle
 	IntUnitStyle
 	IfaceStyle
+	BoolStyle
 }
 
 var _ Style = &style{}
@@ -28,6 +29,7 @@ type style struct {
 	intStyle
 	intUnitStyle
 	ifaceStyle
+	boolStyle
 }
 
 // New returns a new Style object with the given target.
@@ -49,6 +51,7 @@ func newStyle(target events.Target) *style {
 		intStyle:     newIntStyle(),
 		intUnitStyle: newIntUnitStyle(),
 		ifaceStyle:   newIfaceStyle(),
+		boolStyle:    newBoolStyle(),
 	}
 
 	return style

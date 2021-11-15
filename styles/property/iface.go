@@ -4,7 +4,7 @@ import (
 	"github.com/negrel/paon/pdk/id"
 )
 
-// IfaceID define a unique ID accross Iface properties.
+// IfaceID define a unique ID accross all Iface properties.
 type IfaceID id.ID
 
 var (
