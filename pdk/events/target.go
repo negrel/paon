@@ -1,8 +1,6 @@
 package events
 
 import (
-	"sync"
-
 	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/debuggo/pkg/log"
 )
@@ -18,21 +16,18 @@ var _ Target = &target{}
 
 // target is an implementation of the Target interface.
 type target struct {
-	sync.RWMutex
-	listeners map[Type][]Listener
+	listeners [][]Listener
 }
 
 // NewTarget return a new event Target with no listeners.
 func NewTarget() Target {
-	return &target{
-		listeners: make(map[Type][]Listener),
+	return target{
+		listeners: make([][]Listener, typeRegistry.Last()+1),
 	}
 }
 
-func (t *target) AddEventListener(tpe Type, listener Listener) {
+func (t target) AddEventListener(tpe Type, listener Listener) {
 	assert.NotNil(listener, "listener must be not nil")
-	t.Lock()
-	defer t.Unlock()
 
 	if t.listeners[tpe] == nil {
 		t.listeners[tpe] = make([]Listener, 0, 8)
@@ -42,10 +37,8 @@ func (t *target) AddEventListener(tpe Type, listener Listener) {
 }
 
 // RemoveEventListener removes an event listener of a specific event type from the target.
-func (t *target) RemoveEventListener(tpe Type, listener Listener) {
+func (t target) RemoveEventListener(tpe Type, listener Listener) {
 	assert.NotNil(listener, "listener must be not nil")
-	t.Lock()
-	defer t.Unlock()
 
 	if t.listeners[tpe] == nil {
 		log.Infof("can't remove event listener %v, no such event listener registered for %v event type", listener, tpe)
@@ -63,11 +56,15 @@ func (t *target) RemoveEventListener(tpe Type, listener Listener) {
 }
 
 // DispatchEvent dispatch the given event to listeners.
-func (t *target) DispatchEvent(event Event) {
-	t.RLock()
-	defer t.RUnlock()
+func (t target) DispatchEvent(event Event) {
+	assert.NotNil(event, "event must be not nil")
 
-	for _, listener := range t.listeners[event.Type()] {
+	i := uint32(event.Type())
+	if t.listeners[i] == nil {
+		return
+	}
+
+	for _, listener := range t.listeners[i] {
 		listener.HandleEvent(event)
 	}
 }
