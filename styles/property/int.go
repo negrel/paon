@@ -2,6 +2,7 @@ package property
 
 import (
 	"github.com/negrel/paon/pdk/id"
+	"github.com/negrel/paon/pdk/id/store"
 )
 
 // IntID define a unique ID accross all Int properties.
@@ -9,7 +10,7 @@ type IntID id.ID
 
 var (
 	intRegistry = id.Registry{}
-	intMap      = id.NewStringMap()
+	intMap      = store.NewStringMap()
 )
 
 // NewIntID returns a new unique int property ID.

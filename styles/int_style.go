@@ -1,6 +1,10 @@
 package styles
 
 import (
+	"unsafe"
+
+	"github.com/negrel/paon/pdk/id"
+	"github.com/negrel/paon/pdk/id/store"
 	"github.com/negrel/paon/styles/property"
 )
 
@@ -13,7 +17,7 @@ type IntStyle interface {
 var _ IntStyle = intStyle{}
 
 type intStyle struct {
-	ints []*property.Int
+	ints store.PtrSlice
 }
 
 // NewIntStyle returns a new IntStyle instance.
@@ -23,14 +27,14 @@ func NewIntStyle() IntStyle {
 
 func newIntStyle() intStyle {
 	return intStyle{
-		ints: make([]*property.Int, property.IntIDCount()+1),
+		ints: store.NewPtrSlice(int(property.IntIDCount() + 1)),
 	}
 }
 
-func (is intStyle) Int(id property.IntID) *property.Int {
-	return is.ints[uint32(id)]
+func (is intStyle) Int(i property.IntID) *property.Int {
+	return (*property.Int)(is.ints.Get(id.ID(i)))
 }
 
-func (is intStyle) SetInt(id property.IntID, p *property.Int) {
-	is.ints[uint32(id)] = p
+func (is intStyle) SetInt(i property.IntID, p *property.Int) {
+	is.ints.Set(id.ID(i), unsafe.Pointer(p))
 }

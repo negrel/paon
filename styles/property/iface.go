@@ -2,6 +2,7 @@ package property
 
 import (
 	"github.com/negrel/paon/pdk/id"
+	"github.com/negrel/paon/pdk/id/store"
 )
 
 // IfaceID define a unique ID accross all Iface properties.
@@ -9,7 +10,7 @@ type IfaceID id.ID
 
 var (
 	ifaceRegistry = id.Registry{}
-	ifaceMap      = id.NewStringMap()
+	ifaceMap      = store.NewStringMap()
 )
 
 // NewIfaceID returns a new unique interface property ID.

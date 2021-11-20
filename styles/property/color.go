@@ -2,6 +2,7 @@ package property
 
 import (
 	"github.com/negrel/paon/pdk/id"
+	"github.com/negrel/paon/pdk/id/store"
 )
 
 // ColorID define a unique ID accross all Color properties.
@@ -9,7 +10,7 @@ type ColorID id.ID
 
 var (
 	colorRegistry = id.Registry{}
-	colorMap      = id.NewStringMap()
+	colorMap      = store.NewStringMap()
 )
 
 // NewColorID returns a new unique color property ID.

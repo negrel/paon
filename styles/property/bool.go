@@ -2,6 +2,7 @@ package property
 
 import (
 	"github.com/negrel/paon/pdk/id"
+	"github.com/negrel/paon/pdk/id/store"
 )
 
 // BoolID define a unique ID accross all Bool properties.
@@ -9,7 +10,7 @@ type BoolID id.ID
 
 var (
 	boolRegistry = id.Registry{}
-	boolMap      = id.NewStringMap()
+	boolMap      = store.NewStringMap()
 )
 
 // NewBoolID returns a new unique Bool property ID.
@@ -22,7 +23,7 @@ func NewBoolID(name string) BoolID {
 
 // String implements the fmt.Stringer interface.
 func (bi BoolID) String() string {
-	return colorMap.Get(id.ID(bi))
+	return boolMap.Get(id.ID(bi))
 }
 
 // BoolIDCount returns the number of BoolID generated.

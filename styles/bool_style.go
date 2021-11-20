@@ -1,6 +1,12 @@
 package styles
 
-import "github.com/negrel/paon/styles/property"
+import (
+	"unsafe"
+
+	"github.com/negrel/paon/pdk/id"
+	"github.com/negrel/paon/pdk/id/store"
+	"github.com/negrel/paon/styles/property"
+)
 
 // BoolStyle define objects containing property.Bool style properties.
 type BoolStyle interface {
@@ -11,7 +17,7 @@ type BoolStyle interface {
 var _ BoolStyle = boolStyle{}
 
 type boolStyle struct {
-	bools []*property.Bool
+	store.PtrSlice
 }
 
 // NewBoolStyle returns a new BoolStyle instance.
@@ -21,14 +27,14 @@ func NewBoolStyle() BoolStyle {
 
 func newBoolStyle() boolStyle {
 	return boolStyle{
-		bools: make([]*property.Bool, property.BoolIDCount()+1),
+		store.NewPtrSlice(int(property.BoolIDCount() + 1)),
 	}
 }
 
-func (bs boolStyle) Bool(id property.BoolID) *property.Bool {
-	return bs.bools[uint32(id)]
+func (bs boolStyle) Bool(i property.BoolID) *property.Bool {
+	return (*property.Bool)(bs.Get(id.ID(i)))
 }
 
-func (bs boolStyle) SetBool(id property.BoolID, c *property.Bool) {
-	bs.bools[uint32(id)] = c
+func (bs boolStyle) SetBool(i property.BoolID, c *property.Bool) {
+	bs.PtrSlice.Set(id.ID(i), unsafe.Pointer(c))
 }

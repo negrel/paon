@@ -4,10 +4,11 @@ import (
 	"fmt"
 
 	"github.com/negrel/paon/pdk/id"
+	"github.com/negrel/paon/pdk/id/store"
 )
 
 var typeRegistry = id.Registry{}
-var typeMap = id.NewStringMap()
+var typeMap = store.NewStringMap()
 
 // Type is the type of an Event
 type Type id.ID

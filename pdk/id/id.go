@@ -13,8 +13,9 @@ type Registry struct {
 
 // New returns a new unique ID.
 func (r *Registry) New() ID {
-	id := atomic.AddUint32(&r.counter, 1)
-	return ID(id)
+	id := ID(atomic.AddUint32(&r.counter, 1))
+
+	return id
 }
 
 // Last returns the most recent ID generated.

@@ -1,6 +1,10 @@
 package styles
 
 import (
+	"unsafe"
+
+	"github.com/negrel/paon/pdk/id"
+	"github.com/negrel/paon/pdk/id/store"
 	"github.com/negrel/paon/styles/property"
 )
 
@@ -13,7 +17,7 @@ type ColorStyle interface {
 var _ ColorStyle = colorStyle{}
 
 type colorStyle struct {
-	colors []*property.Color
+	colors store.Ptr
 }
 
 // NewColorStyle returns a new ColorStyle instance.
@@ -23,14 +27,14 @@ func NewColorStyle() ColorStyle {
 
 func newColorStyle() colorStyle {
 	return colorStyle{
-		colors: make([]*property.Color, property.ColorIDCount()+1),
+		colors: store.NewPtrSlice(int(property.ColorIDCount() + 1)),
 	}
 }
 
-func (cs colorStyle) Color(id property.ColorID) *property.Color {
-	return cs.colors[uint32(id)]
+func (cs colorStyle) Color(i property.ColorID) *property.Color {
+	return (*property.Color)(cs.colors.Get(id.ID(i)))
 }
 
-func (cs colorStyle) SetColor(id property.ColorID, c *property.Color) {
-	cs.colors[uint32(id)] = c
+func (cs colorStyle) SetColor(i property.ColorID, c *property.Color) {
+	cs.colors.Set(id.ID(i), unsafe.Pointer(c))
 }

@@ -1,6 +1,8 @@
 package styles
 
 import (
+	"github.com/negrel/paon/pdk/id"
+	"github.com/negrel/paon/pdk/id/store"
 	"github.com/negrel/paon/styles/property"
 )
 
@@ -13,7 +15,7 @@ type IfaceStyle interface {
 var _ IfaceStyle = ifaceStyle{}
 
 type ifaceStyle struct {
-	ifaces []interface{}
+	ifaces store.IfaceSlice
 }
 
 // NewIfaceStyle returns a new IfaceStyle instance.
@@ -23,14 +25,14 @@ func NewIfaceStyle() IfaceStyle {
 
 func newIfaceStyle() ifaceStyle {
 	return ifaceStyle{
-		ifaces: make([]interface{}, property.IfaceIDCount()+1),
+		ifaces: store.NewIfaceSlice(int(property.IfaceIDCount() + 1)),
 	}
 }
 
-func (is ifaceStyle) Iface(id property.IfaceID) interface{} {
-	return is.ifaces[uint32(id)]
+func (is ifaceStyle) Iface(i property.IfaceID) interface{} {
+	return is.ifaces.Get(id.ID(i))
 }
 
-func (is ifaceStyle) SetIface(id property.IfaceID, i interface{}) {
-	is.ifaces[uint32(id)] = i
+func (is ifaceStyle) SetIface(i property.IfaceID, iface interface{}) {
+	is.ifaces.Set(id.ID(i), iface)
 }

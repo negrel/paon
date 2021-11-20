@@ -1,6 +1,12 @@
 package styles
 
-import "github.com/negrel/paon/styles/property"
+import (
+	"unsafe"
+
+	"github.com/negrel/paon/pdk/id"
+	"github.com/negrel/paon/pdk/id/store"
+	"github.com/negrel/paon/styles/property"
+)
 
 // IntUnitStyle define objects containing property.IntUnit style properties.
 type IntUnitStyle interface {
@@ -11,7 +17,7 @@ type IntUnitStyle interface {
 var _ IntUnitStyle = intUnitStyle{}
 
 type intUnitStyle struct {
-	units []*property.IntUnit
+	units store.PtrSlice
 }
 
 // NewIntUnitStyle returns a new UnitStyle instance.
@@ -21,16 +27,16 @@ func NewIntUnitStyle() IntUnitStyle {
 
 func newIntUnitStyle() intUnitStyle {
 	return intUnitStyle{
-		units: make([]*property.IntUnit, property.IntUnitIDCount()+1),
+		units: store.NewPtrSlice(int(property.IntUnitIDCount() + 1)),
 	}
 }
 
 // IntUnit implements the IntUnitStyle interface.
-func (us intUnitStyle) IntUnit(id property.IntUnitID) *property.IntUnit {
-	return us.units[uint32(id)]
+func (us intUnitStyle) IntUnit(i property.IntUnitID) *property.IntUnit {
+	return (*property.IntUnit)(us.units.Get(id.ID(i)))
 }
 
 // SetIntUnit implements the IntUnitStyle interface.
-func (us intUnitStyle) SetIntUnit(id property.IntUnitID, u *property.IntUnit) {
-	us.units[uint32(id)] = u
+func (us intUnitStyle) SetIntUnit(i property.IntUnitID, u *property.IntUnit) {
+	us.units.Set(id.ID(i), unsafe.Pointer(u))
 }
