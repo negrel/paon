@@ -103,11 +103,11 @@ func testStyleEventsColor(t *testing.T) {
 		assert.Equal(t, new, cce.New)
 	}))
 
-	new = &property.ColorBlueViolet
+	new = property.ColorBlueViolet()
 	style.SetColor(id, new)
 
 	old = new
-	new = &property.ColorPink
+	new = property.ColorPink()
 	style.SetColor(id, new)
 
 	old = new

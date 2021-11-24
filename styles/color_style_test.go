@@ -98,7 +98,7 @@ func benchmarkColorStyleGet(b *testing.B, newStyle func() ColorStyle) {
 		b.Run(strconv.Itoa(i), func(b *testing.B) {
 			style := newStyle()
 			for k := 0; k < i; k++ {
-				style.SetColor(ids[k], &property.ColorWhite)
+				style.SetColor(ids[k], property.ColorWhite())
 			}
 
 			b.ResetTimer()
