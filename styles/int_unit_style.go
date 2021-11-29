@@ -32,11 +32,11 @@ func newIntUnitStyle() intUnitStyle {
 }
 
 // IntUnit implements the IntUnitStyle interface.
-func (us intUnitStyle) IntUnit(i property.IntUnitID) *property.IntUnit {
-	return (*property.IntUnit)(us.units.Get(id.ID(i)))
+func (ius intUnitStyle) IntUnit(i property.IntUnitID) *property.IntUnit {
+	return (*property.IntUnit)(ius.units.Get(id.ID(i)))
 }
 
 // SetIntUnit implements the IntUnitStyle interface.
-func (us intUnitStyle) SetIntUnit(i property.IntUnitID, u *property.IntUnit) {
-	us.units.Set(id.ID(i), unsafe.Pointer(u))
+func (ius intUnitStyle) SetIntUnit(i property.IntUnitID, u *property.IntUnit) {
+	ius.units.Set(id.ID(i), unsafe.Pointer(u))
 }

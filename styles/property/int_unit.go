@@ -5,6 +5,12 @@ import (
 	"github.com/negrel/paon/pdk/id/store"
 )
 
+// CellUnitConvertor define an IntUnit convertor that returns the
+// CellUnit equivalent.
+type CellUnitConvertor interface {
+	CellUnit(*IntUnit) int
+}
+
 // IntUnitID define a unique ID accross all Unit properties.
 type IntUnitID id.ID
 

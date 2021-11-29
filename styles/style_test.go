@@ -95,7 +95,7 @@ func testStyleEventsColor(t *testing.T) {
 	var eventTriggered bool
 	id := property.NewColorID("test-color")
 
-	style := New(nil)
+	style := newStyle(nil)
 	style.AddEventListener(ColorChangedListener(func(cce ColorChangedEvent) {
 		eventTriggered = true
 		assert.Equal(t, id, cce.ColorID)
@@ -122,7 +122,7 @@ func testStyleEventsIface(t *testing.T) {
 	var eventTriggered bool
 	id := property.NewIfaceID("test-iface")
 
-	style := New(nil)
+	style := newStyle(nil)
 	style.AddEventListener(IfaceChangedListener(func(ice IfaceChangedEvent) {
 		eventTriggered = true
 		assert.Equal(t, id, ice.IfaceID)
@@ -154,7 +154,7 @@ func testStyleEventsInt(t *testing.T) {
 	var eventTriggered bool
 	id := property.NewIntID("test-int")
 
-	style := New(nil)
+	style := newStyle(nil)
 	style.AddEventListener(IntChangedListener(func(ice IntChangedEvent) {
 		eventTriggered = true
 		assert.Equal(t, id, ice.IntID)
@@ -186,7 +186,7 @@ func testStyleEventsIntUnit(t *testing.T) {
 	var eventTriggered bool
 	id := property.NewIntUnitID("test-int-unit")
 
-	style := New(nil)
+	style := newStyle(nil)
 	style.AddEventListener(IntUnitChangedListener(func(iuce IntUnitChangedEvent) {
 		eventTriggered = true
 		assert.Equal(t, id, iuce.IntID)
