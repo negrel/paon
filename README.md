@@ -76,7 +76,7 @@ Please give a :star: if this project helped you!
 
 ## :scroll: License
 
-MIT © [Alexandre Negrel](https://www.negrel.dev/)
+Apache2.0 © [Alexandre Negrel](https://www.negrel.dev/)
 
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fnegrel%2Fpaon.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fnegrel%2Fpaon?ref=badge_large)
