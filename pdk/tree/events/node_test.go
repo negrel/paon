@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/negrel/paon/pdk/tree"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func newRootNode(data interface{}) tree.Node {
@@ -50,56 +50,56 @@ func TestNodeLifeCycleStage(t *testing.T) {
 	child2.AddEventListener(LifeCycleEventListener(lifecycleListener))
 
 	// Check initial states
-	assert.Equal(t, LCSMounted, root.LifeCycleStage())
-	assert.Equal(t, LCSInitial, greatParent.LifeCycleStage())
-	assert.Equal(t, LCSInitial, parent.LifeCycleStage())
-	assert.Equal(t, LCSInitial, child1.LifeCycleStage())
-	assert.Equal(t, LCSInitial, child2.LifeCycleStage())
+	require.Equal(t, LCSMounted, root.LifeCycleStage())
+	require.Equal(t, LCSInitial, greatParent.LifeCycleStage())
+	require.Equal(t, LCSInitial, parent.LifeCycleStage())
+	require.Equal(t, LCSInitial, child1.LifeCycleStage())
+	require.Equal(t, LCSInitial, child2.LifeCycleStage())
 
 	// Adding a child to a non mounted node should'n
 	// change the state of both nodes
 	err := greatParent.AppendChild(parent)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 	walk(greatParent, func(n *BaseNode) {
-		assert.Equal(t, LCSInitial, n.LifeCycleStage())
-		assert.Equal(t, 0, beforeMountCounters[n])
+		require.Equal(t, LCSInitial, n.LifeCycleStage())
+		require.Equal(t, 0, beforeMountCounters[n])
 	})
 
 	// Same for child1 and child2
 	err = parent.AppendChild(child2)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 	walk(parent, func(n *BaseNode) {
-		assert.Equal(t, LCSInitial, n.LifeCycleStage())
-		assert.Equal(t, 0, beforeMountCounters[n])
+		require.Equal(t, LCSInitial, n.LifeCycleStage())
+		require.Equal(t, 0, beforeMountCounters[n])
 	})
 	err = parent.InsertBefore(child2, child1)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 	walk(parent, func(n *BaseNode) {
-		assert.Equal(t, LCSInitial, n.LifeCycleStage())
-		assert.Equal(t, 0, beforeMountCounters[n])
+		require.Equal(t, LCSInitial, n.LifeCycleStage())
+		require.Equal(t, 0, beforeMountCounters[n])
 	})
 
 	// Now let's mount the entire subtree
 	err = root.AppendChild(greatParent)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 	walk(greatParent, func(n *BaseNode) {
-		assert.Equal(t, LCSMounted, n.LifeCycleStage())
-		assert.Equal(t, 1, beforeMountCounters[n])
+		require.Equal(t, LCSMounted, n.LifeCycleStage())
+		require.Equal(t, 1, beforeMountCounters[n])
 	})
 
 	// Let's remove the entire subtree
 	err = root.RemoveChild(greatParent)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 	walk(greatParent, func(n *BaseNode) {
-		assert.Equal(t, LCSUnmounted, n.LifeCycleStage())
-		assert.Equal(t, 1, beforeUnmountCounters[n])
+		require.Equal(t, LCSUnmounted, n.LifeCycleStage())
+		require.Equal(t, 1, beforeUnmountCounters[n])
 	})
 }
 
 func TestNodeWrapOption(t *testing.T) {
 	node := NewBaseNode(Wrap(t))
-	assert.Equal(t, t, node.Unwrap())
+	require.Equal(t, t, node.Unwrap())
 
 	node = NewBaseNode()
-	assert.Equal(t, node, node.Unwrap())
+	require.Equal(t, node, node.Unwrap())
 }

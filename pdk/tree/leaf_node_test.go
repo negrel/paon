@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestLeafNode(t *testing.T) {
@@ -132,54 +132,54 @@ func generateLeafNodeTests() []nodeTest {
 }
 
 func testNodeUnwrap(t *testing.T, node Node) {
-	assert.Equal(t, nodeData, node.Unwrap())
+	require.Equal(t, nodeData, node.Unwrap())
 }
 
 func testLeafNodeFirstChildNil(t *testing.T, node Node) {
-	assert.Nil(t, node.FirstChild())
+	require.Nil(t, node.FirstChild())
 }
 
 func testLeafNodeLastChildNil(t *testing.T, node Node) {
-	assert.Nil(t, node.LastChild())
+	require.Nil(t, node.LastChild())
 }
 
 func testNodeIsSameTrue(t *testing.T, node Node) {
-	assert.True(t, node.IsSame(node))
+	require.True(t, node.IsSame(node))
 }
 
 func testNodeIsSameFalse(t *testing.T, node Node) {
-	assert.False(t, node.IsSame(NewNode(nil)))
+	require.False(t, node.IsSame(NewNode(nil)))
 }
 
 func testNodeIsDescendantOfNilParent(t *testing.T, node Node) {
 	node.SetParent(nil)
-	assert.False(t, node.IsDescendantOf(nil))
+	require.False(t, node.IsDescendantOf(nil))
 }
 
 func testNodeIsDescendantOfParent(t *testing.T, node Node) {
 	parent := NewNode(nil)
 	node.SetParent(parent)
 
-	assert.True(t, node.IsDescendantOf(parent))
+	require.True(t, node.IsDescendantOf(parent))
 }
 
 func testNodeIsDescendantOfNonChildNode(t *testing.T, node Node) {
 	otherNode := NewNode(nil)
 	node.SetParent(nil)
 
-	assert.False(t, node.IsDescendantOf(otherNode))
+	require.False(t, node.IsDescendantOf(otherNode))
 }
 
 func testNodeIsDescendantOfPreviousParent(t *testing.T, node Node) {
 	parent := NewNode(nil)
 
 	err := parent.AppendChild(node)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	err = parent.RemoveChild(node)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
-	assert.False(t, node.IsDescendantOf(parent))
+	require.False(t, node.IsDescendantOf(parent))
 }
 
 func testNodeIsDescendantOfGreatParent(t *testing.T, node Node) {
@@ -187,24 +187,24 @@ func testNodeIsDescendantOfGreatParent(t *testing.T, node Node) {
 	parent := NewNode(nil)
 
 	err := parent.AppendChild(node)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	err = greatParent.AppendChild(node)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
-	assert.True(t, node.IsDescendantOf(greatParent))
+	require.True(t, node.IsDescendantOf(greatParent))
 }
 
 func testNodeRootNil(t *testing.T, node Node) {
 	node.SetParent(nil)
-	assert.Equal(t, node.Root(), nil)
+	require.Nil(t, node.Root())
 }
 
 func testNodeRootParent(t *testing.T, node Node) {
 	root := NewRoot(nil)
 	err := root.AppendChild(node)
-	assert.Nil(t, err)
-	assert.Equal(t, root, node.Root())
+	require.Nil(t, err)
+	require.Equal(t, root, node.Root())
 }
 
 func testNodeRootGreatParent(t *testing.T, node Node) {
@@ -212,22 +212,22 @@ func testNodeRootGreatParent(t *testing.T, node Node) {
 	parent := NewNode(nil)
 
 	err := root.AppendChild(parent)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	err = parent.AppendChild(node)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
-	assert.Equal(t, root, node.Root())
+	require.Equal(t, root, node.Root())
 }
 
 func testLeafNodeIsAncestorOfNil(t *testing.T, node Node) {
-	assert.False(t, node.IsAncestorOf(nil))
+	require.False(t, node.IsAncestorOf(nil))
 }
 
 func testLeafNodeAppendChildLeafNodeError(t *testing.T, node Node) {
 	err := node.AppendChild(NewNode(nil))
-	assert.NotNil(t, err)
-	assert.True(t, errors.Is(err, ErrLeafNode()))
+	require.NotNil(t, err)
+	require.True(t, errors.Is(err, ErrLeafNode()))
 }
 
 func testLeafNodeInsertBeforeLeafNodeError(t *testing.T, node Node) {
@@ -235,8 +235,8 @@ func testLeafNodeInsertBeforeLeafNodeError(t *testing.T, node Node) {
 	_ = node.AppendChild(reference)
 
 	err := node.InsertBefore(reference, NewNode(nil))
-	assert.NotNil(t, err)
-	assert.True(t, errors.Is(err, ErrLeafNode()))
+	require.NotNil(t, err)
+	require.True(t, errors.Is(err, ErrLeafNode()))
 }
 
 func testLeafNodeRemoveChildLeafNodeError(t *testing.T, node Node) {
@@ -244,6 +244,6 @@ func testLeafNodeRemoveChildLeafNodeError(t *testing.T, node Node) {
 	_ = node.AppendChild(child)
 
 	err := node.RemoveChild(child)
-	assert.NotNil(t, err)
-	assert.True(t, errors.Is(err, ErrLeafNode()))
+	require.NotNil(t, err)
+	require.True(t, errors.Is(err, ErrLeafNode()))
 }

@@ -3,7 +3,7 @@ package tree
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type nodeTest struct {
@@ -107,331 +107,327 @@ func generateNodeTests() []nodeTest {
 }
 
 func testNodeAppendChildToEmptyNode(t *testing.T, node Node) {
-	assert.Nil(t, node.FirstChild())
-	assert.Nil(t, node.LastChild())
+	require.Nil(t, node.FirstChild())
+	require.Nil(t, node.LastChild())
 
 	child := NewNode(nil)
 
 	err := node.AppendChild(child)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
-	assert.True(t, node.IsSame(child.Parent()))
-	assert.True(t, node.FirstChild().IsSame(child))
-	assert.True(t, node.LastChild().IsSame(child))
+	require.True(t, node.IsSame(child.Parent()))
+	require.True(t, node.FirstChild().IsSame(child))
+	require.True(t, node.LastChild().IsSame(child))
 }
 
 func testNodeAppendChildToNonEmptyNode(t *testing.T, node Node) {
-	assert.Nil(t, node.FirstChild())
-	assert.Nil(t, node.LastChild())
+	require.Nil(t, node.FirstChild())
+	require.Nil(t, node.LastChild())
 	firstChild := NewNode(nil)
 
 	err := node.AppendChild(firstChild)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	lastChild := NewNode(nil)
 	err = node.AppendChild(lastChild)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
-	assert.True(t, lastChild.Parent().IsSame(node))
-	assert.True(t, lastChild.Parent().IsSame(firstChild.Parent()))
+	require.True(t, lastChild.Parent().IsSame(node))
+	require.True(t, lastChild.Parent().IsSame(firstChild.Parent()))
 
-	assert.True(t, lastChild.Previous().IsSame(firstChild))
-	assert.True(t, firstChild.Next().IsSame(lastChild))
+	require.True(t, lastChild.Previous().IsSame(firstChild))
+	require.True(t, firstChild.Next().IsSame(lastChild))
 }
 
 func testNodeAppendChildNilNode(t *testing.T, node Node) {
-	assert.Nil(t, node.FirstChild())
-	assert.Nil(t, node.LastChild())
+	require.Nil(t, node.FirstChild())
+	require.Nil(t, node.LastChild())
 
-	assert.Panics(t, func() {
-		err := node.AppendChild(nil)
-		assert.NotNil(t, err)
-	})
+	err := node.AppendChild(nil)
+	require.Error(t, err)
 }
 
 func testNodeAppendChildParentOfNode(t *testing.T, node Node) {
-	assert.Nil(t, node.FirstChild())
-	assert.Nil(t, node.LastChild())
+	require.Nil(t, node.FirstChild())
+	require.Nil(t, node.LastChild())
 
 	parent := NewNode(nil)
 	err := parent.AppendChild(node)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	err = node.AppendChild(parent)
-	assert.NotNil(t, err)
+	require.NotNil(t, err)
 }
 
 func testNodeAppendChildGreatParentOfNode(t *testing.T, node Node) {
-	assert.Nil(t, node.FirstChild())
-	assert.Nil(t, node.LastChild())
+	require.Nil(t, node.FirstChild())
+	require.Nil(t, node.LastChild())
 
 	greatParent := NewNode(nil)
 	parent := NewNode(nil)
 
 	err := greatParent.AppendChild(parent)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	err = parent.AppendChild(node)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	err = node.AppendChild(greatParent)
-	assert.NotNil(t, err)
+	require.NotNil(t, err)
 }
 
 func testNodeAppendChildNodeWithParent(t *testing.T, node Node) {
-	assert.Nil(t, node.FirstChild())
-	assert.Nil(t, node.LastChild())
+	require.Nil(t, node.FirstChild())
+	require.Nil(t, node.LastChild())
 
 	parent := NewNode(nil)
 	child := NewNode(nil)
 
 	err := parent.AppendChild(child)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	node.AppendChild(child)
-	assert.True(t, node.IsSame(child.Parent()))
-	assert.True(t, node.FirstChild().IsSame(child))
-	assert.True(t, node.LastChild().IsSame(child))
+	require.True(t, node.IsSame(child.Parent()))
+	require.True(t, node.FirstChild().IsSame(child))
+	require.True(t, node.LastChild().IsSame(child))
 }
 
 func testNodeAppendChildItself(t *testing.T, node Node) {
-	assert.Nil(t, node.FirstChild())
-	assert.Nil(t, node.LastChild())
+	require.Nil(t, node.FirstChild())
+	require.Nil(t, node.LastChild())
 
 	err := node.AppendChild(node)
-	assert.NotNil(t, err)
+	require.NotNil(t, err)
 }
 
 func testNodeInsertBeforeNode(t *testing.T, node Node) {
-	assert.Nil(t, node.FirstChild())
-	assert.Nil(t, node.LastChild())
+	require.Nil(t, node.FirstChild())
+	require.Nil(t, node.LastChild())
 
 	reference := NewNode(nil)
 	child := NewNode(nil)
 
 	err := node.AppendChild(reference)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	err = node.InsertBefore(reference, child)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
-	assert.True(t, node.IsSame(child.Parent()))
-	assert.True(t, node.FirstChild().IsSame(child))
-	assert.True(t, node.LastChild().IsSame(reference))
+	require.True(t, node.IsSame(child.Parent()))
+	require.True(t, node.FirstChild().IsSame(child))
+	require.True(t, node.LastChild().IsSame(reference))
 
-	assert.True(t, child.IsSame(reference.Previous()))
-	assert.True(t, reference.IsSame(child.Next()))
+	require.True(t, child.IsSame(reference.Previous()))
+	require.True(t, reference.IsSame(child.Next()))
 }
 
 func testNodeInsertBeforeNodeNonChildReference(t *testing.T, node Node) {
-	assert.Nil(t, node.FirstChild())
-	assert.Nil(t, node.LastChild())
+	require.Nil(t, node.FirstChild())
+	require.Nil(t, node.LastChild())
 
 	reference := NewNode(nil)
 	err := NewNode(nil).AppendChild(reference)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	child := NewNode(nil)
 
 	err = node.InsertBefore(reference, child)
-	assert.NotNil(t, err)
+	require.NotNil(t, err)
 }
 
 func testNodeInsertBeforeNilReference(t *testing.T, node Node) {
-	assert.Nil(t, node.FirstChild())
-	assert.Nil(t, node.LastChild())
+	require.Nil(t, node.FirstChild())
+	require.Nil(t, node.LastChild())
 
 	child := NewNode(nil)
 
 	err := node.InsertBefore(nil, child)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
-	assert.True(t, node.IsSame(child.Parent()))
-	assert.True(t, node.FirstChild().IsSame(child))
-	assert.True(t, node.LastChild().IsSame(child))
+	require.True(t, node.IsSame(child.Parent()))
+	require.True(t, node.FirstChild().IsSame(child))
+	require.True(t, node.LastChild().IsSame(child))
 }
 
 func testNodeInsertBeforeNilChild(t *testing.T, node Node) {
-	assert.Nil(t, node.FirstChild())
-	assert.Nil(t, node.LastChild())
+	require.Nil(t, node.FirstChild())
+	require.Nil(t, node.LastChild())
 
 	reference := NewNode(nil)
 
-	assert.Panics(t, func() {
-		err := node.InsertBefore(reference, nil)
-		assert.NotNil(t, err)
-	})
+	err := node.InsertBefore(reference, nil)
+	require.Error(t, err)
 }
 
 func testNodeInsertBeforeParentOfNode(t *testing.T, node Node) {
-	assert.Nil(t, node.FirstChild())
-	assert.Nil(t, node.LastChild())
+	require.Nil(t, node.FirstChild())
+	require.Nil(t, node.LastChild())
 
 	parent := NewNode(nil)
 	err := parent.AppendChild(node)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	reference := NewNode(nil)
 	err = node.AppendChild(reference)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	err = node.InsertBefore(reference, parent)
-	assert.NotNil(t, err)
+	require.NotNil(t, err)
 }
 
 func NodeInsertBeforeNodeGreatParentOfNode(t *testing.T, node Node) {
-	assert.Nil(t, node.FirstChild())
-	assert.Nil(t, node.LastChild())
+	require.Nil(t, node.FirstChild())
+	require.Nil(t, node.LastChild())
 
 	greatParent := NewNode(nil)
 	parent := NewNode(nil)
 	err := greatParent.AppendChild(node)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 	err = parent.AppendChild(node)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	reference := NewNode(nil)
 	err = node.AppendChild(reference)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	err = node.InsertBefore(reference, greatParent)
-	assert.NotNil(t, err)
+	require.NotNil(t, err)
 }
 
 func NodeInsertBeforeNodeChildWithParent(t *testing.T, node Node) {
-	assert.Nil(t, node.FirstChild())
-	assert.Nil(t, node.LastChild())
+	require.Nil(t, node.FirstChild())
+	require.Nil(t, node.LastChild())
 
 	parent := NewNode(nil)
 	child := NewNode(nil)
 	err := parent.AppendChild(child)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	reference := NewNode(nil)
 	err = node.AppendChild(reference)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	err = node.InsertBefore(reference, child)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
-	assert.True(t, node.IsSame(child.Parent()))
-	assert.True(t, node.FirstChild().IsSame(child))
-	assert.True(t, node.LastChild().IsSame(reference))
+	require.True(t, node.IsSame(child.Parent()))
+	require.True(t, node.FirstChild().IsSame(child))
+	require.True(t, node.LastChild().IsSame(reference))
 
-	assert.True(t, child.IsSame(reference.Previous()))
-	assert.True(t, reference.IsSame(child.Next()))
+	require.True(t, child.IsSame(reference.Previous()))
+	require.True(t, reference.IsSame(child.Next()))
 }
 
 func testNodeInsertBeforeBetweenTwoNode(t *testing.T, node Node) {
-	assert.Nil(t, node.FirstChild())
-	assert.Nil(t, node.LastChild())
+	require.Nil(t, node.FirstChild())
+	require.Nil(t, node.LastChild())
 
 	previous := NewNode(nil)
 	next := NewNode(nil)
 	child := NewNode(nil)
 
 	err := node.AppendChild(previous)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	err = node.AppendChild(next)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	err = node.InsertBefore(next, child)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
-	assert.True(t, node.IsSame(child.Parent()))
-	assert.True(t, node.FirstChild().IsSame(previous))
-	assert.True(t, node.LastChild().IsSame(next))
+	require.True(t, node.IsSame(child.Parent()))
+	require.True(t, node.FirstChild().IsSame(previous))
+	require.True(t, node.LastChild().IsSame(next))
 
-	assert.True(t, child.IsSame(next.Previous()))
-	assert.True(t, next.IsSame(child.Next()))
+	require.True(t, child.IsSame(next.Previous()))
+	require.True(t, next.IsSame(child.Next()))
 
-	assert.True(t, child.IsSame(previous.Next()))
-	assert.True(t, previous.IsSame(child.Previous()))
+	require.True(t, child.IsSame(previous.Next()))
+	require.True(t, previous.IsSame(child.Previous()))
 }
 
 func testNodeInsertBeforeItself(t *testing.T, node Node) {
-	assert.Nil(t, node.FirstChild())
-	assert.Nil(t, node.LastChild())
+	require.Nil(t, node.FirstChild())
+	require.Nil(t, node.LastChild())
 
 	reference := NewNode(nil)
 	err := node.AppendChild(reference)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	err = node.InsertBefore(reference, node)
-	assert.NotNil(t, err)
+	require.NotNil(t, err)
 }
 
 func testNodeRemoveChild(t *testing.T, node Node) {
-	assert.Nil(t, node.FirstChild())
-	assert.Nil(t, node.LastChild())
+	require.Nil(t, node.FirstChild())
+	require.Nil(t, node.LastChild())
 
 	firstChild := NewNode(nil)
 	lastChild := NewNode(nil)
 
 	err := node.AppendChild(firstChild)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 	err = node.AppendChild(lastChild)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	err = node.RemoveChild(firstChild)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
-	assert.True(t, lastChild.IsSame(node.FirstChild()))
-	assert.True(t, lastChild.IsSame(node.LastChild()))
-	assert.Nil(t, lastChild.Previous())
-	assert.Nil(t, lastChild.Next())
-	assert.Nil(t, firstChild.Previous())
-	assert.Nil(t, firstChild.Next())
-	assert.Nil(t, firstChild.Parent())
+	require.True(t, lastChild.IsSame(node.FirstChild()))
+	require.True(t, lastChild.IsSame(node.LastChild()))
+	require.Nil(t, lastChild.Previous())
+	require.Nil(t, lastChild.Next())
+	require.Nil(t, firstChild.Previous())
+	require.Nil(t, firstChild.Next())
+	require.Nil(t, firstChild.Parent())
 }
 
 func testNodeRemoveChildNil(t *testing.T, node Node) {
-	assert.Nil(t, node.FirstChild())
-	assert.Nil(t, node.LastChild())
+	require.Nil(t, node.FirstChild())
+	require.Nil(t, node.LastChild())
 
-	assert.Panics(t, func() {
+	require.Panics(t, func() {
 		err := node.RemoveChild(nil)
-		assert.NotNil(t, err)
+		require.NotNil(t, err)
 	})
 }
 
 func testNodeRemoveChildAnotherParentChild(t *testing.T, node Node) {
-	assert.Nil(t, node.FirstChild())
-	assert.Nil(t, node.LastChild())
+	require.Nil(t, node.FirstChild())
+	require.Nil(t, node.LastChild())
 
 	parent := NewNode(nil)
 	child := NewNode(nil)
 	err := parent.AppendChild(child)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	err = node.RemoveChild(child)
-	assert.NotNil(t, err)
+	require.NotNil(t, err)
 }
 
 func testNodeRemoveChildSecondChild(t *testing.T, node Node) {
-	assert.Nil(t, node.FirstChild())
-	assert.Nil(t, node.LastChild())
+	require.Nil(t, node.FirstChild())
+	require.Nil(t, node.LastChild())
 
 	first := NewNode(nil)
 	child := NewNode(nil)
 	third := NewNode(nil)
 
 	err := node.AppendChild(first)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	err = node.AppendChild(child)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	err = node.AppendChild(third)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	err = node.RemoveChild(child)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
-	assert.True(t, third.IsSame(first.Next()))
-	assert.True(t, third.Previous().IsSame(first))
+	require.True(t, third.IsSame(first.Next()))
+	require.True(t, third.Previous().IsSame(first))
 
-	assert.True(t, first.IsSame(third.Previous()))
-	assert.True(t, first.Next().IsSame(third))
+	require.True(t, first.IsSame(third.Previous()))
+	require.True(t, first.Next().IsSame(third))
 }
