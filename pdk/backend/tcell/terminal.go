@@ -10,7 +10,6 @@ import (
 	"github.com/negrel/paon/pdk/backend"
 	"github.com/negrel/paon/pdk/draw"
 	pdkevents "github.com/negrel/paon/pdk/events"
-	"github.com/negrel/paon/pdk/render"
 )
 
 var _ backend.Terminal = &Terminal{}
@@ -20,8 +19,7 @@ var _ backend.Terminal = &Terminal{}
 type Terminal struct {
 	// the wrapped tcell.Screen.
 	// It is initialized in NewTerminal and never reassigned.
-	screen     tcell.Screen
-	compositor *render.Compositor
+	screen tcell.Screen
 
 	eventLoopCancel context.CancelFunc
 }
@@ -45,8 +43,6 @@ func NewTerminal(options ...Option) (*Terminal, error) {
 			return nil, err
 		}
 	}
-
-	terminal.compositor = render.NewCompositor(terminal)
 
 	return terminal, nil
 }
@@ -78,11 +74,6 @@ func (c *Terminal) Flush() {
 	c.screen.Show()
 }
 
-// Compositor implements the backend.Terminal interface.
-func (c *Terminal) Compositor() *render.Compositor {
-	return c.compositor
-}
-
 // Start implements the backend.Terminal interface.
 func (c *Terminal) Start(evch chan<- pdkevents.Event) error {
 	err := c.screen.Init()
@@ -97,7 +88,6 @@ func (c *Terminal) Start(evch chan<- pdkevents.Event) error {
 
 // Stop implements the backend.Terminal interface.
 func (c *Terminal) Stop() {
-	c.compositor.Stop()
 	c.screen.Fini()
 }
 
