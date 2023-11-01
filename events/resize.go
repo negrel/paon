@@ -18,8 +18,8 @@ func ResizeType() pdkevents.Type {
 
 // ResizeListener returns an events.Listener that will call the given handler
 // on resize events.
-func ResizeListener(handler func(Resize)) (events.Type, events.Listener) {
-	return ResizeType(), events.ListenerFunc(func(event events.Event) {
+func ResizeListener(handler func(Resize)) (events.Type, events.Handler) {
+	return ResizeType(), events.HandlerFunc(func(event events.Event) {
 		assert.IsType(event, Resize{})
 		handler(event.(Resize))
 	})

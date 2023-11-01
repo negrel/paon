@@ -13,7 +13,7 @@ type target struct {
 	events.Target
 
 	node            tree.Node
-	bubbleListeners map[events.Type][]events.Listener
+	bubbleListeners map[events.Type][]events.Handler
 }
 
 // newTarget returns a new events.Target that wraps the given events.Target.
@@ -27,7 +27,7 @@ func newTarget(node tree.Node, t events.Target) target {
 }
 
 // AddEventListener implements the events.Target interface.
-func (t target) AddEventListener(tpe events.Type, listener events.Listener) {
+func (t target) AddEventListener(tpe events.Type, listener events.Handler) {
 	if l, ok := listener.(Listener); ok {
 		if l.bubbles {
 			t.bubbleListeners[tpe] = append(t.bubbleListeners[tpe], l)

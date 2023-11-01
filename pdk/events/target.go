@@ -7,8 +7,8 @@ import (
 
 // Target define an object that can receive events and may have listeners for them.
 type Target interface {
-	AddEventListener(Type, Listener)
-	RemoveEventListener(Type, Listener)
+	AddEventListener(Type, Handler)
+	RemoveEventListener(Type, Handler)
 	DispatchEvent(event Event)
 }
 
@@ -16,28 +16,28 @@ var _ Target = &target{}
 
 // target is an implementation of the Target interface.
 type target struct {
-	listeners [][]Listener
+	listeners [][]Handler
 }
 
 // NewTarget return a new event Target with no listeners.
 func NewTarget() Target {
 	return target{
-		listeners: make([][]Listener, typeRegistry.Last()+1),
+		listeners: make([][]Handler, typeRegistry.Last()+1),
 	}
 }
 
-func (t target) AddEventListener(tpe Type, listener Listener) {
+func (t target) AddEventListener(tpe Type, listener Handler) {
 	assert.NotNil(listener, "listener must be not nil")
 
 	if t.listeners[tpe] == nil {
-		t.listeners[tpe] = make([]Listener, 0, 8)
+		t.listeners[tpe] = make([]Handler, 0, 8)
 	}
 
 	t.listeners[tpe] = append(t.listeners[tpe], listener)
 }
 
 // RemoveEventListener removes an event listener of a specific event type from the target.
-func (t target) RemoveEventListener(tpe Type, listener Listener) {
+func (t target) RemoveEventListener(tpe Type, listener Handler) {
 	assert.NotNil(listener, "listener must be not nil")
 
 	if t.listeners[tpe] == nil {
@@ -77,12 +77,12 @@ func NewNoOpTarget() Target {
 	return noOpTarget{}
 }
 
-func (not noOpTarget) AddEventListener(tpe Type, listener Listener) {
+func (not noOpTarget) AddEventListener(tpe Type, listener Handler) {
 
 }
 
 // RemoveEventListener removes an event listener of a specific event type from the target.
-func (not noOpTarget) RemoveEventListener(tpe Type, listener Listener) {
+func (not noOpTarget) RemoveEventListener(tpe Type, listener Handler) {
 }
 
 // DispatchEvent dispatch the given event to listeners.

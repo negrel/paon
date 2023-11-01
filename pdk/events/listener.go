@@ -1,20 +1,20 @@
 package events
 
-// listenerFunc is a function that implements the Listener interface.
-type listenerFunc func(event Event)
-
-// ListenerFunc returns a new Listener that wraps the given function.
-func ListenerFunc(fn func(event Event)) Listener {
-	a := listenerFunc(fn)
-	return &a
-}
+// HandlerFunc is a function that implements the Listener interface.
+type HandlerFunc func(event Event)
 
 // HandleEvent implements the Listener interface.
-func (lf *listenerFunc) HandleEvent(event Event) {
-	(*lf)(event)
+func (lf HandlerFunc) HandleEvent(event Event) {
+	lf(event)
 }
 
-// Listener define an event handler that listens for a events of a specific type.
-type Listener interface {
+// Handler define an event handler.
+type Handler interface {
 	HandleEvent(event Event)
+}
+
+// Listener define a pair event type and handler.
+type Listener struct {
+	EventType Type
+	Handler   Handler
 }

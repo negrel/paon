@@ -50,8 +50,8 @@ func LifeCycleEventType() events.Type {
 
 // LifeCycleEventListener returns an events.Listener that will call the given handler
 // when a LifeCycleEvent is dispatched.
-func LifeCycleEventListener(handler func(LifeCycleEvent)) (events.Type, events.Listener) {
-	return LifeCycleEventType(), events.ListenerFunc(func(event events.Event) {
+func LifeCycleEventListener(handler func(LifeCycleEvent)) (events.Type, events.Handler) {
+	return LifeCycleEventType(), events.HandlerFunc(func(event events.Event) {
 		assert.IsType(event, NewLifeCycleEvent(nil, _maxLifeCycle))
 		handler(event.(LifeCycleEvent))
 	})
