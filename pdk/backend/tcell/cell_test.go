@@ -3,12 +3,11 @@ package tcell
 import (
 	"math/rand"
 	"testing"
-	"time"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/negrel/paon/pdk/draw"
 	"github.com/negrel/paon/styles/property"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func foreground(style tcell.Style) tcell.Color {
@@ -72,22 +71,18 @@ func randRune() rune {
 	return rune(rand.Int31())
 }
 
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
-
 func TestToCellStyle(t *testing.T) {
 	// Default
 	style := toTcellStyle(draw.CellStyle{})
-	assert.Equal(t, foreground(tcell.StyleDefault), foreground(style))
-	assert.Equal(t, background(tcell.StyleDefault), background(style))
-	assert.Equal(t, blink(tcell.StyleDefault), blink(style))
-	assert.Equal(t, bold(tcell.StyleDefault), bold(style))
-	assert.Equal(t, dim(tcell.StyleDefault), dim(style))
-	assert.Equal(t, italic(tcell.StyleDefault), italic(style))
-	assert.Equal(t, reverse(tcell.StyleDefault), reverse(style))
-	assert.Equal(t, underline(tcell.StyleDefault), underline(style))
-	assert.Equal(t, strikethrough(tcell.StyleDefault), strikethrough(style))
+	require.Equal(t, foreground(tcell.StyleDefault), foreground(style))
+	require.Equal(t, background(tcell.StyleDefault), background(style))
+	require.Equal(t, blink(tcell.StyleDefault), blink(style))
+	require.Equal(t, bold(tcell.StyleDefault), bold(style))
+	require.Equal(t, dim(tcell.StyleDefault), dim(style))
+	require.Equal(t, italic(tcell.StyleDefault), italic(style))
+	require.Equal(t, reverse(tcell.StyleDefault), reverse(style))
+	require.Equal(t, underline(tcell.StyleDefault), underline(style))
+	require.Equal(t, strikethrough(tcell.StyleDefault), strikethrough(style))
 
 	// Colors
 	cellstyle := draw.CellStyle{
@@ -96,8 +91,8 @@ func TestToCellStyle(t *testing.T) {
 	}
 
 	style = toTcellStyle(cellstyle)
-	assert.Equal(t, cellstyle.Foreground.Hex(), uint32(foreground(style).Hex()))
-	assert.Equal(t, cellstyle.Background.Hex(), uint32(background(style).Hex()))
+	require.Equal(t, cellstyle.Foreground.Hex(), uint32(foreground(style).Hex()))
+	require.Equal(t, cellstyle.Background.Hex(), uint32(background(style).Hex()))
 
 	// Attributes
 	cellstyle = draw.CellStyle{
@@ -111,13 +106,13 @@ func TestToCellStyle(t *testing.T) {
 	}
 
 	style = toTcellStyle(cellstyle)
-	assert.Equal(t, cellstyle.Blink, blink(style))
-	assert.Equal(t, cellstyle.Bold, bold(style))
-	assert.Equal(t, cellstyle.Dim, dim(style))
-	assert.Equal(t, cellstyle.Italic, italic(style))
-	assert.Equal(t, cellstyle.Reverse, reverse(style))
-	assert.Equal(t, cellstyle.Underline, underline(style))
-	assert.Equal(t, cellstyle.StrikeThrough, strikethrough(style))
+	require.EqualValues(t, cellstyle.Blink, blink(style))
+	require.EqualValues(t, cellstyle.Bold, bold(style))
+	require.EqualValues(t, cellstyle.Dim, dim(style))
+	require.EqualValues(t, cellstyle.Italic, italic(style))
+	require.EqualValues(t, cellstyle.Reverse, reverse(style))
+	require.EqualValues(t, cellstyle.Underline, underline(style))
+	require.EqualValues(t, cellstyle.StrikeThrough, strikethrough(style))
 }
 
 func TestToCell_Content(t *testing.T) {
@@ -126,22 +121,22 @@ func TestToCell_Content(t *testing.T) {
 	}
 
 	mainc, _, _ := toTcell(cell)
-	assert.Equal(t, cell.Content, mainc)
+	require.Equal(t, cell.Content, mainc)
 }
 
 func TestFromTcellStyle(t *testing.T) {
 	// Default
 	cellstyle := fromTcellStyle(tcell.StyleDefault)
 
-	assert.Equal(t, cellstyle.Foreground, property.ColorUnset())
-	assert.Equal(t, cellstyle.Background, property.ColorUnset())
-	assert.Equal(t, cellstyle.Blink, blink(tcell.StyleDefault))
-	assert.Equal(t, cellstyle.Bold, bold(tcell.StyleDefault))
-	assert.Equal(t, cellstyle.Dim, dim(tcell.StyleDefault))
-	assert.Equal(t, cellstyle.Italic, italic(tcell.StyleDefault))
-	assert.Equal(t, cellstyle.Reverse, reverse(tcell.StyleDefault))
-	assert.Equal(t, cellstyle.Underline, underline(tcell.StyleDefault))
-	assert.Equal(t, cellstyle.StrikeThrough, strikethrough(tcell.StyleDefault))
+	require.EqualValues(t, cellstyle.Foreground, property.ColorUnset())
+	require.EqualValues(t, cellstyle.Background, property.ColorUnset())
+	require.EqualValues(t, cellstyle.Blink, blink(tcell.StyleDefault))
+	require.EqualValues(t, cellstyle.Bold, bold(tcell.StyleDefault))
+	require.EqualValues(t, cellstyle.Dim, dim(tcell.StyleDefault))
+	require.EqualValues(t, cellstyle.Italic, italic(tcell.StyleDefault))
+	require.EqualValues(t, cellstyle.Reverse, reverse(tcell.StyleDefault))
+	require.EqualValues(t, cellstyle.Underline, underline(tcell.StyleDefault))
+	require.EqualValues(t, cellstyle.StrikeThrough, strikethrough(tcell.StyleDefault))
 
 	// Colors
 	style := tcell.StyleDefault.
@@ -149,12 +144,12 @@ func TestFromTcellStyle(t *testing.T) {
 		Background(tcell.NewHexColor(rand.Int31()))
 
 	cellstyle = fromTcellStyle(style)
-	assert.Equal(t, cellstyle.Foreground, fromTcellColor(foreground(style)))
-	assert.Equal(t, cellstyle.Background, fromTcellColor(background(style)))
+	require.Equal(t, cellstyle.Foreground, fromTcellColor(foreground(style)))
+	require.Equal(t, cellstyle.Background, fromTcellColor(background(style)))
 }
 
-func TestFromCell_Content(t *testing.T) {
+func TestFromCellContent(t *testing.T) {
 	mainc := randRune()
 	cell := fromTcell(mainc, []rune{}, tcell.StyleDefault, 1)
-	assert.Equal(t, cell.Content, mainc)
+	require.Equal(t, cell.Content, mainc)
 }
