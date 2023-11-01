@@ -1,7 +1,6 @@
 package widgets
 
 import (
-	"github.com/negrel/paon/internal/geometry"
 	draw "github.com/negrel/paon/pdk/draw"
 	"github.com/negrel/paon/pdk/layout"
 )
