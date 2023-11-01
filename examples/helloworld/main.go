@@ -18,7 +18,19 @@ func main() {
 	defer cancel()
 
 	// Start application.
-	err = app.Start(ctx, widgets.NewSpan("Hello world"))
+	err = app.Start(ctx, widgets.NewVBox(
+		widgets.NewHBox(
+			widgets.NewSpan("English    "),
+			widgets.NewSpan(" | "),
+			widgets.NewSpan("French"),
+		),
+		widgets.NewSpan("-----------------------------------"),
+		widgets.NewHBox(
+			widgets.NewSpan("Hello world"),
+			widgets.NewSpan(" | "),
+			widgets.NewSpan("Bonjour tout le monde"),
+		),
+	))
 	if err != nil {
 		panic(err)
 	}

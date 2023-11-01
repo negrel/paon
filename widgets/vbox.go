@@ -1,0 +1,53 @@
+package widgets
+
+import (
+	"github.com/negrel/paon/geometry"
+	"github.com/negrel/paon/pdk/draw"
+	"github.com/negrel/paon/pdk/layout"
+	"github.com/negrel/paon/pdk/math"
+	pdkwidgets "github.com/negrel/paon/pdk/widgets"
+)
+
+type VBox struct {
+	*pdkwidgets.BaseLayout
+}
+
+func NewVBox(children ...pdkwidgets.Widget) *VBox {
+	w := &VBox{}
+
+	w.BaseLayout = pdkwidgets.NewBaseLayout(
+		pdkwidgets.WidgetOptions(
+			pdkwidgets.Wrap(w),
+		),
+	)
+
+	for _, child := range children {
+		w.AppendChild(child)
+	}
+
+	return w
+}
+
+// Render implements the Widget interface.
+func (hb *VBox) Render(co layout.Constraint, surface draw.Surface) geometry.Size {
+	size := geometry.NewSize(0, 0)
+	surfaceSize := surface.Size()
+
+	for child := hb.FirstChild(); child != nil; child = child.NextSibling() {
+		// Previous child fulfilled the surface, no need to render next siblings.
+		if surfaceSize.Height() < size.Height() {
+			break
+		}
+
+		// Reduce subsurface to remaining space.
+		subsurface := draw.NewSubSurface(surface, geometry.Rect(0, size.Height(), surfaceSize.Width(), surfaceSize.Height()))
+
+		childSize := child.Render(co, subsurface)
+		size = geometry.NewSize(
+			math.Max(size.Width(), childSize.Width()),
+			size.Height()+childSize.Height(),
+		)
+	}
+
+	return size
+}

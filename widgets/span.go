@@ -25,6 +25,7 @@ func NewSpan(text string) *Span {
 	return w
 }
 
+// Render implements the Widget interface.
 func (s *Span) Render(co layout.Constraint, surface draw.Surface) geometry.Size {
 	// TODO: iterate over grapheme instead of runes.
 	for i, c := range s.text {
