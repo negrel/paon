@@ -4,17 +4,16 @@ import (
 	"fmt"
 
 	"github.com/negrel/paon/pdk/id"
-	"github.com/negrel/paon/pdk/id/store"
 )
 
 var typeRegistry = id.Registry{}
-var typeMap = store.NewStringMap()
+var typeMap = map[Type]string{}
 
 // Type is the type of an Event
 type Type id.ID
 
 func (t Type) name() string {
-	return typeMap.Get(id.ID(t))
+	return typeMap[t]
 }
 
 // String implements the fmt.Stringer interface.
@@ -23,10 +22,10 @@ func (t Type) String() string {
 }
 
 // NewType returns a new Type that can be used for custom events
-// type.
+// type. All events type must be created before application starts.
 func NewType(name string) Type {
-	t := typeRegistry.New()
-	typeMap.Set(t, name)
+	t := Type(typeRegistry.New())
+	typeMap[t] = name
 
-	return Type(t)
+	return t
 }
