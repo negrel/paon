@@ -2,6 +2,7 @@ package tcell
 
 import (
 	"context"
+	"reflect"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/negrel/debuggo/pkg/log"
@@ -80,6 +81,8 @@ func (c *Terminal) Start(evch chan<- pdkevents.Event) error {
 	if err != nil {
 		return err
 	}
+	c.screen.EnableMouse(tcell.MouseMotionEvents)
+	c.screen.EnablePaste()
 
 	go eventLoop(c.screen.PollEvent, evch)
 
@@ -93,36 +96,54 @@ func (c *Terminal) Stop() {
 
 var oldSize = geometry.Size{}
 
-func adaptEvent(event tcell.Event) pdkevents.Event {
-	switch ev := event.(type) {
-	case *tcell.EventError:
-		_ = ev
-		return nil
+func adaptEvents(pollFunc func() tcell.Event, evch chan pdkevents.Event) {
+	var mousePress *tcell.EventMouse = nil
 
-	case *tcell.EventResize:
-		newSize := geometry.NewSize(ev.Size())
-		e := events.NewResize(oldSize, newSize)
-		oldSize = newSize
+	for {
+		event := pollFunc()
+		if event == nil {
+			evch <- nil
+			return
+		}
 
-		return e
+		switch ev := event.(type) {
+		case *tcell.EventError:
+			_ = ev
 
-	default:
-		return nil
+		case *tcell.EventResize:
+			newSize := geometry.NewSize(ev.Size())
+			resize := events.NewResize(oldSize, newSize)
+			oldSize = newSize
+
+			evch <- resize
+
+		case *tcell.EventMouse:
+			// A button was pressed in previous event.
+			if mousePress != nil && ev.Buttons() == tcell.ButtonNone {
+				oldX, oldY := mousePress.Position()
+				newX, newY := ev.Position()
+				mousePress = nil
+				if oldX == newX && oldY == newY {
+					pos := geometry.NewVec2D(newX, newY)
+					evch <- events.NewClick(pos)
+					continue
+				}
+			}
+
+			// Store until another event is triggered.
+			if ev.Buttons() != tcell.ButtonNone {
+				mousePress = ev
+			}
+
+		default:
+			println(reflect.TypeOf(ev).String())
+		}
 	}
 }
 
 func eventLoop(pollFunc func() tcell.Event, evch chan<- pdkevents.Event) {
 	pollCh := make(chan pdkevents.Event)
-	go func(pollCh chan<- pdkevents.Event) {
-		for {
-			event := pollFunc()
-			if event != nil {
-				pollCh <- adaptEvent(event)
-			} else {
-				pollCh <- nil
-			}
-		}
-	}(pollCh)
+	go adaptEvents(pollFunc, pollCh)
 
 	for {
 		ev := <-pollCh

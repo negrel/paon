@@ -5,7 +5,6 @@ import (
 
 	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/geometry"
-	"github.com/negrel/paon/pdk/events"
 	pdkevents "github.com/negrel/paon/pdk/events"
 )
 
@@ -18,8 +17,8 @@ func ResizeType() pdkevents.Type {
 
 // ResizeListener returns an events.Listener that will call the given handler
 // on resize events.
-func ResizeListener(handler func(Resize)) (events.Type, events.Handler) {
-	return ResizeType(), events.HandlerFunc(func(event events.Event) {
+func ResizeListener(handler func(Resize)) (pdkevents.Type, pdkevents.Handler) {
+	return ResizeType(), pdkevents.HandlerFunc(func(event pdkevents.Event) {
 		assert.IsType(event, Resize{})
 		handler(event.(Resize))
 	})
@@ -27,7 +26,7 @@ func ResizeListener(handler func(Resize)) (events.Type, events.Handler) {
 
 // Resize define an event that is triggered when the terminal is resized.
 type Resize struct {
-	events.Event
+	pdkevents.Event
 	Old, New geometry.Size
 }
 
