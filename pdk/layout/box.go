@@ -2,7 +2,6 @@ package layout
 
 import (
 	"github.com/negrel/paon/geometry"
-	"github.com/negrel/paon/styles"
 )
 
 // BoxedObject define an object with a BoxModel.
@@ -99,31 +98,19 @@ func (b Box) Resize(size geometry.Size) {
 }
 
 // ApplyMargin applies the margin of the given style to the box.
-func (b Box) ApplyMargin(style styles.Style) Box {
-	b.applyMargin(marginOf(style))
+func (b Box) ApplyMargin(left, top, right, bottom int) Box {
+	b.borderBoxOffset = boxOffset{left, top, right, bottom}
 	return b
-}
-
-func (b Box) applyMargin(margin boxOffset) {
-	b.borderBoxOffset = margin
 }
 
 // ApplyBorder applies the border of the given style to the box.
-func (b Box) ApplyBorder(style styles.Style) Box {
-	b.applyBorder(borderOf(style))
+func (b Box) ApplyBorder(left, top, right, bottom int) Box {
+	b.paddingBoxOffset = boxOffset{left, top, right, bottom}
 	return b
-}
-
-func (b Box) applyBorder(border boxOffset) {
-	b.paddingBoxOffset = border
 }
 
 // ApplyPadding applies the padding of the given style to the box.
-func (b Box) ApplyPadding(style styles.Style) Box {
-	b.applyPadding(paddingOf(style))
+func (b Box) ApplyPadding(left, top, right, bottom int) Box {
+	b.contentBoxOffset = boxOffset{left, top, right, bottom}
 	return b
-}
-
-func (b Box) applyPadding(padding boxOffset) {
-	b.contentBoxOffset = padding
 }

@@ -5,11 +5,10 @@ import (
 )
 
 var _ BoxedObject = &Cache{}
-var _ BoxPacker = &Cache{}
 
 // Cache is a wrapper for Flowable object.
 type Cache struct {
-	BoxPacker
+	layout Layout
 
 	isExpired  bool
 	cache      PositionedBoxModel
@@ -17,9 +16,9 @@ type Cache struct {
 }
 
 // NewCache returns a new Cache wrapper for the given Flowable.
-func NewCache(p BoxPacker) *Cache {
+func NewCache(l Layout) *Cache {
 	return &Cache{
-		BoxPacker: p,
+		layout:    l,
 		isExpired: true,
 	}
 }
@@ -64,20 +63,12 @@ func (c *Cache) SetPosition(origin geometry.Vec2D) {
 	c.cache.Origin = origin
 }
 
-// Pack implements the BoxPacker interface.
-func (c *Cache) Pack(co Constraint) BoxModel {
-	box := c.BoxPacker.Pack(co)
-	c.Store(co, box)
-
-	return box
-}
-
-// Store updates cache validity, Constraint and BoxModel.
-// Don't forget to call SetPosition to sets the position.
-// This function is called by Cache.Pack to store the result
-// of the BoxPacker.
-func (c *Cache) Store(co Constraint, bm BoxModel) {
+// Layout implements the Layout interface.
+func (c *Cache) Layout(co Constraint) BoxModel {
+	box := c.layout.Layout(co)
 	c.constraint = co
 	c.isExpired = false
-	c.cache.BoxModel = bm
+	c.cache.BoxModel = box
+
+	return box
 }
