@@ -1,8 +1,8 @@
 package widgets
 
 import (
-	"github.com/negrel/paon/pdk/draw"
 	"github.com/negrel/paon/pdk/tree"
+	treevents "github.com/negrel/paon/pdk/tree/events"
 )
 
 // Layout is an extension of the Widget interface that adds the support for
@@ -50,19 +50,10 @@ type BaseLayout struct {
 
 // NewBaseLayout returns a new BaseLayout object configured with the given
 // options.
-// The LayoutAlgo and Drawer widget options are required.
-// To embed this layout in composite struct, use the Wrap widget options.
+// When embedding this layout in a composite struct, wrap the struct instance
+// using Wrap widget options.
 func NewBaseLayout(options ...LayoutOption) *BaseLayout {
 	layout := newBaseLayout(options...)
-
-	// Dispcatch lifecycle events to children.
-	layout.AddEventListener(LifeCycleEventListener(func(event LifeCycleEvent) {
-		for child := layout.FirstChild(); child != nil; child = child.NextSibling() {
-			ev := event
-			ev.Widget = child
-			child.DispatchEvent(ev)
-		}
-	}))
 
 	return layout
 }
@@ -74,14 +65,7 @@ func newBaseLayout(options ...LayoutOption) *BaseLayout {
 		widgetConstructor: NewBaseWidget,
 		widgetOptions: []WidgetOption{
 			Wrap(layout),
-			NodeConstructor(tree.NewNode),
-			Drawer(draw.DrawerFn(func(c draw.Context) {
-				child := layout.FirstChild()
-				for child != nil {
-					child.Draw(c)
-					child = child.NextSibling()
-				}
-			})),
+			NodeOptions(treevents.NodeConstructor(tree.NewNode)),
 		},
 	}
 
@@ -106,33 +90,15 @@ func (bl *BaseLayout) LastChild() Widget {
 
 // AppendChild implements the Layout interface.
 func (bl *BaseLayout) AppendChild(newChild Widget) error {
-	err := bl.node.AppendChild(newChild.Node())
-	if err == nil && newChild.LifeCycleStage() == LCSBeforeMount {
-		newChild.DispatchEvent(NewLifeCycleEvent(newChild, LCSMounted))
-		Reflow(bl.BaseWidget)
-	}
-
-	return err
+	return bl.node.AppendChild(newChild.Node())
 }
 
 // InsertBefore implements the Layout interface.
 func (bl *BaseLayout) InsertBefore(reference, newChild Widget) error {
-	err := bl.node.InsertBefore(nodeOrNil(reference), nodeOrNil(newChild))
-	if err == nil && newChild.LifeCycleStage() == LCSBeforeMount {
-		newChild.DispatchEvent(NewLifeCycleEvent(newChild, LCSMounted))
-		Reflow(bl.BaseWidget)
-	}
-
-	return err
+	return bl.node.InsertBefore(nodeOrNil(reference), nodeOrNil(newChild))
 }
 
 // RemoveChild implements the Layout interface.
 func (bl *BaseLayout) RemoveChild(child Widget) error {
-	err := bl.node.RemoveChild(nodeOrNil(child))
-	if err != nil && child.LifeCycleStage() == LCSBeforeUnmount {
-		child.DispatchEvent(NewLifeCycleEvent(child, LCSUnmounted))
-		Reflow(bl.BaseWidget)
-	}
-
-	return err
+	return bl.node.RemoveChild(nodeOrNil(child))
 }

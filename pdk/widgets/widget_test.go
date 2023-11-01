@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/negrel/paon/internal/geometry"
 	"github.com/negrel/paon/pdk/layout"
 	"github.com/negrel/paon/pdk/tree"
 	"github.com/stretchr/testify/assert"

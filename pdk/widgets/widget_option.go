@@ -3,37 +3,31 @@ package widgets
 import (
 	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/pdk/events"
-	"github.com/negrel/paon/pdk/draw"
-	"github.com/negrel/paon/pdk/layout"
-	"github.com/negrel/paon/pdk/tree"
-	"github.com/negrel/paon/styles"
+	treevents "github.com/negrel/paon/pdk/tree/events"
 )
 
 type baseWidgetOption struct {
 	*BaseWidget
 
-	nodeConstructor func(data interface{}) tree.Node
-	data            interface{}
-	listeners       []*events.Listener
-	defaultStyle    styles.Style
+	data        interface{}
+	listeners   []events.Listener
+	nodeOptions []treevents.NodeOption
 }
 
 // WidgetOption define an option for BaseWidget.
 type WidgetOption func(*baseWidgetOption)
 
-func initialLCS(lcs LifeCycleStage) WidgetOption {
+func initialLCS(lcs treevents.LifeCycleStage) WidgetOption {
 	return func(bwo *baseWidgetOption) {
 		bwo.stage = lcs
 	}
 }
 
-// NodeConstructor returns a WidgetOption that sets the internal tree.Node constructor used by the
-// Widget.
-func NodeConstructor(constructor func(data interface{}) tree.Node) WidgetOption {
-	assert.NotNil(constructor)
-
+// NodeOptions adds the given NodeOptions to options list used to create underlying
+// node.
+func NodeOptions(options ...treevents.NodeOption) WidgetOption {
 	return func(bwo *baseWidgetOption) {
-		bwo.nodeConstructor = constructor
+		bwo.nodeOptions = append(bwo.nodeOptions, options...)
 	}
 }
 
@@ -43,9 +37,7 @@ func NodeConstructor(constructor func(data interface{}) tree.Node) WidgetOption 
 func Wrap(data Widget) WidgetOption {
 	assert.NotNil(data)
 
-	return func(bwo *baseWidgetOption) {
-		bwo.data = data
-	}
+	return NodeOptions(treevents.Wrap(data))
 }
 
 // Target returns a WidgetOption that sets the internal events.Target object
@@ -59,38 +51,13 @@ func Target(target events.Target) WidgetOption {
 	}
 }
 
-// Listeners returns a WidgetOption that prepends the given listeners to the internal
+// Listener returns a WidgetOption that append the given listener to the internal
 // events.Target.
-func Listeners(listeners ...*events.Listener) WidgetOption {
+func Listener(etype events.Type, h events.Handler) WidgetOption {
 	return func(bwo *baseWidgetOption) {
-		bwo.listeners = append(bwo.listeners, listeners...)
-	}
-}
-
-// LayoutManager returns a WidgetOption that sets the layout algorithm
-// used to compute the flow of the widget.
-func LayoutManager(man layout.Manager) WidgetOption {
-	assert.NotNil(man)
-
-	return func(bwo *baseWidgetOption) {
-		bwo.cache = layout.NewCache(man)
-	}
-}
-
-// Drawer returns a WidgetOption that sets the drawer used to
-// draw the Widget on a Canvas.
-func Drawer(drawer draw.Drawer) WidgetOption {
-	assert.NotNil(drawer)
-
-	return func(bwo *baseWidgetOption) {
-		bwo.drawer = drawer
-	}
-}
-
-// DefaultStyle returns a WidgetOption that sets default style properties of
-// the widget.
-func DefaultStyle(style styles.Style) WidgetOption {
-	return func(bwo *baseWidgetOption) {
-		bwo.defaultStyle = style
+		bwo.listeners = append(bwo.listeners, events.Listener{
+			EventType: etype,
+			Handler:   h,
+		})
 	}
 }

@@ -3,20 +3,17 @@ package widgets
 import (
 	"errors"
 
+	"github.com/negrel/paon/geometry"
 	"github.com/negrel/paon/pdk/draw"
 	"github.com/negrel/paon/pdk/layout"
 	"github.com/negrel/paon/pdk/tree"
-	"github.com/negrel/paon/styles/value"
+	treevents "github.com/negrel/paon/pdk/tree/events"
 )
 
 // Root define the root of a widget tree.
 type Root struct {
 	*BaseWidget
-
-	child                  Widget
-	needReflow, needRedraw bool
-	reflowQ                []layout.Manager
-	redrawQ                []draw.Drawer
+	child Widget
 }
 
 var _ Layout = &Root{}
@@ -24,39 +21,13 @@ var _ Layout = &Root{}
 // NewRoot returns a new Widget that can be used as a root.
 func NewRoot() *Root {
 	root := &Root{}
-	root.enqueueReflow()
 
 	root.BaseWidget = newBaseWidget(
-		initialLCS(LCSMounted),
+		initialLCS(treevents.LCSMounted),
 		Wrap(root),
-		NodeConstructor(func(data interface{}) tree.Node { return tree.NewRoot(data) }),
-		LayoutManager(layout.ManagerFn(func(c layout.Constraint) layout.BoxModel {
-			return root.child.Layout(c)
+		NodeOptions(treevents.NodeConstructor(func(data any) tree.Node {
+			return tree.NewRoot(data)
 		})),
-		Drawer(draw.DrawerFn(func(c draw.Context) {
-			root.Draw(c)
-		})),
-		Listeners(
-			ReflowListener(func(re ReflowEvent) {
-				if root.needReflow {
-					// Event is from direct child, we can redraw the entire tree.
-					if re.ResourceID == root.ID() {
-						root.enqueueReflow()
-						return
-					}
-					root.reflowQ = append(root.reflowQ, re.Manager)
-				}
-			}),
-			RedrawListener(func(re RedrawEvent) {
-				if root.needRedraw {
-					if re.ResourceID == root.ID() {
-						root.enqueueRedraw()
-						return
-					}
-					root.redrawQ = append(root.redrawQ, re.Drawer)
-				}
-			}),
-		),
 	)
 	root.BaseWidget.root = root
 
@@ -112,53 +83,24 @@ func (r *Root) Root() *Root {
 func (r *Root) SetChild(child Widget) {
 	if oldChild := r.child; oldChild != nil {
 		oldChild.Node().SetParent(nil)
-		oldChild.DispatchEvent(NewLifeCycleEvent(oldChild, LCSUnmounted))
+		oldChild.DispatchEvent(treevents.NewLifeCycleEvent(oldChild.Node(), treevents.LCSUnmounted))
 	}
-
-	childNode := child.Node()
-	childNode.SetParent(r.Node())
-	childNode.SetPrevious(nil)
-	childNode.SetNext(nil)
 
 	r.child = child
-	child.DispatchEvent(NewLifeCycleEvent(child, LCSMounted))
-}
-
-// Draw implements the draw.Drawable interface.
-func (r *Root) Draw(ctx draw.Context) {
-	ctx.SetFillColor(value.Color{})
-	ctx.FillRectangle(ctx.Bounds())
-	ctx.Commit()
-
-	r.child.Draw(
-		draw.SubContext(ctx, r.child.Box().BorderBox()),
-	)
-}
-
-func (r *Root) enqueueReflow() {
-	r.needReflow = false
-	r.reflowQ = []layout.Manager{r}
-	r.enqueueRedraw()
-}
-
-func (r *Root) enqueueRedraw() {
-	r.needRedraw = false
-	r.redrawQ = []draw.Drawer{r}
-}
-
-// Update flush the reflow & redraw queue and trigger a redraw and a reflow if needed.
-func (r *Root) Update(canvas draw.Canvas) {
-	lenReflowQ := len(r.reflowQ)
-	for i := 0; i < lenReflowQ; i++ {
-		r.reflowQ[i].Layout(layout.Constraint{})
+	if child != nil {
+		childNode := child.Node()
+		childNode.SetParent(r.Node())
+		childNode.SetPrevious(nil)
+		childNode.SetNext(nil)
+		child.DispatchEvent(treevents.NewLifeCycleEvent(child.Node(), treevents.LCSMounted))
 	}
-	r.reflowQ = r.reflowQ[lenReflowQ:]
-	r.needReflow = true
+}
 
-	lenRedrawQ := len(r.redrawQ)
-	for i := 0; i < lenRedrawQ; i++ {
-		r.redrawQ[i].Draw(canvas.NewContext(canvas.Bounds()))
+// Render implements the Widget interface.
+func (r *Root) Render(co layout.Constraint, surface draw.Surface) geometry.Size {
+	if r.child == nil {
+		return geometry.NewSize(0, 0)
 	}
-	r.redrawQ = r.redrawQ[lenRedrawQ:]
-	r.needRedraw = true
+
+	return r.child.Render(co, surface)
 }
