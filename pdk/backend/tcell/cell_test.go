@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/gdamore/tcell/v2"
+	"github.com/negrel/paon/colors"
 	"github.com/negrel/paon/pdk/draw"
-	"github.com/negrel/paon/styles/property"
 	"github.com/stretchr/testify/require"
 )
 
@@ -55,15 +55,15 @@ func strikethrough(style tcell.Style) bool {
 	return attrs&tcell.AttrStrikeThrough != 0
 }
 
-func randColor() property.Color {
-	return property.ColorFromHex(rand.Uint32())
+func randColor() colors.Color {
+	return colors.ColorFromHex(rand.Uint32())
 }
 
 func randBool() bool {
 	return bool(randPropBool())
 }
 
-func randPropBool() property.Bool {
+func randPropBool() bool {
 	return rand.Int()%2 == 0
 }
 
@@ -128,8 +128,8 @@ func TestFromTcellStyle(t *testing.T) {
 	// Default
 	cellstyle := fromTcellStyle(tcell.StyleDefault)
 
-	require.EqualValues(t, cellstyle.Foreground, property.ColorUnset())
-	require.EqualValues(t, cellstyle.Background, property.ColorUnset())
+	require.EqualValues(t, cellstyle.Foreground, colors.ColorUnset())
+	require.EqualValues(t, cellstyle.Background, colors.ColorUnset())
 	require.EqualValues(t, cellstyle.Blink, blink(tcell.StyleDefault))
 	require.EqualValues(t, cellstyle.Bold, bold(tcell.StyleDefault))
 	require.EqualValues(t, cellstyle.Dim, dim(tcell.StyleDefault))
