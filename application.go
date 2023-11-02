@@ -93,6 +93,7 @@ func (app *Application) eventLoop(ctx context.Context) {
 	for {
 		select {
 		case <-app.clock.C:
+			app.terminal.Clear()
 			_ = app.root.Layout(layout.Constraint{
 				MinSize:    geometry.NewSize(0, 0),
 				MaxSize:    app.terminal.Size(),
