@@ -23,13 +23,11 @@ func NewRoot() *Root {
 	root := &Root{}
 
 	root.BaseWidget = newBaseWidget(
-		initialLCS(treevents.LCSMounted),
 		Wrap(root),
 		NodeOptions(treevents.NodeConstructor(func(data any) tree.Node {
 			return tree.NewRoot(data)
 		})),
 	)
-	root.BaseWidget.root = root
 
 	return root
 }
@@ -92,7 +90,7 @@ func (r *Root) SetChild(child Widget) {
 		childNode.SetParent(r.Node())
 		childNode.SetPrevious(nil)
 		childNode.SetNext(nil)
-		child.DispatchEvent(treevents.NewLifeCycleEvent(child.Node(), treevents.LCSMounted))
+		child.DispatchEvent(treevents.NewLifeCycleEvent(childNode, treevents.LCSMounted))
 	}
 }
 

@@ -2,26 +2,21 @@ package widgets
 
 import (
 	"github.com/negrel/debuggo/pkg/assert"
+	"github.com/negrel/paon/pdk/draw"
 	"github.com/negrel/paon/pdk/events"
+	"github.com/negrel/paon/pdk/layout"
 	treevents "github.com/negrel/paon/pdk/tree/events"
 )
 
 type baseWidgetOption struct {
 	*BaseWidget
 
-	data        interface{}
 	listeners   []events.Listener
 	nodeOptions []treevents.NodeOption
 }
 
 // WidgetOption define an option for BaseWidget.
 type WidgetOption func(*baseWidgetOption)
-
-func initialLCS(lcs treevents.LifeCycleStage) WidgetOption {
-	return func(bwo *baseWidgetOption) {
-		bwo.stage = lcs
-	}
-}
 
 // NodeOptions adds the given NodeOptions to options list used to create underlying
 // node.
@@ -40,17 +35,6 @@ func Wrap(data Widget) WidgetOption {
 	return NodeOptions(treevents.Wrap(data))
 }
 
-// Target returns a WidgetOption that sets the internal events.Target object
-// used by the Widget. This can be useful if you want to add listener before the Widget default
-// one.
-func Target(target events.Target) WidgetOption {
-	assert.NotNil(target)
-
-	return func(bwo *baseWidgetOption) {
-		bwo.Target = target
-	}
-}
-
 // Listener returns a WidgetOption that append the given listener to the internal
 // events.Target.
 func Listener(etype events.Type, h events.Handler) WidgetOption {
@@ -59,5 +43,17 @@ func Listener(etype events.Type, h events.Handler) WidgetOption {
 			EventType: etype,
 			Handler:   h,
 		})
+	}
+}
+
+func Drawer(drawer draw.Drawer) WidgetOption {
+	return func(bwo *baseWidgetOption) {
+		bwo.drawer = drawer
+	}
+}
+
+func LayoutLayout(l layout.Layout) WidgetOption {
+	return func(bwo *baseWidgetOption) {
+		bwo.layout = layout.NewCache(l)
 	}
 }

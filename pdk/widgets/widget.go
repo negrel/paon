@@ -1,7 +1,6 @@
 package widgets
 
 import (
-	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/geometry"
 	"github.com/negrel/paon/pdk/draw"
 	"github.com/negrel/paon/pdk/events"
@@ -17,10 +16,8 @@ import (
 type Widget interface {
 	id.Identifiable
 	events.Target
-
-	// Render on the given surface from its origin while respecting the given constraint.
-	// Size of the rendered widget is returned.
-	Render(constrait layout.Constraint, surface draw.Surface) geometry.Size
+	layout.Layout
+	draw.Drawer
 
 	// LifeCycleStage returns the current LifeCycleStage of this Widget.
 	LifeCycleStage() treevents.LifeCycleStage
@@ -59,22 +56,20 @@ func nodeOrNil(w Widget) treevents.Node {
 
 var _ Widget = &BaseWidget{}
 
+// Private treevents.Node type that can be embedded in private field.
+type node treevents.Node
+
 // BaseWidget define a basic Widget object that implements the Widget interface.
 // BaseWidget can either be used alone (see NewBaseWidget for the required options)
 // or in composite struct.
 // BaseWidget takes care of the following things for you:
 // - Constant access time to the root.
 // - Caching the layout.BoxModel
-// - Updating the lifecycle stage
 // - Limit the draw area of the context to the widget border box.
 type BaseWidget struct {
-	node treevents.Node
-	events.Target
+	node
 
-	root  *Root
-	stage treevents.LifeCycleStage
-	// theme  styles.Theme
-	cache  *layout.Cache
+	layout layout.Layout
 	drawer draw.Drawer
 }
 
@@ -84,30 +79,12 @@ type BaseWidget struct {
 // To embed this layout in composite struct, use the Wrap widget options.
 func NewBaseWidget(options ...WidgetOption) *BaseWidget {
 	widget := newBaseWidget(options...)
-	widget.AddEventListener(treevents.LifeCycleEventListener(func(event treevents.LifeCycleEvent) {
-		widget.stage = event.Stage
-
-		// Update root field on mount/unmount
-		if event.Stage == treevents.LCSMounted {
-			root := widget.Parent().Root()
-			assert.NotNil(root)
-			widget.root = root
-		} else if event.Stage == treevents.LCSUnmounted {
-			widget.root = nil
-		}
-	}))
-
-	// widget.AddEventListener(ReflowListener(func(re ReflowEvent) {
-	// 	widget.reflow()
-	// }))
 
 	return widget
 }
 
 func newBaseWidget(options ...WidgetOption) *BaseWidget {
-	widget := &BaseWidget{
-		stage: treevents.LCSInitial,
-	}
+	widget := &BaseWidget{}
 	widgetConf := &baseWidgetOption{
 		BaseWidget:  widget,
 		nodeOptions: []treevents.NodeOption{treevents.Wrap(widget)},
@@ -119,22 +96,22 @@ func newBaseWidget(options ...WidgetOption) *BaseWidget {
 
 	widget.node = treevents.NewBaseNode(widgetConf.nodeOptions...)
 
-	if widget.Target == nil {
-		widget.Target = events.NewTarget()
-	}
-
 	for _, listener := range widgetConf.listeners {
 		widget.AddEventListener(listener.EventType, listener.Handler)
 	}
 
-	// if widget.theme == nil {
-	// 	widget.theme = styles.NewTheme(styles.NewWeighted(widgetConf.defaultStyle, -1))
-	// }
-
-	assert.NotNil(widget.cache)
-	assert.NotNil(widget.drawer)
-
 	return widget
+}
+
+// Layout implements Layout.
+func (bw *BaseWidget) Layout(co layout.Constraint) geometry.Rectangle {
+	rect := bw.layout.Layout(co)
+	return rect
+}
+
+// Draw implements Drawer.
+func (bw *BaseWidget) Draw(surface draw.Surface) {
+	bw.drawer.Draw(surface)
 }
 
 // ID implements the id.Identifiable interface.
@@ -158,16 +135,6 @@ func (bw *BaseWidget) Node() treevents.Node {
 	return bw.node
 }
 
-// LifeCycleStage implements the Widget interface
-func (bw *BaseWidget) LifeCycleStage() treevents.LifeCycleStage {
-	return bw.stage
-}
-
-// Box implements the Widget interface.
-func (bw *BaseWidget) Box() layout.BoxModel {
-	return bw.cache.BoxModel()
-}
-
 // Parent implements the Widget interface.
 func (bw *BaseWidget) Parent() Layout {
 	if parent := bw.node.Parent(); parent != nil {
@@ -179,7 +146,7 @@ func (bw *BaseWidget) Parent() Layout {
 
 // Root implements the Widget interface.
 func (bw *BaseWidget) Root() *Root {
-	return bw.root
+	return bw.node.Root().Unwrap().(*Root)
 }
 
 // NextSibling implements the Widget interface.
@@ -190,9 +157,4 @@ func (bw *BaseWidget) NextSibling() Widget {
 // PreviousSibling implements the Widget interface.
 func (bw *BaseWidget) PreviousSibling() Widget {
 	return widgetOrNil(bw.node.Previous())
-}
-
-// Render implements the Widget interface.
-func (bw *BaseWidget) Render(_ layout.Constraint, _ draw.Surface) geometry.Size {
-	panic("Render must be overrided")
 }
