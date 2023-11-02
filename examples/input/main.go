@@ -4,8 +4,11 @@ import (
 	"context"
 
 	"github.com/negrel/paon"
-	"github.com/negrel/paon/events"
-	"github.com/negrel/paon/widgets"
+	"github.com/negrel/paon/events/click"
+	"github.com/negrel/paon/widgets/button"
+	"github.com/negrel/paon/widgets/hbox"
+	"github.com/negrel/paon/widgets/input"
+	"github.com/negrel/paon/widgets/vbox"
 )
 
 func main() {
@@ -17,14 +20,14 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	input := widgets.NewInput("")
+	input := input.New("")
 
 	// Start application.
-	err = app.Start(ctx, widgets.NewVBox(
-		widgets.NewHBox(
+	err = app.Start(ctx, vbox.New(
+		hbox.New(
 			input,
 		),
-		widgets.NewButton("Click to exit", func(_ events.Click) {
+		button.New("Click to exit", func(_ click.Event) {
 			cancel()
 		}),
 	))

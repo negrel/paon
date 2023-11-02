@@ -5,8 +5,11 @@ import (
 	"time"
 
 	"github.com/negrel/paon"
-	"github.com/negrel/paon/events"
-	"github.com/negrel/paon/widgets"
+	"github.com/negrel/paon/events/click"
+	"github.com/negrel/paon/widgets/button"
+	"github.com/negrel/paon/widgets/hbox"
+	"github.com/negrel/paon/widgets/span"
+	"github.com/negrel/paon/widgets/vbox"
 )
 
 func main() {
@@ -16,12 +19,11 @@ func main() {
 		panic(err)
 	}
 
-	// Stop automatically application after 15sec.
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	// Span widget containing current time.
-	span := widgets.NewSpan(time.Now().Format(time.RFC3339))
+	timeSpan := span.New(time.Now().Format(time.RFC3339))
 
 	// Update span's text every second.
 	go func() {
@@ -32,19 +34,19 @@ func main() {
 				return
 			case now := <-ticker.C:
 				app.DoChannel() <- func() {
-					span.SetText(now.Format(time.RFC3339))
+					timeSpan.SetText(now.Format(time.RFC3339))
 				}
 			}
 		}
 	}()
 
 	// Start application.
-	err = app.Start(ctx, widgets.NewVBox(
-		widgets.NewHBox(
-			widgets.NewSpan("Current datetime: "),
-			span,
+	err = app.Start(ctx, vbox.New(
+		hbox.New(
+			span.New("Current datetime: "),
+			timeSpan,
 		),
-		widgets.NewButton("Click to exit", func(event events.Click) {
+		button.New("Click to exit", func(event click.Event) {
 			cancel()
 		}),
 	))

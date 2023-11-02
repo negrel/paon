@@ -5,8 +5,11 @@ import (
 	"fmt"
 
 	"github.com/negrel/paon"
-	"github.com/negrel/paon/events"
-	"github.com/negrel/paon/widgets"
+	"github.com/negrel/paon/events/click"
+	"github.com/negrel/paon/widgets/button"
+	"github.com/negrel/paon/widgets/hbox"
+	"github.com/negrel/paon/widgets/span"
+	"github.com/negrel/paon/widgets/vbox"
 )
 
 func main() {
@@ -22,26 +25,25 @@ func main() {
 	counter := 0
 
 	// Counter span and a function to sync value and span.
-	counterSpan := widgets.NewSpan(" 0 ")
+	counterSpan := span.New(" 0 ")
 	updateCounterSpan := func() {
 		counterSpan.SetText(fmt.Sprintf(" %v ", counter))
 	}
 
 	// Start application.
-	err = app.Start(ctx, widgets.NewVBox(
-		widgets.NewHBox(
-			widgets.NewButton(" - |", func(_ events.Click) {
+	err = app.Start(ctx, vbox.New(
+		hbox.New(
+			button.New(" - |", func(_ click.Event) {
 				counter--
 				updateCounterSpan()
 			}),
 			counterSpan,
-			widgets.NewButton("| + ", func(_ events.Click) {
+			button.New("| + ", func(_ click.Event) {
 				counter++
 				updateCounterSpan()
 			}),
 		),
-
-		widgets.NewButton("Click to exit", func(_ events.Click) {
+		button.New("Click to exit", func(_ click.Event) {
 			cancel()
 		}),
 	))

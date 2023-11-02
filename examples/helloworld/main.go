@@ -5,8 +5,11 @@ import (
 	"time"
 
 	"github.com/negrel/paon"
-	"github.com/negrel/paon/events"
-	"github.com/negrel/paon/widgets"
+	"github.com/negrel/paon/events/click"
+	"github.com/negrel/paon/widgets/button"
+	"github.com/negrel/paon/widgets/hbox"
+	"github.com/negrel/paon/widgets/span"
+	"github.com/negrel/paon/widgets/vbox"
 )
 
 func main() {
@@ -19,19 +22,19 @@ func main() {
 	defer cancel()
 
 	// Start application.
-	err = app.Start(ctx, widgets.NewVBox(
-		widgets.NewHBox(
-			widgets.NewSpan("English    "),
-			widgets.NewSpan(" | "),
-			widgets.NewSpan("French"),
+	err = app.Start(ctx, vbox.New(
+		hbox.New(
+			span.New("English    "),
+			span.New(" | "),
+			span.New("French"),
 		),
-		widgets.NewSpan("-----------------------------------"),
-		widgets.NewHBox(
-			widgets.NewSpan("Hello world"),
-			widgets.NewSpan(" | "),
-			widgets.NewSpan("Bonjour tout le monde"),
+		span.New("-----------------------------------"),
+		hbox.New(
+			span.New("Hello world"),
+			span.New(" | "),
+			span.New("Bonjour tout le monde"),
 		),
-		widgets.NewButton("Click to exit", func(event events.Click) {
+		button.New("Click to exit", func(event click.Event) {
 			cancel()
 		}),
 	))

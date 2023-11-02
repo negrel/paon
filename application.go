@@ -7,13 +7,12 @@ import (
 	"time"
 
 	"github.com/negrel/debuggo/pkg/log"
+	"github.com/negrel/paon/backend"
+	"github.com/negrel/paon/backend/tcell"
+	"github.com/negrel/paon/events"
 	"github.com/negrel/paon/geometry"
-	"github.com/negrel/paon/internal/metrics"
-	"github.com/negrel/paon/pdk/backend"
-	"github.com/negrel/paon/pdk/backend/tcell"
-	pdkevents "github.com/negrel/paon/pdk/events"
-	"github.com/negrel/paon/pdk/layout"
-	pdkwidgets "github.com/negrel/paon/pdk/widgets"
+	"github.com/negrel/paon/layout"
+	"github.com/negrel/paon/widgets"
 )
 
 // Application define a TUI application object.
@@ -21,9 +20,9 @@ type Application struct {
 	terminal backend.Terminal
 	clock    *time.Ticker
 	do       chan func()
-	root     *pdkwidgets.Root
-	target   pdkevents.Target
-	evch     chan pdkevents.Event
+	root     *widgets.Root
+	target   events.Target
+	evch     chan events.Event
 }
 
 // NewApp returns a new Application object.
@@ -37,8 +36,8 @@ func NewApp() (*Application, error) {
 		terminal: terminal,
 		clock:    time.NewTicker(time.Millisecond * 16), // 60 fps
 		do:       make(chan func()),
-		target:   pdkevents.NewTarget(),
-		evch:     make(chan pdkevents.Event),
+		target:   events.NewTarget(),
+		evch:     make(chan events.Event),
 	}
 
 	return app, nil
@@ -68,7 +67,7 @@ func (app *Application) DoChannel() chan<- func() {
 }
 
 // Start starts the application console, event loop and render loop.
-func (app *Application) Start(ctx context.Context, widget pdkwidgets.Widget) error {
+func (app *Application) Start(ctx context.Context, widget widgets.Widget) error {
 	defer app.recover()
 
 	err := app.terminal.Start(app.evch)
@@ -77,7 +76,7 @@ func (app *Application) Start(ctx context.Context, widget pdkwidgets.Widget) err
 	}
 
 	if app.root == nil {
-		app.root = pdkwidgets.NewRoot()
+		app.root = widgets.NewRoot()
 	}
 	err = app.root.AppendChild(widget.Node())
 	if err != nil {
@@ -111,7 +110,6 @@ func (app *Application) eventLoop(ctx context.Context) {
 			fn()
 
 		case <-ctx.Done():
-			metrics.Report(os.Stderr)
 			app.stop()
 			return
 		}
