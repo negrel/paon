@@ -5,10 +5,10 @@ type Drawer interface {
 	Draw(Surface)
 }
 
-// DrawerFn define a function that implements the Drawer interface.
-type DrawerFn func(Surface)
+// DrawerFunc define a function that implements the Drawer interface.
+type DrawerFunc func(Surface)
 
 // Draw implements the Drawable interface.
-func (fn DrawerFn) Draw(c Surface) {
+func (fn DrawerFunc) Draw(c Surface) {
 	fn(c)
 }
