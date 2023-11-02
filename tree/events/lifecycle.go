@@ -1,7 +1,6 @@
 package events
 
 import (
-	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/events"
 )
 
@@ -52,7 +51,6 @@ func LifeCycleEventType() events.Type {
 // when a LifeCycleEvent is dispatched.
 func LifeCycleEventListener(handler func(LifeCycleEvent)) (events.Type, events.Handler) {
 	return LifeCycleEventType(), events.HandlerFunc(func(event events.Event) {
-		assert.IsType(event, NewLifeCycleEvent(nil, _maxLifeCycle))
 		handler(event.(LifeCycleEvent))
 	})
 }

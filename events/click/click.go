@@ -3,7 +3,6 @@ package click
 import (
 	"fmt"
 
-	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/events"
 	"github.com/negrel/paon/geometry"
 )
@@ -14,7 +13,6 @@ var EventType = events.NewType("Click")
 // on click events.
 func Listener(handler func(Event)) (events.Type, events.Handler) {
 	return EventType, events.HandlerFunc(func(event events.Event) {
-		assert.IsType(event, Event{})
 		handler(event.(Event))
 	})
 }

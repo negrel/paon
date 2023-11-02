@@ -1,7 +1,6 @@
 package events
 
 import (
-	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/events"
 	"github.com/negrel/paon/tree"
 )
@@ -42,8 +41,6 @@ type Event struct {
 // and a phase sets to PhaseNone. The phase will be sets accordingly
 // by the dispatcher if it supports it.
 func NewEvent(ev events.Event, target tree.Node, bubbles bool) Event {
-	assert.NotNil(target)
-
 	return Event{
 		Event:   ev,
 		Phase:   PhaseNone,

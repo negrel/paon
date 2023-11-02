@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/id"
 )
 
@@ -88,8 +87,6 @@ func (n *node) LastChild() Node {
 }
 
 func (n *node) AppendChild(newChild Node) (err error) {
-	assert.NotNil(newChild, "child must be non-nil to be appended")
-
 	if err = n.ensurePreInsertionValidity(newChild); err != nil {
 		return fmt.Errorf("can't append child, %v", err)
 	}
@@ -127,18 +124,11 @@ func (n *node) ensurePreInsertionValidity(child Node) error {
 
 func (n *node) prepareChildForInsertion(newChild Node) {
 	if parent := newChild.Parent(); parent != nil {
-		err := parent.RemoveChild(newChild)
-		assert.Nil(err)
+		_ = parent.RemoveChild(newChild)
 	}
-	assert.Nil(newChild.Root())
-	assert.Nil(newChild.Parent())
-	assert.Nil(newChild.Previous())
-	assert.Nil(newChild.Next())
 }
 
 func (n *node) InsertBefore(reference, newChild Node) error {
-	assert.NotNil(newChild, "child must be non-nil to be appended")
-
 	// InsertBeforeNode(nil, node) is equal to AppendChildNode(node)
 	if reference == nil {
 		return n.AppendChild(newChild)
@@ -170,8 +160,6 @@ func (n *node) insertBefore(reference, newChild Node) {
 }
 
 func (n *node) RemoveChild(child Node) error {
-	assert.NotNil(child, "child must be non-nil to be removed")
-
 	// if not a child of pn
 	if !n.IsSame(child.Parent()) {
 		return errors.New("can't remove child, the node is not a child of this node")

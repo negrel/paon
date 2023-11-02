@@ -3,7 +3,6 @@ package keypress
 import (
 	"fmt"
 
-	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/events"
 )
 
@@ -13,7 +12,6 @@ var EventType = events.NewType("KeyPress")
 // on key press events.
 func Listener(handler func(Event)) (events.Type, events.Handler) {
 	return EventType, events.HandlerFunc(func(event events.Event) {
-		assert.IsType(event, Event{})
 		handler(event.(Event))
 	})
 }

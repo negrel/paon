@@ -3,10 +3,8 @@ package paon
 import (
 	"context"
 	"os"
-	"runtime/debug"
 	"time"
 
-	"github.com/negrel/debuggo/pkg/log"
 	"github.com/negrel/paon/backend"
 	"github.com/negrel/paon/backend/tcell"
 	"github.com/negrel/paon/events"
@@ -45,11 +43,7 @@ func NewApp() (*Application, error) {
 
 func (app *Application) recover() {
 	if r := recover(); r != nil {
-		log.Error(r)
-
-		stack := debug.Stack()
 		t := time.AfterFunc(time.Second, func() {
-			log.Error(string(stack))
 			os.Exit(1)
 		})
 

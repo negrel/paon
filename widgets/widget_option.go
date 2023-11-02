@@ -1,7 +1,6 @@
 package widgets
 
 import (
-	"github.com/negrel/debuggo/pkg/assert"
 	"github.com/negrel/paon/draw"
 	"github.com/negrel/paon/events"
 	"github.com/negrel/paon/geometry"
@@ -31,8 +30,6 @@ func NodeOptions(options ...treevents.NodeOption) WidgetOption {
 // This data is accessible throught the tree.Node.Unwrap method.
 // This options should only be used by structs that embed a BaseWidget.
 func Wrap(data Widget) WidgetOption {
-	assert.NotNil(data)
-
 	return NodeOptions(treevents.Wrap(data))
 }
 

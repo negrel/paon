@@ -6,7 +6,6 @@ import (
 	"github.com/negrel/paon/geometry"
 	"github.com/negrel/paon/id"
 	"github.com/negrel/paon/layout"
-	"github.com/negrel/paon/tree"
 	treevents "github.com/negrel/paon/tree/events"
 )
 
@@ -21,22 +20,6 @@ type Widget interface {
 
 	// Node returns the underlying Node used by this Widget.
 	Node() treevents.Node
-}
-
-func widgetOrNil(n tree.Node) Widget {
-	if n == nil {
-		return nil
-	}
-
-	return n.Unwrap().(Widget)
-}
-
-func nodeOrNil(w Widget) treevents.Node {
-	if w == nil {
-		return nil
-	}
-
-	return w.Node()
 }
 
 var _ Widget = &BaseWidget{}
@@ -102,12 +85,6 @@ func (bw *BaseWidget) ID() id.ID {
 // IsSame implements the id.Identifiable interface.
 func (bw *BaseWidget) IsSame(other id.Identifiable) bool {
 	return bw.node.IsSame(other)
-}
-
-// Widget is an helper method that returns the Widget wrapped by the internal tree.Node.
-// This method act kinda like the `this` keyword in Java.
-func (bw *BaseWidget) Widget() Widget {
-	return widgetOrNil(bw.node)
 }
 
 // Node implements the Widget interface.

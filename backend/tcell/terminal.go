@@ -5,7 +5,6 @@ import (
 	"reflect"
 
 	"github.com/gdamore/tcell/v2"
-	"github.com/negrel/debuggo/pkg/log"
 	"github.com/negrel/paon/backend"
 	"github.com/negrel/paon/draw"
 	"github.com/negrel/paon/events"
@@ -157,7 +156,6 @@ func eventLoop(pollFunc func() tcell.Event, evch chan<- events.Event) {
 	for {
 		ev := <-pollCh
 		if ev == nil {
-			log.Debug("EVENT LOOP DONE")
 			break
 		}
 		evch <- ev

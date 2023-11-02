@@ -1,10 +1,5 @@
 package events
 
-import (
-	"github.com/negrel/debuggo/pkg/assert"
-	"github.com/negrel/debuggo/pkg/log"
-)
-
 // Target define an object that can receive events and may have listeners for them.
 type Target interface {
 	AddEventListener(Type, Handler)
@@ -27,8 +22,6 @@ func NewTarget() Target {
 }
 
 func (t target) AddEventListener(tpe Type, listener Handler) {
-	assert.NotNil(listener, "listener must be not nil")
-
 	if t.listeners[tpe] == nil {
 		t.listeners[tpe] = make([]Handler, 0, 8)
 	}
@@ -38,10 +31,7 @@ func (t target) AddEventListener(tpe Type, listener Handler) {
 
 // RemoveEventListener removes an event listener of a specific event type from the target.
 func (t target) RemoveEventListener(tpe Type, listener Handler) {
-	assert.NotNil(listener, "listener must be not nil")
-
 	if t.listeners[tpe] == nil {
-		log.Infof("can't remove event listener %v, no such event listener registered for %v event type", listener, tpe)
 		return
 	}
 
@@ -51,14 +41,10 @@ func (t target) RemoveEventListener(tpe Type, listener Handler) {
 			return
 		}
 	}
-
-	log.Infof("can't remove event listener %v, not found", listener)
 }
 
 // DispatchEvent dispatch the given event to listeners.
 func (t target) DispatchEvent(event Event) {
-	assert.NotNil(event, "event must be not nil")
-
 	i := uint32(event.Type())
 	if t.listeners[i] == nil {
 		return
@@ -86,5 +72,4 @@ func (not noOpTarget) RemoveEventListener(tpe Type, listener Handler) {
 
 // DispatchEvent dispatch the given event to listeners.
 func (not noOpTarget) DispatchEvent(event Event) {
-
 }
