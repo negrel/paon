@@ -135,6 +135,13 @@ func adaptEvents(pollFunc func() tcell.Event, evch chan pdkevents.Event) {
 				mousePress = ev
 			}
 
+		case *tcell.EventKey:
+			evch <- events.NewKeyPress(
+				events.ModMask(ev.Modifiers()),
+				events.Key(ev.Key()),
+				ev.Rune(),
+			)
+
 		default:
 			println(reflect.TypeOf(ev).String())
 		}
