@@ -25,7 +25,7 @@ func NewCache(l Layout) *Cache {
 
 // IsValid returns true if the cache data is valid.
 func (c Cache) IsValid(co Constraint) bool {
-	return !c.isExpired && co.ApplyOnSize(c.Size()) == c.Size()
+	return !c.isExpired && co == c.constraint
 }
 
 // IsExpired returns true if the cache is marked as expired.
@@ -51,13 +51,13 @@ func (c Cache) Size() geometry.Size {
 // Layout implements the Layout interface.
 func (c *Cache) Layout(co Constraint) geometry.Size {
 	if c.IsValid(co) {
-		return c.cache
+		return co.ApplyOnSize(c.cache)
 	}
 
-	rect := c.layout.Layout(co)
+	size := c.layout.Layout(co)
 	c.constraint = co
 	c.isExpired = false
-	c.cache = rect
+	c.cache = size
 
-	return rect
+	return co.ApplyOnSize(size)
 }

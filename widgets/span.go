@@ -32,7 +32,7 @@ func NewSpan(text string) *Span {
 }
 
 func LayoutSpan(text string, co layout.Constraint) geometry.Size {
-	return co.ApplyOnSize(geometry.NewSize(len(text), 1))
+	return geometry.NewSize(len(text), 1)
 }
 
 func DrawSpan(text string, surface draw.Surface) {

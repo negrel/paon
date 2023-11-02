@@ -50,7 +50,7 @@ func NewVBox(children ...pdkwidgets.Widget) *VBox {
 				)
 			}
 
-			return childrenRects, co.ApplyOnSize(size)
+			return childrenRects, size
 		}),
 	)
 

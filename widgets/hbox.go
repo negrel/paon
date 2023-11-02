@@ -50,7 +50,7 @@ func NewHBox(children ...pdkwidgets.Widget) *HBox {
 				)
 			}
 
-			return childrenRects, co.ApplyOnSize(size)
+			return childrenRects, size
 		}),
 	)
 
