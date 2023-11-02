@@ -20,9 +20,11 @@ func NewButton(text string, onclick func(events.Click)) *Button {
 
 	w.BaseWidget = pdkwidgets.NewBaseWidget(
 		pdkwidgets.Wrap(w),
-		pdkwidgets.LayoutFunc(func(co layout.Constraint) geometry.Size {
-			return LayoutSpan(w.text, co)
-		}),
+		pdkwidgets.LayoutFunc(
+			func(co layout.Constraint) geometry.Size {
+				return LayoutSpan(w.text, co)
+			},
+		),
 		pdkwidgets.DrawerFunc(func(surface draw.Surface) {
 			DrawSpan(w.text, surface)
 		}),

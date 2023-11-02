@@ -46,6 +46,8 @@ func newBaseLayout(options ...LayoutOption) *BaseLayout {
 
 	// Children positions.
 	childrenRects := []geometry.Rectangle{}
+	// Layout constraint used for the latest layout.
+	latestLayoutConstraint := layout.Constraint{}
 
 	layoutConf := &baseLayoutOption{
 		BaseLayout:        l,
@@ -54,6 +56,8 @@ func newBaseLayout(options ...LayoutOption) *BaseLayout {
 			Wrap(l),
 			NodeOptions(treevents.NodeConstructor(tree.NewNode)),
 			LayoutFunc(func(co layout.Constraint) (size geometry.Size) {
+				latestLayoutConstraint = co
+
 				childrenRects, size = l.layoutAlgo(co, childrenRects[:0])
 				return size
 			}),
@@ -73,7 +77,7 @@ func newBaseLayout(options ...LayoutOption) *BaseLayout {
 				// If layout is root, trigger a layout to sync childrenRects with current
 				// widget tree.
 				if l.Root().IsSame(l) {
-					l.Layout(l.layout.Constraint())
+					l.Layout(latestLayoutConstraint)
 				}
 
 				child := l.FirstChild()

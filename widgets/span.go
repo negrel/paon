@@ -20,15 +20,25 @@ func NewSpan(text string) *Span {
 
 	w.BaseWidget = pdkwidgets.NewBaseWidget(
 		pdkwidgets.Wrap(w),
-		pdkwidgets.LayoutFunc(func(co layout.Constraint) geometry.Size {
-			return LayoutSpan(w.text, co)
-		}),
+		pdkwidgets.LayoutFunc(
+			func(co layout.Constraint) geometry.Size {
+				return LayoutSpan(w.text, co)
+			},
+		),
 		pdkwidgets.DrawerFunc(func(surface draw.Surface) {
 			DrawSpan(w.text, surface)
 		}),
 	)
 
 	return w
+}
+
+func (s *Span) SetText(txt string) {
+	s.text = txt
+}
+
+func (s *Span) Text() string {
+	return s.text
 }
 
 func LayoutSpan(text string, co layout.Constraint) geometry.Size {

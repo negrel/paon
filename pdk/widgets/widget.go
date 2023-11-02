@@ -50,7 +50,7 @@ type node treevents.Node
 type BaseWidget struct {
 	node
 
-	layout *layout.Cache
+	layout layout.Layout
 	drawer draw.Drawer
 }
 
@@ -86,8 +86,7 @@ func newBaseWidget(options ...WidgetOption) *BaseWidget {
 
 // Layout implements Layout.
 func (bw *BaseWidget) Layout(co layout.Constraint) geometry.Size {
-	rect := bw.layout.Layout(co)
-	return rect
+	return bw.layout.Layout(co)
 }
 
 // Draw implements Drawer.

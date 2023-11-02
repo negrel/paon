@@ -62,7 +62,7 @@ func DrawerFunc(d func(_ draw.Surface)) WidgetOption {
 // LayoutLayout returns a WidgetOption that define the layout of the widget.
 func LayoutLayout(l layout.Layout) WidgetOption {
 	return func(bwo *baseWidgetOption) {
-		bwo.layout = layout.NewCache(l)
+		bwo.layout = l
 	}
 }
 
