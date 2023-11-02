@@ -47,23 +47,26 @@ func Listener(etype events.Type, h events.Handler) WidgetOption {
 	}
 }
 
+// Drawer returns a WidgetOption that define the drawer of the widget.
 func Drawer(drawer draw.Drawer) WidgetOption {
 	return func(bwo *baseWidgetOption) {
 		bwo.drawer = drawer
 	}
 }
 
+// DrawerFunc returns a WidgetOption that define the drawer of the widget.
 func DrawerFunc(d func(_ draw.Surface)) WidgetOption {
 	return Drawer(draw.DrawerFunc(d))
 }
 
+// LayoutLayout returns a WidgetOption that define the layout of the widget.
 func LayoutLayout(l layout.Layout) WidgetOption {
 	return func(bwo *baseWidgetOption) {
 		bwo.layout = layout.NewCache(l)
-		// bwo.layout = l
 	}
 }
 
+// LayoutFunc returns a WidgetOption that define the layout of the widget.
 func LayoutFunc(l func(layout.Constraint) geometry.Size) WidgetOption {
 	return LayoutLayout(layout.LayoutFunc(l))
 }

@@ -3,7 +3,7 @@ package widgets
 import (
 	"github.com/negrel/paon/geometry"
 	"github.com/negrel/paon/pdk/draw"
-	"github.com/negrel/paon/pdk/events"
+	pdkevents "github.com/negrel/paon/pdk/events"
 	"github.com/negrel/paon/pdk/id"
 	"github.com/negrel/paon/pdk/layout"
 	"github.com/negrel/paon/pdk/tree"
@@ -15,7 +15,7 @@ import (
 // recommended to create custom widgets using the BaseWidget implementation.
 type Widget interface {
 	id.Identifiable
-	events.Target
+	pdkevents.Target
 	layout.Layout
 	draw.Drawer
 
@@ -50,7 +50,7 @@ type node treevents.Node
 type BaseWidget struct {
 	node
 
-	layout layout.Layout
+	layout *layout.Cache
 	drawer draw.Drawer
 }
 

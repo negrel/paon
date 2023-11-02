@@ -54,7 +54,7 @@ func newBaseLayout(options ...LayoutOption) *BaseLayout {
 			Wrap(l),
 			NodeOptions(treevents.NodeConstructor(tree.NewNode)),
 			LayoutFunc(func(co layout.Constraint) (size geometry.Size) {
-				childrenRects, size = l.layoutAlgo(co, childrenRects)
+				childrenRects, size = l.layoutAlgo(co, childrenRects[:0])
 				return size
 			}),
 			DrawerFunc(func(surface draw.Surface) {
@@ -70,12 +70,14 @@ func newBaseLayout(options ...LayoutOption) *BaseLayout {
 			}),
 			// Dispatch click event to child.
 			Listener(events.ClickListener(func(event events.Click) {
+				// If layout is root, trigger a layout to sync childrenRects with current
+				// widget tree.
+				if l.Root().IsSame(l) {
+					l.Layout(l.layout.Constraint())
+				}
+
 				child := l.FirstChild()
 				for _, boundingRect := range childrenRects {
-					if child == nil {
-						return
-					}
-
 					if boundingRect.Contains(event.Position) {
 						child.Unwrap().(pdkevents.Target).DispatchEvent(event)
 					}
