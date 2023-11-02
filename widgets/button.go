@@ -21,16 +21,10 @@ func NewButton(text string, onclick func(events.Click)) *Button {
 	w.BaseWidget = pdkwidgets.NewBaseWidget(
 		pdkwidgets.Wrap(w),
 		pdkwidgets.LayoutFunc(func(co layout.Constraint) geometry.Size {
-			return co.ApplyOnSize(geometry.NewSize(len(w.text), 1))
+			return LayoutSpan(w.text, co)
 		}),
 		pdkwidgets.DrawerFunc(func(surface draw.Surface) {
-			// TODO: iterate over grapheme instead of runes.
-			for i, c := range w.text {
-				surface.Set(geometry.NewVec2D(i, 0), draw.Cell{
-					Style:   draw.CellStyle{},
-					Content: c,
-				})
-			}
+			DrawSpan(w.text, surface)
 		}),
 	)
 
