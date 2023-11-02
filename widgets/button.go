@@ -1,20 +1,20 @@
 package widgets
 
 import (
+	"github.com/negrel/paon/events"
 	"github.com/negrel/paon/geometry"
 	"github.com/negrel/paon/pdk/draw"
 	"github.com/negrel/paon/pdk/layout"
 	pdkwidgets "github.com/negrel/paon/pdk/widgets"
 )
 
-type Span struct {
+type Button struct {
 	*pdkwidgets.BaseWidget
-
 	text string
 }
 
-func NewSpan(text string) *Span {
-	w := &Span{
+func NewButton(text string, onclick func(events.Click)) *Button {
+	w := &Button{
 		text: text,
 	}
 
@@ -33,6 +33,8 @@ func NewSpan(text string) *Span {
 			}
 		}),
 	)
+
+	w.AddEventListener(events.ClickListener(onclick))
 
 	return w
 }

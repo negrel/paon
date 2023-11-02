@@ -1,10 +1,10 @@
 package widgets
 
 import (
-	"errors"
-
+	"github.com/negrel/paon/events"
 	"github.com/negrel/paon/geometry"
 	"github.com/negrel/paon/pdk/draw"
+	pdkevents "github.com/negrel/paon/pdk/events"
 	"github.com/negrel/paon/pdk/layout"
 	"github.com/negrel/paon/pdk/tree"
 	treevents "github.com/negrel/paon/pdk/tree/events"
@@ -13,7 +13,6 @@ import (
 // Root define the root of a widget tree.
 type Root struct {
 	*BaseWidget
-	child Widget
 }
 
 var _ Layout = &Root{}
@@ -27,78 +26,33 @@ func NewRoot() *Root {
 		NodeOptions(treevents.NodeConstructor(func(data any) tree.Node {
 			return tree.NewRoot(data)
 		})),
+		LayoutFunc(func(co layout.Constraint) geometry.Size {
+			child := root.FirstChild()
+			if child != nil {
+				return child.Unwrap().(layout.Layout).Layout(co)
+			}
+
+			return co.MinSize
+		}),
+		DrawerFunc(func(s draw.Surface) {
+			child := root.FirstChild()
+			if child == nil {
+				return
+			}
+
+			child.Unwrap().(draw.Drawer).Draw(s)
+		}),
 	)
 
+	// Dispatch click event.
+	root.AddEventListener(events.ClickListener(func(event events.Click) {
+		child := root.FirstChild()
+		if child == nil {
+			return
+		}
+
+		child.Unwrap().(pdkevents.Target).DispatchEvent(event)
+	}))
+
 	return root
-}
-
-// AppendChild implements the Layout interface.
-func (r *Root) AppendChild(child Widget) error {
-	if r.child == nil {
-		r.SetChild(child)
-		return nil
-	}
-
-	return errors.New("can't append child, root can only have one child")
-}
-
-// InsertBefore implements the Layout interface.
-func (r *Root) InsertBefore(reference, newChild Widget) error {
-	if reference != nil {
-		return errors.New("can't insert child, the given reference must be nil on a root node")
-	}
-
-	return r.AppendChild(newChild)
-}
-
-// RemoveChild implements the Layout interface.
-func (r *Root) RemoveChild(child Widget) error {
-	if r.child.IsSame(child) {
-		r.SetChild(nil)
-		return nil
-	}
-
-	return errors.New("can't remove child, the widget is not a child of the root")
-}
-
-// FirstChild implements the Layout interface.
-func (r *Root) FirstChild() Widget {
-	return r.child
-}
-
-// LastChild implements the Layout interface.
-func (r *Root) LastChild() Widget {
-	return r.child
-}
-
-// Root returns itself to implements the Widget interface.
-func (r *Root) Root() *Root {
-	return r
-}
-
-// SetChild sets the direct child of the root.
-// If a child is already present, it is unmounted.
-func (r *Root) SetChild(child Widget) {
-	if oldChild := r.child; oldChild != nil {
-		oldChild.Node().SetParent(nil)
-		oldChild.DispatchEvent(treevents.NewLifeCycleEvent(oldChild.Node(), treevents.LCSUnmounted))
-	}
-
-	r.child = child
-	if child != nil {
-		childNode := child.Node()
-		childNode.SetParent(r.Node())
-		childNode.SetPrevious(nil)
-		childNode.SetNext(nil)
-		child.DispatchEvent(treevents.NewLifeCycleEvent(childNode, treevents.LCSMounted))
-	}
-}
-
-// Render implements the Widget interface.
-func (r *Root) Render(co layout.Constraint, surface draw.Surface) geometry.Size {
-	if r.child == nil {
-		return geometry.NewSize(0, 0)
-	}
-
-	return r.child.Render(co, surface)
 }

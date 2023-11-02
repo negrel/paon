@@ -79,7 +79,10 @@ func (app *Application) Start(ctx context.Context, widget pdkwidgets.Widget) err
 	if app.root == nil {
 		app.root = pdkwidgets.NewRoot()
 	}
-	app.root.SetChild(widget)
+	err = app.root.AppendChild(widget.Node())
+	if err != nil {
+		return err
+	}
 
 	app.eventLoop(ctx)
 
@@ -90,16 +93,18 @@ func (app *Application) eventLoop(ctx context.Context) {
 	for {
 		select {
 		case <-app.clock.C:
-			app.root.Render(layout.Constraint{
+			_ = app.root.Layout(layout.Constraint{
 				MinSize:    geometry.NewSize(0, 0),
 				MaxSize:    app.terminal.Size(),
 				ParentSize: app.terminal.Size(),
 				RootSize:   app.terminal.Size(),
-			}, app.terminal)
+			})
+			app.root.Draw(app.terminal)
 			go app.terminal.Flush()
 
 		case ev := <-app.evch:
 			app.target.DispatchEvent(ev)
+			app.root.DispatchEvent(ev)
 
 		case fn := <-app.do:
 			fn()

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/negrel/paon"
+	"github.com/negrel/paon/events"
 	"github.com/negrel/paon/widgets"
 )
 
@@ -14,7 +15,7 @@ func main() {
 		panic(err)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	// Start application.
@@ -30,6 +31,9 @@ func main() {
 			widgets.NewSpan(" | "),
 			widgets.NewSpan("Bonjour tout le monde"),
 		),
+		widgets.NewButton("Click to exit", func(event events.Click) {
+			cancel()
+		}),
 	))
 	if err != nil {
 		panic(err)

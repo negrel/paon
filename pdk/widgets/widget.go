@@ -19,23 +19,8 @@ type Widget interface {
 	layout.Layout
 	draw.Drawer
 
-	// LifeCycleStage returns the current LifeCycleStage of this Widget.
-	LifeCycleStage() treevents.LifeCycleStage
-
-	// Node returns the underlying tree.Node used by this Widget.
+	// Node returns the underlying Node used by this Widget.
 	Node() treevents.Node
-
-	// Parent returns the parent Layout of this Node.
-	Parent() Layout
-
-	// Root returns the root of the widget tree.
-	Root() *Root
-
-	// NextSibling returns the next sibling widget in the parent child list.
-	NextSibling() Widget
-
-	// PreviousSibling returns the previous sibling widget in the parent child list.
-	PreviousSibling() Widget
 }
 
 func widgetOrNil(n tree.Node) Widget {
@@ -62,10 +47,6 @@ type node treevents.Node
 // BaseWidget define a basic Widget object that implements the Widget interface.
 // BaseWidget can either be used alone (see NewBaseWidget for the required options)
 // or in composite struct.
-// BaseWidget takes care of the following things for you:
-// - Constant access time to the root.
-// - Caching the layout.BoxModel
-// - Limit the draw area of the context to the widget border box.
 type BaseWidget struct {
 	node
 
@@ -104,7 +85,7 @@ func newBaseWidget(options ...WidgetOption) *BaseWidget {
 }
 
 // Layout implements Layout.
-func (bw *BaseWidget) Layout(co layout.Constraint) geometry.Rectangle {
+func (bw *BaseWidget) Layout(co layout.Constraint) geometry.Size {
 	rect := bw.layout.Layout(co)
 	return rect
 }
@@ -133,28 +114,4 @@ func (bw *BaseWidget) Widget() Widget {
 // Node implements the Widget interface.
 func (bw *BaseWidget) Node() treevents.Node {
 	return bw.node
-}
-
-// Parent implements the Widget interface.
-func (bw *BaseWidget) Parent() Layout {
-	if parent := bw.node.Parent(); parent != nil {
-		return parent.Unwrap().(Layout)
-	}
-
-	return nil
-}
-
-// Root implements the Widget interface.
-func (bw *BaseWidget) Root() *Root {
-	return bw.node.Root().Unwrap().(*Root)
-}
-
-// NextSibling implements the Widget interface.
-func (bw *BaseWidget) NextSibling() Widget {
-	return widgetOrNil(bw.node.Next())
-}
-
-// PreviousSibling implements the Widget interface.
-func (bw *BaseWidget) PreviousSibling() Widget {
-	return widgetOrNil(bw.node.Previous())
 }

@@ -2,6 +2,7 @@ package widgets
 
 import (
 	"github.com/negrel/debuggo/pkg/assert"
+	"github.com/negrel/paon/geometry"
 	"github.com/negrel/paon/pdk/draw"
 	"github.com/negrel/paon/pdk/events"
 	"github.com/negrel/paon/pdk/layout"
@@ -52,8 +53,17 @@ func Drawer(drawer draw.Drawer) WidgetOption {
 	}
 }
 
+func DrawerFunc(d func(_ draw.Surface)) WidgetOption {
+	return Drawer(draw.DrawerFunc(d))
+}
+
 func LayoutLayout(l layout.Layout) WidgetOption {
 	return func(bwo *baseWidgetOption) {
 		bwo.layout = layout.NewCache(l)
+		// bwo.layout = l
 	}
+}
+
+func LayoutFunc(l func(layout.Constraint) geometry.Size) WidgetOption {
+	return LayoutLayout(layout.LayoutFunc(l))
 }

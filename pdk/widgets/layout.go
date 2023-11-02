@@ -1,6 +1,11 @@
 package widgets
 
 import (
+	"github.com/negrel/paon/events"
+	"github.com/negrel/paon/geometry"
+	"github.com/negrel/paon/pdk/draw"
+	pdkevents "github.com/negrel/paon/pdk/events"
+	"github.com/negrel/paon/pdk/layout"
 	"github.com/negrel/paon/pdk/tree"
 	treevents "github.com/negrel/paon/pdk/tree/events"
 )
@@ -10,30 +15,6 @@ import (
 // layouts using the BaseLayout implementation.
 type Layout interface {
 	Widget
-
-	// AppendChild appends the given Widget to this Layout
-	// children list.
-	// An error is returned if the child to insert is an ancestor of this Layout.
-	AppendChild(Widget) error
-
-	// InsertBefore inserts the given Widget before the given reference.
-	// If the reference is nil, the child is appended.
-	// An error is returned if the child to insert is an ancestor of this Layout.
-	// If the child have a parent, the Widget is removed from it.
-	InsertBefore(reference, newChild Widget) error
-
-	// RemoveChild removes the given direct child of this Layout.
-	// An error is returned if the child is nil or not a direct
-	// child of this.
-	RemoveChild(Widget) error
-
-	// FirstChild returns the first child in the children list
-	// of this Layout.
-	FirstChild() Widget
-
-	// LastChild returns the last child in the children list
-	// of this Layout.
-	LastChild() Widget
 }
 
 var _ Layout = &BaseLayout{}
@@ -46,6 +27,8 @@ var _ Layout = &BaseLayout{}
 // - Dispatch LifeCycleEvents to children
 type BaseLayout struct {
 	*BaseWidget
+
+	layoutAlgo func(_ layout.Constraint, _ []geometry.Rectangle) ([]geometry.Rectangle, geometry.Size)
 }
 
 // NewBaseLayout returns a new BaseLayout object configured with the given
@@ -59,13 +42,47 @@ func NewBaseLayout(options ...LayoutOption) *BaseLayout {
 }
 
 func newBaseLayout(options ...LayoutOption) *BaseLayout {
-	layout := &BaseLayout{}
+	l := &BaseLayout{}
+
+	// Children positions.
+	childrenRects := []geometry.Rectangle{}
+
 	layoutConf := &baseLayoutOption{
-		BaseLayout:        layout,
+		BaseLayout:        l,
 		widgetConstructor: NewBaseWidget,
 		widgetOptions: []WidgetOption{
-			Wrap(layout),
+			Wrap(l),
 			NodeOptions(treevents.NodeConstructor(tree.NewNode)),
+			LayoutFunc(func(co layout.Constraint) (size geometry.Size) {
+				childrenRects, size = l.layoutAlgo(co, childrenRects)
+				return size
+			}),
+			DrawerFunc(func(surface draw.Surface) {
+				child := l.FirstChild()
+				for _, boundingRect := range childrenRects {
+					childDrawer := child.Unwrap().(draw.Drawer)
+					subsurface := draw.NewSubSurface(surface, boundingRect)
+
+					childDrawer.Draw(subsurface)
+
+					child = child.Next()
+				}
+			}),
+			// Dispatch click event to child.
+			Listener(events.ClickListener(func(event events.Click) {
+				child := l.FirstChild()
+				for _, boundingRect := range childrenRects {
+					if child == nil {
+						return
+					}
+
+					if boundingRect.Contains(event.Position) {
+						child.Unwrap().(pdkevents.Target).DispatchEvent(event)
+					}
+
+					child = child.Next()
+				}
+			})),
 		},
 	}
 
@@ -73,32 +90,7 @@ func newBaseLayout(options ...LayoutOption) *BaseLayout {
 		option(layoutConf)
 	}
 
-	layout.BaseWidget = layoutConf.widgetConstructor(layoutConf.widgetOptions...)
+	l.BaseWidget = layoutConf.widgetConstructor(layoutConf.widgetOptions...)
 
-	return layout
-}
-
-// FirstChild implements the Layout interface.
-func (bl *BaseLayout) FirstChild() Widget {
-	return widgetOrNil(bl.node.FirstChild())
-}
-
-// LastChild implements the Layout interface.
-func (bl *BaseLayout) LastChild() Widget {
-	return widgetOrNil(bl.node.LastChild())
-}
-
-// AppendChild implements the Layout interface.
-func (bl *BaseLayout) AppendChild(newChild Widget) error {
-	return bl.node.AppendChild(newChild.Node())
-}
-
-// InsertBefore implements the Layout interface.
-func (bl *BaseLayout) InsertBefore(reference, newChild Widget) error {
-	return bl.node.InsertBefore(nodeOrNil(reference), nodeOrNil(newChild))
-}
-
-// RemoveChild implements the Layout interface.
-func (bl *BaseLayout) RemoveChild(child Widget) error {
-	return bl.node.RemoveChild(nodeOrNil(child))
+	return l
 }

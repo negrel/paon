@@ -1,5 +1,10 @@
 package widgets
 
+import (
+	"github.com/negrel/paon/geometry"
+	"github.com/negrel/paon/pdk/layout"
+)
+
 type baseLayoutOption struct {
 	*BaseLayout
 
@@ -21,5 +26,12 @@ func WidgetOptions(options ...WidgetOption) LayoutOption {
 func widgetConstructor(constructor func(...WidgetOption) *BaseWidget) LayoutOption {
 	return func(blo *baseLayoutOption) {
 		blo.widgetConstructor = constructor
+	}
+}
+
+// LayoutAlgo returns a LayoutOptions that define the layout algorithm.
+func LayoutAlgo(algo func(co layout.Constraint, childrenPositions []geometry.Rectangle) ([]geometry.Rectangle, geometry.Size)) LayoutOption {
+	return func(blo *baseLayoutOption) {
+		blo.layoutAlgo = algo
 	}
 }

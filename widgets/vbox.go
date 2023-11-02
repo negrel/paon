@@ -2,7 +2,6 @@ package widgets
 
 import (
 	"github.com/negrel/paon/geometry"
-	"github.com/negrel/paon/pdk/draw"
 	"github.com/negrel/paon/pdk/layout"
 	"github.com/negrel/paon/pdk/math"
 	pdkwidgets "github.com/negrel/paon/pdk/widgets"
@@ -19,35 +18,45 @@ func NewVBox(children ...pdkwidgets.Widget) *VBox {
 		pdkwidgets.WidgetOptions(
 			pdkwidgets.Wrap(w),
 		),
+		pdkwidgets.LayoutAlgo(func(co layout.Constraint, childrenRects []geometry.Rectangle) ([]geometry.Rectangle, geometry.Size) {
+			size := geometry.NewSize(0, 0)
+			freeSpace := co.MaxSize
+
+			for child := w.FirstChild(); child != nil; child = child.Next() {
+				// Previous child fulfilled the surface, no need to render next siblings.
+				if freeSpace.Width() <= size.Width() {
+					break
+				}
+
+				// Compute child size.
+				childLayout := child.Unwrap().(layout.Layout)
+				childSize := childLayout.Layout(layout.Constraint{
+					MinSize:    geometry.NewSize(0, 0),
+					MaxSize:    freeSpace,
+					ParentSize: co.ParentSize,
+					RootSize:   co.RootSize,
+				})
+
+				// Store child rectangle.
+				childrenRects = append(childrenRects, geometry.Rect(0, size.Height(), childSize.Width(), size.Height()+childSize.Height()))
+
+				// Update freespace.
+				freeSpace = geometry.NewSize(freeSpace.Width(), freeSpace.Height()-childSize.Height())
+
+				// Update VBox size.
+				size = geometry.NewSize(
+					math.Max(size.Width(), childSize.Width()),
+					size.Height()+childSize.Height(),
+				)
+			}
+
+			return childrenRects, co.ApplyOnSize(size)
+		}),
 	)
 
 	for _, child := range children {
-		w.AppendChild(child)
+		w.AppendChild(child.Node())
 	}
 
 	return w
-}
-
-// Render implements the Widget interface.
-func (hb *VBox) Render(co layout.Constraint, surface draw.Surface) geometry.Size {
-	size := geometry.NewSize(0, 0)
-	surfaceSize := surface.Size()
-
-	for child := hb.FirstChild(); child != nil; child = child.NextSibling() {
-		// Previous child fulfilled the surface, no need to render next siblings.
-		if surfaceSize.Height() < size.Height() {
-			break
-		}
-
-		// Reduce subsurface to remaining space.
-		subsurface := draw.NewSubSurface(surface, geometry.Rect(0, size.Height(), surfaceSize.Width(), surfaceSize.Height()))
-
-		childSize := child.Render(co, subsurface)
-		size = geometry.NewSize(
-			math.Max(size.Width(), childSize.Width()),
-			size.Height()+childSize.Height(),
-		)
-	}
-
-	return size
 }
