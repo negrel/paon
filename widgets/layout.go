@@ -82,7 +82,8 @@ func newBaseLayout(options ...LayoutOption) *BaseLayout {
 
 				child := l.FirstChild()
 				for _, boundingRect := range childrenRects {
-					if boundingRect.Contains(event.Position) {
+					if boundingRect.Contains(event.RelativePosition) {
+						event.RelativePosition = event.RelativePosition.Sub(boundingRect.TopLeft())
 						child.Unwrap().(events.Target).DispatchEvent(event)
 					}
 

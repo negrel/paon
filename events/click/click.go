@@ -20,14 +20,18 @@ func Listener(handler func(Event)) (events.Type, events.Handler) {
 // Event define a click event.
 type Event struct {
 	events.Event
+	// Click absolute position.
 	Position geometry.Vec2D
+	// Position relative to parent position.
+	RelativePosition geometry.Vec2D
 }
 
 // New returns a new click event.
 func New(pos geometry.Vec2D) Event {
 	return Event{
-		Event:    events.NewEvent(EventType),
-		Position: pos,
+		Event:            events.NewEvent(EventType),
+		Position:         pos,
+		RelativePosition: pos,
 	}
 }
 
