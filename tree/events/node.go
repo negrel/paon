@@ -18,7 +18,7 @@ var _ Node = &BaseNode{}
 // BaseNode define a basic Node implementation.
 type BaseNode struct {
 	tree.Node
-	target
+	events.Target
 
 	root  *tree.Root
 	stage LifeCycleStage
@@ -60,9 +60,9 @@ func newBaseNode(options ...NodeOption) *BaseNode {
 	}
 
 	bn.Node = nodeConf.nodeConstructor(nodeConf.data)
-	bn.target.node = bn.Node
-	if bn.target.Target == nil {
-		bn.target.Target = events.NewTarget()
+	// bn.target.node = bn.Node
+	if bn.Target == nil {
+		bn.Target = events.NewTarget()
 	}
 
 	if bn.Node.Root() != nil {

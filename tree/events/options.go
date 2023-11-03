@@ -17,9 +17,7 @@ type NodeOption func(*baseNodeOption)
 // EventTarget returns a NodeOption that sets the events.Target that will be used by the BaseNode.
 func EventTarget(t events.Target) NodeOption {
 	return func(bno *baseNodeOption) {
-		bno.target = target{
-			Target: t,
-		}
+		bno.Target = t
 	}
 }
 
