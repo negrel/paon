@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/negrel/paon"
-	"github.com/negrel/paon/events/click"
+	"github.com/negrel/paon/events/mouse"
 	"github.com/negrel/paon/widgets/button"
 	"github.com/negrel/paon/widgets/hbox"
 	"github.com/negrel/paon/widgets/input"
@@ -27,7 +27,7 @@ func main() {
 		hbox.New(
 			input,
 		),
-		button.New("Click to exit", func(_ click.Event) {
+		button.New("Click to exit", func(_ mouse.ClickEvent) {
 			cancel()
 		}),
 	))

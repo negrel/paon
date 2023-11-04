@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/negrel/paon"
-	"github.com/negrel/paon/events/click"
+	"github.com/negrel/paon/events/mouse"
 	"github.com/negrel/paon/widgets/button"
 	"github.com/negrel/paon/widgets/hbox"
 	"github.com/negrel/paon/widgets/span"
@@ -46,7 +46,7 @@ func main() {
 			span.New("Current datetime: "),
 			timeSpan,
 		),
-		button.New("Click to exit", func(event click.Event) {
+		button.New("Click to exit", func(event mouse.ClickEvent) {
 			cancel()
 		}),
 	))
