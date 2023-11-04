@@ -3,7 +3,7 @@ package widgets
 import (
 	"github.com/negrel/paon/draw"
 	"github.com/negrel/paon/events"
-	"github.com/negrel/paon/events/click"
+	"github.com/negrel/paon/events/mouse"
 	"github.com/negrel/paon/geometry"
 	"github.com/negrel/paon/layout"
 	"github.com/negrel/paon/tree"
@@ -72,8 +72,8 @@ func newBaseLayout(options ...LayoutOption) *BaseLayout {
 					child = child.Next()
 				}
 			}),
-			// Dispatch click event to child.
-			Listener(click.Listener(func(event click.Event) {
+			// Dispatch mousepress event to child.
+			Listener(mouse.PressListener(func(event mouse.PressEvent) {
 				// If layout is root, trigger a layout to sync childrenRects with current
 				// widget tree.
 				if l.Root().IsSame(l) {
@@ -82,8 +82,44 @@ func newBaseLayout(options ...LayoutOption) *BaseLayout {
 
 				child := l.FirstChild()
 				for _, boundingRect := range childrenRects {
-					if boundingRect.Contains(event.RelativePosition) {
-						event.RelativePosition = event.RelativePosition.Sub(boundingRect.TopLeft())
+					if boundingRect.Contains(event.RelPosition) {
+						event.RelPosition = event.RelPosition.Sub(boundingRect.TopLeft())
+						child.Unwrap().(events.Target).DispatchEvent(event)
+					}
+
+					child = child.Next()
+				}
+			})),
+			// Dispatch mouseup event to child.
+			Listener(mouse.UpListener(func(event mouse.UpEvent) {
+				// If layout is root, trigger a layout to sync childrenRects with current
+				// widget tree.
+				if l.Root().IsSame(l) {
+					l.Layout(latestLayoutConstraint)
+				}
+
+				child := l.FirstChild()
+				for _, boundingRect := range childrenRects {
+					if boundingRect.Contains(event.RelPosition) {
+						event.RelPosition = event.RelPosition.Sub(boundingRect.TopLeft())
+						child.Unwrap().(events.Target).DispatchEvent(event)
+					}
+
+					child = child.Next()
+				}
+			})),
+			// Dispatch click event to child.
+			Listener(mouse.ClickListener(func(event mouse.ClickEvent) {
+				// If layout is root, trigger a layout to sync childrenRects with current
+				// widget tree.
+				if l.Root().IsSame(l) {
+					l.Layout(latestLayoutConstraint)
+				}
+
+				child := l.FirstChild()
+				for _, boundingRect := range childrenRects {
+					if boundingRect.Contains(event.RelPosition) {
+						event.RelPosition = event.RelPosition.Sub(boundingRect.TopLeft())
 						child.Unwrap().(events.Target).DispatchEvent(event)
 					}
 

@@ -8,8 +8,8 @@ import (
 	"github.com/negrel/paon/backend"
 	"github.com/negrel/paon/draw"
 	"github.com/negrel/paon/events"
-	"github.com/negrel/paon/events/click"
 	"github.com/negrel/paon/events/keypress"
+	"github.com/negrel/paon/events/mouse"
 	"github.com/negrel/paon/events/resize"
 	"github.com/negrel/paon/geometry"
 )
@@ -121,19 +121,36 @@ func adaptEvents(pollFunc func() tcell.Event, evch chan events.Event) {
 		case *tcell.EventMouse:
 			// A button was pressed in previous event.
 			if mousePress != nil && ev.Buttons() == tcell.ButtonNone {
-				oldX, oldY := mousePress.Position()
 				newX, newY := ev.Position()
-				mousePress = nil
-				if oldX == newX && oldY == newY {
+
+				// Mouse up.
+				evch <- mouse.NewUp(
+					geometry.NewVec2D(ev.Position()),
+					mouse.ButtonMask(ev.Buttons()),
+					keypress.ModMask(ev.Modifiers()),
+				)
+
+				if mousePress.Buttons()&tcell.ButtonPrimary != 0 {
 					pos := geometry.NewVec2D(newX, newY)
-					evch <- click.New(pos)
-					continue
+					evch <- mouse.NewClick(
+						pos,
+						mouse.ButtonMask(ev.Buttons()),
+						keypress.ModMask(ev.Modifiers()),
+					)
 				}
+
+				mousePress = nil
+				continue
 			}
 
 			// Store until another event is triggered.
-			if ev.Buttons() != tcell.ButtonNone {
+			if mousePress == nil && ev.Buttons() != tcell.ButtonNone {
 				mousePress = ev
+				evch <- mouse.NewPress(
+					geometry.NewVec2D(ev.Position()),
+					mouse.ButtonMask(ev.Buttons()),
+					keypress.ModMask(ev.Modifiers()),
+				)
 			}
 
 		case *tcell.EventKey:
