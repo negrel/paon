@@ -46,16 +46,17 @@ func New(text string, onclick func(mouse.ClickEvent)) *Widget {
 		}),
 	)
 
-	w.AddEventListener(mouse.PressListener(func(event mouse.PressEvent) {
-		style := w.Style()
-		style.Reverse = !style.Reverse
-	}))
-	w.AddEventListener(mouse.UpListener(func(event mouse.UpEvent) {
+	w.AddEventListener(mouse.PressListener(func(event mouse.Event) {
 		style := w.Style()
 		style.Reverse = !style.Reverse
 	}))
 
-	w.AddEventListener(mouse.ClickListener(onclick))
+	w.AddEventListener(mouse.ClickListener(func(event mouse.ClickEvent) {
+		onclick(event)
+
+		style := w.Style()
+		style.Reverse = !style.Reverse
+	}))
 
 	return w
 }

@@ -49,6 +49,28 @@ func newBaseLayout(options ...LayoutOption) *BaseLayout {
 	// Layout constraint used for the latest layout.
 	latestLayoutConstraint := layout.Constraint{}
 
+	// Event handler that forwards mouse position to children.
+	dispatchPositionnedEvent := func(relpos *geometry.Vec2D, event events.Event) {
+		// If layout is root, trigger a layout to sync childrenRects with current
+		// widget tree.
+		if l.Root().IsSame(l) {
+			l.Layout(latestLayoutConstraint)
+		}
+
+		child := l.FirstChild()
+		for _, boundingRect := range childrenRects {
+			if boundingRect.Contains(*relpos) {
+				*relpos = relpos.Sub(boundingRect.TopLeft())
+				child.Unwrap().(events.Target).DispatchEvent(event)
+			}
+
+			child = child.Next()
+		}
+	}
+	dispatchMouseEvent := func(event mouse.Event) {
+		dispatchPositionnedEvent(&event.RelPosition, event)
+	}
+
 	layoutConf := &baseLayoutOption{
 		BaseLayout:        l,
 		widgetConstructor: NewBaseWidget,
@@ -72,59 +94,11 @@ func newBaseLayout(options ...LayoutOption) *BaseLayout {
 					child = child.Next()
 				}
 			}),
-			// Dispatch mousepress event to child.
-			Listener(mouse.PressListener(func(event mouse.PressEvent) {
-				// If layout is root, trigger a layout to sync childrenRects with current
-				// widget tree.
-				if l.Root().IsSame(l) {
-					l.Layout(latestLayoutConstraint)
-				}
-
-				child := l.FirstChild()
-				for _, boundingRect := range childrenRects {
-					if boundingRect.Contains(event.RelPosition) {
-						event.RelPosition = event.RelPosition.Sub(boundingRect.TopLeft())
-						child.Unwrap().(events.Target).DispatchEvent(event)
-					}
-
-					child = child.Next()
-				}
-			})),
-			// Dispatch mouseup event to child.
-			Listener(mouse.UpListener(func(event mouse.UpEvent) {
-				// If layout is root, trigger a layout to sync childrenRects with current
-				// widget tree.
-				if l.Root().IsSame(l) {
-					l.Layout(latestLayoutConstraint)
-				}
-
-				child := l.FirstChild()
-				for _, boundingRect := range childrenRects {
-					if boundingRect.Contains(event.RelPosition) {
-						event.RelPosition = event.RelPosition.Sub(boundingRect.TopLeft())
-						child.Unwrap().(events.Target).DispatchEvent(event)
-					}
-
-					child = child.Next()
-				}
-			})),
-			// Dispatch click event to child.
+			// Dispatch mouse event to child.
+			Listener(mouse.PressListener(dispatchMouseEvent)),
+			Listener(mouse.UpListener(dispatchMouseEvent)),
 			Listener(mouse.ClickListener(func(event mouse.ClickEvent) {
-				// If layout is root, trigger a layout to sync childrenRects with current
-				// widget tree.
-				if l.Root().IsSame(l) {
-					l.Layout(latestLayoutConstraint)
-				}
-
-				child := l.FirstChild()
-				for _, boundingRect := range childrenRects {
-					if boundingRect.Contains(event.RelPosition) {
-						event.RelPosition = event.RelPosition.Sub(boundingRect.TopLeft())
-						child.Unwrap().(events.Target).DispatchEvent(event)
-					}
-
-					child = child.Next()
-				}
+				dispatchPositionnedEvent(&event.MousePress.RelPosition, event)
 			})),
 		},
 	}

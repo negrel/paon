@@ -95,10 +95,9 @@ func (c *Terminal) Stop() {
 	c.screen.Fini()
 }
 
-var oldSize = geometry.Size{}
-
-func adaptEvents(pollFunc func() tcell.Event, evch chan events.Event) {
-	var mousePress *tcell.EventMouse = nil
+func eventLoop(pollFunc func() tcell.Event, evch chan<- events.Event) {
+	oldSize := geometry.Size{}
+	mousePress := mouse.Event{}
 
 	for {
 		event := pollFunc()
@@ -120,7 +119,7 @@ func adaptEvents(pollFunc func() tcell.Event, evch chan events.Event) {
 
 		case *tcell.EventMouse:
 			// A button was pressed in previous event.
-			if mousePress != nil && ev.Buttons() == tcell.ButtonNone {
+			if mousePress.Event != nil && ev.Buttons() == tcell.ButtonNone {
 				newX, newY := ev.Position()
 
 				// Mouse up.
@@ -130,27 +129,28 @@ func adaptEvents(pollFunc func() tcell.Event, evch chan events.Event) {
 					keypress.ModMask(ev.Modifiers()),
 				)
 
-				if mousePress.Buttons()&tcell.ButtonPrimary != 0 {
+				if mousePress.Buttons&mouse.ButtonPrimary != 0 {
 					pos := geometry.NewVec2D(newX, newY)
 					evch <- mouse.NewClick(
 						pos,
 						mouse.ButtonMask(ev.Buttons()),
 						keypress.ModMask(ev.Modifiers()),
+						mousePress,
 					)
 				}
 
-				mousePress = nil
+				mousePress = mouse.Event{}
 				continue
 			}
 
 			// Store until another event is triggered.
-			if mousePress == nil && ev.Buttons() != tcell.ButtonNone {
-				mousePress = ev
-				evch <- mouse.NewPress(
+			if mousePress.Event == nil && ev.Buttons() != tcell.ButtonNone {
+				mousePress = mouse.NewPress(
 					geometry.NewVec2D(ev.Position()),
 					mouse.ButtonMask(ev.Buttons()),
 					keypress.ModMask(ev.Modifiers()),
 				)
+				evch <- mousePress
 			}
 
 		case *tcell.EventKey:
@@ -163,18 +163,5 @@ func adaptEvents(pollFunc func() tcell.Event, evch chan events.Event) {
 		default:
 			println(reflect.TypeOf(ev).String())
 		}
-	}
-}
-
-func eventLoop(pollFunc func() tcell.Event, evch chan<- events.Event) {
-	pollCh := make(chan events.Event)
-	go adaptEvents(pollFunc, pollCh)
-
-	for {
-		ev := <-pollCh
-		if ev == nil {
-			break
-		}
-		evch <- ev
 	}
 }
