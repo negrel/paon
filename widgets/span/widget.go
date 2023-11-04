@@ -4,6 +4,7 @@ import (
 	"github.com/negrel/paon/draw"
 	"github.com/negrel/paon/geometry"
 	"github.com/negrel/paon/layout"
+	"github.com/negrel/paon/styles"
 	"github.com/negrel/paon/widgets"
 )
 
@@ -26,7 +27,21 @@ func New(text string) *Widget {
 			},
 		),
 		widgets.DrawerFunc(func(surface draw.Surface) {
-			Draw(w.text, surface)
+			Draw(surface, w.text, w.Style().CellStyle)
+		}),
+		widgets.Style(styles.Style{
+			CellStyle: draw.CellStyle{
+				Foreground:    0,
+				Background:    0,
+				Bold:          false,
+				Blink:         false,
+				Reverse:       false,
+				Underline:     false,
+				Dim:           false,
+				Italic:        false,
+				StrikeThrough: false,
+			},
+			Extras: map[string]any{},
 		}),
 	)
 
@@ -45,11 +60,11 @@ func Layout(text string, co layout.Constraint) geometry.Size {
 	return geometry.NewSize(len(text), 1)
 }
 
-func Draw(text string, surface draw.Surface) {
+func Draw(surface draw.Surface, text string, style draw.CellStyle) {
 	// TODO: iterate over grapheme instead of runes.
 	for i, c := range text {
 		surface.Set(geometry.NewVec2D(i, 0), draw.Cell{
-			Style:   draw.CellStyle{},
+			Style:   style,
 			Content: c,
 		})
 	}

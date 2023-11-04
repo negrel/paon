@@ -25,11 +25,27 @@ func New(defaultValue string) *Widget {
 		widgets.Wrap(w),
 		widgets.LayoutFunc(
 			func(co layout.Constraint) geometry.Size {
-				return span.Layout(w.value, co)
+				size := span.Layout(w.value, co)
+				return geometry.NewSize(size.Width()+1, size.Height())
 			},
 		),
 		widgets.DrawerFunc(func(surface draw.Surface) {
-			span.Draw(w.value, surface)
+			span.Draw(surface, w.value, w.Style().CellStyle)
+
+			surface.Set(geometry.NewVec2D(surface.Size().Width()-1, 0), draw.Cell{
+				Style: draw.CellStyle{
+					Foreground:    0,
+					Background:    0,
+					Bold:          false,
+					Blink:         true,
+					Reverse:       true,
+					Underline:     false,
+					Dim:           false,
+					Italic:        false,
+					StrikeThrough: false,
+				},
+				Content: ' ',
+			})
 		}),
 	)
 

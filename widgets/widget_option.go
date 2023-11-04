@@ -5,6 +5,7 @@ import (
 	"github.com/negrel/paon/events"
 	"github.com/negrel/paon/geometry"
 	"github.com/negrel/paon/layout"
+	"github.com/negrel/paon/styles"
 	treevents "github.com/negrel/paon/tree/events"
 )
 
@@ -66,4 +67,11 @@ func LayoutLayout(l layout.Layout) WidgetOption {
 // LayoutFunc returns a WidgetOption that define the layout of the widget.
 func LayoutFunc(l func(layout.Constraint) geometry.Size) WidgetOption {
 	return LayoutLayout(layout.LayoutFunc(l))
+}
+
+// Style returns a WidgetOption that define the widget style.
+func Style(s styles.Style) WidgetOption {
+	return func(bwo *baseWidgetOption) {
+		bwo.style = s
+	}
 }

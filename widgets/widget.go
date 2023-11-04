@@ -6,6 +6,7 @@ import (
 	"github.com/negrel/paon/geometry"
 	"github.com/negrel/paon/id"
 	"github.com/negrel/paon/layout"
+	"github.com/negrel/paon/styles"
 	treevents "github.com/negrel/paon/tree/events"
 )
 
@@ -17,6 +18,7 @@ type Widget interface {
 	events.Target
 	layout.Layout
 	draw.Drawer
+	styles.Styled
 
 	// Node returns the underlying Node used by this Widget.
 	Node() treevents.Node
@@ -35,6 +37,8 @@ type BaseWidget struct {
 
 	layout layout.Layout
 	drawer draw.Drawer
+
+	style styles.Style
 }
 
 // NewBaseWidget returns a new BaseWidget object configured with
@@ -90,4 +94,9 @@ func (bw *BaseWidget) IsSame(other id.Identifiable) bool {
 // Node implements the Widget interface.
 func (bw *BaseWidget) Node() treevents.Node {
 	return bw.node
+}
+
+// Style implements the styles.Styled interface.
+func (bw *BaseWidget) Style() *styles.Style {
+	return &bw.style
 }
