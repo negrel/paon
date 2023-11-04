@@ -24,7 +24,7 @@ var _ Layout = &BaseLayout{}
 // or in composite struct.
 // BaseLayout is an extension of BaseWidget.
 // BaseLayout takes care of the following things for you:
-// - Dispatch LifeCycleEvents to children
+// - Dispatch mouse events to children
 type BaseLayout struct {
 	*BaseWidget
 
