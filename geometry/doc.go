@@ -1,0 +1,2 @@
+// Geometry utilities.
+package geometry
