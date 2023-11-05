@@ -59,7 +59,7 @@ func TestNodeLifeCycleStage(t *testing.T) {
 	// Adding a child to a non mounted node should'n
 	// change the state of both nodes
 	err := greatParent.AppendChild(parent)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	walk(greatParent, func(n *BaseNode) {
 		require.Equal(t, LCSInitial, n.LifeCycleStage())
 		require.Equal(t, 0, beforeMountCounters[n])
@@ -67,13 +67,13 @@ func TestNodeLifeCycleStage(t *testing.T) {
 
 	// Same for child1 and child2
 	err = parent.AppendChild(child2)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	walk(parent, func(n *BaseNode) {
 		require.Equal(t, LCSInitial, n.LifeCycleStage())
 		require.Equal(t, 0, beforeMountCounters[n])
 	})
 	err = parent.InsertBefore(child1, child2)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	walk(parent, func(n *BaseNode) {
 		require.Equal(t, LCSInitial, n.LifeCycleStage())
 		require.Equal(t, 0, beforeMountCounters[n])
@@ -81,7 +81,7 @@ func TestNodeLifeCycleStage(t *testing.T) {
 
 	// Now let's mount the entire subtree
 	err = root.AppendChild(greatParent)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	walk(greatParent, func(n *BaseNode) {
 		require.Equal(t, LCSMounted, n.LifeCycleStage())
 		require.Equal(t, 1, beforeMountCounters[n])
@@ -89,7 +89,7 @@ func TestNodeLifeCycleStage(t *testing.T) {
 
 	// Let's remove the entire subtree
 	err = root.RemoveChild(greatParent)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	walk(greatParent, func(n *BaseNode) {
 		require.Equal(t, LCSUnmounted, n.LifeCycleStage())
 		require.Equal(t, 1, beforeUnmountCounters[n])

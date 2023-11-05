@@ -174,10 +174,10 @@ func testNodeIsDescendantOfPreviousParent(t *testing.T, node Node) {
 	parent := NewNode(nil)
 
 	err := parent.AppendChild(node)
-	require.Nil(t, err)
+	require.NoError(t, err)
 
 	err = parent.RemoveChild(node)
-	require.Nil(t, err)
+	require.NoError(t, err)
 
 	require.False(t, node.IsDescendantOf(parent))
 }
@@ -187,10 +187,10 @@ func testNodeIsDescendantOfGreatParent(t *testing.T, node Node) {
 	parent := NewNode(nil)
 
 	err := parent.AppendChild(node)
-	require.Nil(t, err)
+	require.NoError(t, err)
 
 	err = greatParent.AppendChild(node)
-	require.Nil(t, err)
+	require.NoError(t, err)
 
 	require.True(t, node.IsDescendantOf(greatParent))
 }
@@ -203,7 +203,7 @@ func testNodeRootNil(t *testing.T, node Node) {
 func testNodeRootParent(t *testing.T, node Node) {
 	root := NewRoot(nil)
 	err := root.AppendChild(node)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, root, node.Root())
 }
 
@@ -212,10 +212,10 @@ func testNodeRootGreatParent(t *testing.T, node Node) {
 	parent := NewNode(nil)
 
 	err := root.AppendChild(parent)
-	require.Nil(t, err)
+	require.NoError(t, err)
 
 	err = parent.AppendChild(node)
-	require.Nil(t, err)
+	require.NoError(t, err)
 
 	require.Equal(t, root, node.Root())
 }
@@ -226,7 +226,7 @@ func testLeafNodeIsAncestorOfNil(t *testing.T, node Node) {
 
 func testLeafNodeAppendChildLeafNodeError(t *testing.T, node Node) {
 	err := node.AppendChild(NewNode(nil))
-	require.NotNil(t, err)
+	require.Error(t, err)
 	require.True(t, errors.Is(err, ErrLeafNode()))
 }
 
@@ -235,7 +235,7 @@ func testLeafNodeInsertBeforeLeafNodeError(t *testing.T, node Node) {
 	_ = node.AppendChild(reference)
 
 	err := node.InsertBefore(reference, NewNode(nil))
-	require.NotNil(t, err)
+	require.Error(t, err)
 	require.True(t, errors.Is(err, ErrLeafNode()))
 }
 
@@ -244,6 +244,6 @@ func testLeafNodeRemoveChildLeafNodeError(t *testing.T, node Node) {
 	_ = node.AppendChild(child)
 
 	err := node.RemoveChild(child)
-	require.NotNil(t, err)
+	require.Error(t, err)
 	require.True(t, errors.Is(err, ErrLeafNode()))
 }
