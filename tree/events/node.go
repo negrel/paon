@@ -1,6 +1,8 @@
 package events
 
 import (
+	"fmt"
+
 	"github.com/negrel/paon/events"
 	"github.com/negrel/paon/tree"
 )
@@ -20,7 +22,7 @@ type BaseNode struct {
 	tree.Node
 	events.Target
 
-	root  *tree.Root
+	root  Node
 	stage LifeCycleStage
 }
 
@@ -32,7 +34,7 @@ func NewBaseNode(options ...NodeOption) *BaseNode {
 
 		switch lce.Stage {
 		case LCSMounted:
-			bn.root = bn.Parent().Root()
+			bn.root = bn.Parent().Root().(Node)
 
 		case LCSUnmounted:
 			bn.root = nil
@@ -60,13 +62,8 @@ func newBaseNode(options ...NodeOption) *BaseNode {
 	}
 
 	bn.Node = nodeConf.nodeConstructor(nodeConf.data)
-	// bn.target.node = bn.Node
 	if bn.Target == nil {
 		bn.Target = events.NewTarget()
-	}
-
-	if bn.Node.Root() != nil {
-		bn.stage = LCSMounted
 	}
 
 	return bn
@@ -81,7 +78,12 @@ func (bn *BaseNode) LifeCycleStage() LifeCycleStage {
 func (bn *BaseNode) SetParent(parent tree.Node) {
 	if parent == nil && bn.stage == LCSMounted {
 		bn.DispatchEvent(NewLifeCycleEvent(bn, LCSBeforeUnmount))
-	} else if parent != nil && parent.Root() != nil {
+	}
+
+	// If parent is not nil, it must be a node supporting events.
+	// If it's mounted, this node will be mounted.
+	fmt.Printf("%+v %T\n", parent.Root(), parent.Root())
+	if parent != nil && parent.Root().(Node).LifeCycleStage() == LCSMounted {
 		bn.DispatchEvent(NewLifeCycleEvent(bn, LCSBeforeMount))
 	}
 
@@ -128,4 +130,14 @@ func (bn *BaseNode) RemoveChild(child tree.Node) error {
 	}
 
 	return err
+}
+
+// Root implements the tree.Node interface.
+func (bn *BaseNode) Root() tree.Node {
+	root := bn.Node.Root()
+	if root == bn.Node {
+		return bn
+	}
+
+	return root
 }

@@ -9,13 +9,13 @@ type LifeCycleStage uint8
 
 const (
 	// LCSInitial stage correspond to the stage of a new Node that haven't
-	// been mounted in a tree (no root).
+	// been mounted in an active tree.
 	LCSInitial LifeCycleStage = iota
-	// LCSBeforeMount stage is set just before inserting the Node in a tree with a tree.Root.
+	// LCSBeforeMount stage is set just before inserting the Node in an active tree.
 	LCSBeforeMount
-	// LCSMounted stage is set just after the Node has been mounted, its root is non-nil.
+	// LCSMounted stage is set just after the Node has been mounted, it has an active root.
 	LCSMounted
-	// LCSBeforeUnmount stage is set just before the Node is unmounted from a tree, its root is still non-nil at this stage.
+	// LCSBeforeUnmount stage is set just before the Node is unmounted from a tree.
 	LCSBeforeUnmount
 	// LCSUnmounted stage is set just after a Node or one of its parent has been removed from the tree.
 	LCSUnmounted

@@ -35,3 +35,11 @@ func Wrap(data interface{}) NodeOption {
 		bno.data = data
 	}
 }
+
+// RootNode is a NodeOption that turns node into a root node. Child
+// node added will be mounted. However, note that node will turn into a regular
+// node once you add it to another node.
+func RootNode(bno *baseNodeOption) {
+	bno.stage = LCSMounted
+	bno.root = bno.BaseNode
+}
