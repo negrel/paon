@@ -111,8 +111,8 @@ func (bn *BaseNode) AppendChild(newChild tree.Node) error {
 }
 
 // InsertBefore implements the tree.Node interface.
-func (bn *BaseNode) InsertBefore(reference, newChild tree.Node) error {
-	err := bn.Node.InsertBefore(reference, newChild)
+func (bn *BaseNode) InsertBefore(newChild, reference tree.Node) error {
+	err := bn.Node.InsertBefore(newChild, reference)
 	if err == nil {
 		bn.setNewChildLCStage(newChild.(Node))
 	}

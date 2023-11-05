@@ -72,7 +72,7 @@ func TestNodeLifeCycleStage(t *testing.T) {
 		require.Equal(t, LCSInitial, n.LifeCycleStage())
 		require.Equal(t, 0, beforeMountCounters[n])
 	})
-	err = parent.InsertBefore(child2, child1)
+	err = parent.InsertBefore(child1, child2)
 	require.Nil(t, err)
 	walk(parent, func(n *BaseNode) {
 		require.Equal(t, LCSInitial, n.LifeCycleStage())

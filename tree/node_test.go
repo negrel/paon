@@ -184,9 +184,10 @@ func testNodeAppendChildNodeWithParent(t *testing.T, node Node) {
 	child := NewNode(nil)
 
 	err := parent.AppendChild(child)
-	require.Nil(t, err)
+	require.NoError(t, err)
 
-	node.AppendChild(child)
+	err = node.AppendChild(child)
+	require.NoError(t, err)
 	require.True(t, node.IsSame(child.Parent()))
 	require.True(t, node.FirstChild().IsSame(child))
 	require.True(t, node.LastChild().IsSame(child))
@@ -210,7 +211,7 @@ func testNodeInsertBeforeNode(t *testing.T, node Node) {
 	err := node.AppendChild(reference)
 	require.Nil(t, err)
 
-	err = node.InsertBefore(reference, child)
+	err = node.InsertBefore(child, reference)
 	require.Nil(t, err)
 
 	require.True(t, node.IsSame(child.Parent()))
@@ -241,7 +242,7 @@ func testNodeInsertBeforeNilReference(t *testing.T, node Node) {
 
 	child := NewNode(nil)
 
-	err := node.InsertBefore(nil, child)
+	err := node.InsertBefore(child, nil)
 	require.Nil(t, err)
 
 	require.True(t, node.IsSame(child.Parent()))
@@ -255,7 +256,7 @@ func testNodeInsertBeforeNilChild(t *testing.T, node Node) {
 
 	reference := NewNode(nil)
 
-	err := node.InsertBefore(reference, nil)
+	err := node.InsertBefore(nil, reference)
 	require.Error(t, err)
 }
 
@@ -271,7 +272,7 @@ func testNodeInsertBeforeParentOfNode(t *testing.T, node Node) {
 	err = node.AppendChild(reference)
 	require.Nil(t, err)
 
-	err = node.InsertBefore(reference, parent)
+	err = node.InsertBefore(parent, reference)
 	require.NotNil(t, err)
 }
 
@@ -290,7 +291,7 @@ func NodeInsertBeforeNodeGreatParentOfNode(t *testing.T, node Node) {
 	err = node.AppendChild(reference)
 	require.Nil(t, err)
 
-	err = node.InsertBefore(reference, greatParent)
+	err = node.InsertBefore(greatParent, reference)
 	require.NotNil(t, err)
 }
 
@@ -307,7 +308,7 @@ func NodeInsertBeforeNodeChildWithParent(t *testing.T, node Node) {
 	err = node.AppendChild(reference)
 	require.Nil(t, err)
 
-	err = node.InsertBefore(reference, child)
+	err = node.InsertBefore(child, reference)
 	require.Nil(t, err)
 
 	require.True(t, node.IsSame(child.Parent()))
@@ -332,7 +333,7 @@ func testNodeInsertBeforeBetweenTwoNode(t *testing.T, node Node) {
 	err = node.AppendChild(next)
 	require.Nil(t, err)
 
-	err = node.InsertBefore(next, child)
+	err = node.InsertBefore(child, next)
 	require.Nil(t, err)
 
 	require.True(t, node.IsSame(child.Parent()))
@@ -354,7 +355,7 @@ func testNodeInsertBeforeItself(t *testing.T, node Node) {
 	err := node.AppendChild(reference)
 	require.Nil(t, err)
 
-	err = node.InsertBefore(reference, node)
+	err = node.InsertBefore(node, reference)
 	require.NotNil(t, err)
 }
 

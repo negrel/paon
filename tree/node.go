@@ -45,7 +45,7 @@ type Node interface {
 	// if the given child is an ancestor of this Node or if the reference
 	// is not a direct child of this.
 	// When an error is returned, the child is left unchanged
-	InsertBefore(reference, newChild Node) error
+	InsertBefore(newChild, reference Node) error
 
 	// Removes the given direct child Node of this. Returns an error otherwise.
 	// When an error is returned, the child is left unchanged
@@ -128,8 +128,8 @@ func (n *node) prepareChildForInsertion(newChild Node) {
 	}
 }
 
-func (n *node) InsertBefore(reference, newChild Node) error {
-	// InsertBeforeNode(nil, node) is equal to AppendChildNode(node)
+func (n *node) InsertBefore(newChild, reference Node) error {
+	// InsertBeforeNode(node, nil) is equal to AppendChildNode(node)
 	if reference == nil {
 		return n.AppendChild(newChild)
 	}

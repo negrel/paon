@@ -43,7 +43,10 @@ func BenchmarkNodeRemoveChild(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		nodes[i] = newLeafNode(nodeData)
-		parent.AppendChild(nodes[i])
+		err := parent.AppendChild(nodes[i])
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	rand.Shuffle(len(nodes), func(i, j int) {
@@ -73,7 +76,10 @@ func benchmarkNodeRoot(b *testing.B, deep int) {
 	var parent Node = root
 	for i := 0; i < deep; i++ {
 		child := NewNode(nodeData)
-		parent.AppendChild(child)
+		err := parent.AppendChild(child)
+		if err != nil {
+			panic(err)
+		}
 		parent = child
 	}
 	deepestChild := parent

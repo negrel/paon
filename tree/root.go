@@ -43,8 +43,8 @@ func (r *Root) AppendChild(newChild Node) error {
 }
 
 // InsertBefore implements the Node interface.
-func (r *Root) InsertBefore(reference, newChild Node) error {
-	err := r.node.InsertBefore(reference, newChild)
+func (r *Root) InsertBefore(newChild, reference Node) error {
+	err := r.node.InsertBefore(newChild, reference)
 	if err != nil {
 		return err
 	}
