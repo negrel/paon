@@ -12,36 +12,37 @@ type benchIter struct {
 	children []*Node[time.Time]
 }
 
-func newBenchIters(bN int, nbChild int) []benchIter {
+func newBenchIter(nbChild int, appendChild bool) benchIter {
 	nodeData := time.Now()
 
 	// In order to remove child multiple time, we must setup an array of parents.
-	iters := make([]benchIter, bN)
+	iter := benchIter{
+		parent:   NewNode(nodeData),
+		children: make([]*Node[time.Time], nbChild),
+	}
 
-	for i := 0; i < bN; i++ {
-		parent := NewNode(nodeData)
-		children := make([]*Node[time.Time], nbChild)
+	for i := 0; i < nbChild; i++ {
+		iter.children[i] = NewNode(nodeData)
 
-		for i := 0; i < nbChild; i++ {
-			children[i] = NewNode(nodeData)
-			err := parent.AppendChild(children[i])
+		if appendChild {
+			err := iter.parent.AppendChild(iter.children[i])
 			if err != nil {
 				panic(err)
 			}
 		}
-
-		rand.Shuffle(len(children), func(i, j int) {
-			children[i], children[j] = children[j], children[i]
-		})
-
-		iters[i] = benchIter{parent, children}
 	}
 
-	return iters
+	if appendChild {
+		rand.Shuffle(len(iter.children), func(i, j int) {
+			iter.children[i], iter.children[j] = iter.children[j], iter.children[i]
+		})
+	}
+
+	return iter
 }
 
 func BenchmarkNodeAppendChild(b *testing.B) {
-	for i := 64; i <= 512; i *= 2 {
+	for i := 64; i <= 128; i *= 2 {
 		b.Run(fmt.Sprintf("%d", i), func(b *testing.B) {
 			benchmarkNodeAppendChild(b, i)
 		})
@@ -49,12 +50,10 @@ func BenchmarkNodeAppendChild(b *testing.B) {
 }
 
 func benchmarkNodeAppendChild(b *testing.B, nbChild int) {
-	iters := newBenchIters(b.N, nbChild)
-
-	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		parent := iters[i].parent
-		children := iters[i].children
+		iter := newBenchIter(nbChild, true)
+		parent := iter.parent
+		children := iter.children
 
 		for _, child := range children {
 			err := parent.AppendChild(child)
@@ -66,7 +65,7 @@ func benchmarkNodeAppendChild(b *testing.B, nbChild int) {
 }
 
 func BenchmarkNodeInsertBefore(b *testing.B) {
-	for i := 64; i <= 512; i *= 2 {
+	for i := 64; i <= 128; i *= 2 {
 		b.Run(fmt.Sprintf("%d", i), func(b *testing.B) {
 			benchmarkNodeInsertBefore(b, i)
 		})
@@ -74,12 +73,10 @@ func BenchmarkNodeInsertBefore(b *testing.B) {
 }
 
 func benchmarkNodeInsertBefore(b *testing.B, nbChild int) {
-	iters := newBenchIters(b.N, nbChild)
-
-	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		parent := iters[i].parent
-		children := iters[i].children
+		iter := newBenchIter(nbChild, true)
+		parent := iter.parent
+		children := iter.children
 
 		var previousNode *Node[time.Time]
 
@@ -97,7 +94,7 @@ func benchmarkNodeInsertBefore(b *testing.B, nbChild int) {
 }
 
 func BenchmarkNodeRemoveChild(b *testing.B) {
-	for i := 64; i <= 512; i *= 2 {
+	for i := 64; i <= 128; i *= 2 {
 		b.Run(fmt.Sprintf("%d", i), func(b *testing.B) {
 			benchmarkNodeRemoveChild(b, i)
 		})
@@ -105,12 +102,10 @@ func BenchmarkNodeRemoveChild(b *testing.B) {
 }
 
 func benchmarkNodeRemoveChild(b *testing.B, nbChild int) {
-	iters := newBenchIters(b.N, nbChild)
-
-	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		parent := iters[i].parent
-		children := iters[i].children
+		iter := newBenchIter(nbChild, true)
+		parent := iter.parent
+		children := iter.children
 
 		for _, child := range children {
 			err := parent.RemoveChild(child)
