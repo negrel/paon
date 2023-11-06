@@ -8,16 +8,7 @@ import (
 	"github.com/negrel/paon/layout"
 )
 
-// Layout is an extension of the Widget interface that adds the support for
-// children widgets. Howerver, it is strongly recommended to create custom
-// layouts using the BaseLayout implementation.
-type Layout interface {
-	Widget
-}
-
-var _ Layout = &BaseLayout{}
-
-// BaseLayout define a basic implementation of the Layout interface.
+// BaseLayout define a generic layout widget.
 // BaseLayout can either be used alone (see NewBaseLayout for the required options)
 // or in composite struct.
 // BaseLayout is an extension of BaseWidget.
@@ -25,21 +16,25 @@ var _ Layout = &BaseLayout{}
 // - Dispatch mouse events to children
 type BaseLayout struct {
 	*BaseWidget
-
-	layoutAlgo func(_ layout.Constraint, _ []geometry.Rectangle) ([]geometry.Rectangle, geometry.Size)
 }
 
 // NewBaseLayout returns a new BaseLayout object configured with the given
 // options.
 // When embedding this layout in a composite struct, wrap the struct instance
 // using Wrap widget options.
-func NewBaseLayout(options ...LayoutOption) *BaseLayout {
-	layout := newBaseLayout(options...)
+func NewBaseLayout(
+	algo func(_ layout.Constraint, _ []geometry.Rectangle) ([]geometry.Rectangle, geometry.Size),
+	options ...LayoutOption,
+) *BaseLayout {
+	layout := newBaseLayout(algo, options...)
 
 	return layout
 }
 
-func newBaseLayout(options ...LayoutOption) *BaseLayout {
+func newBaseLayout(
+	algo func(_ layout.Constraint, _ []geometry.Rectangle) ([]geometry.Rectangle, geometry.Size),
+	options ...LayoutOption,
+) *BaseLayout {
 	l := &BaseLayout{}
 
 	// Children positions.
@@ -77,7 +72,7 @@ func newBaseLayout(options ...LayoutOption) *BaseLayout {
 			LayoutFunc(func(co layout.Constraint) (size geometry.Size) {
 				latestLayoutConstraint = co
 
-				childrenRects, size = l.layoutAlgo(co, childrenRects[:0])
+				childrenRects, size = algo(co, childrenRects[:0])
 				return size
 			}),
 			DrawerFunc(func(surface draw.Surface) {

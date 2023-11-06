@@ -18,7 +18,23 @@ func TestLayoutPropagateMouseEvents(t *testing.T) {
 	childMousePressEventHandled := 0
 
 	// Widget tree root.
-	root := NewRoot()
+	var root *BaseLayout
+	root = NewBaseLayout(
+		func(co layout.Constraint, childrenPositions []geometry.Rectangle) ([]geometry.Rectangle, geometry.Size) {
+			for child := root.Node().FirstChild(); child != nil; child = child.Next() {
+				childSize := child.Unwrap().(layout.Layout).Layout(co)
+				childrenPositions = append(childrenPositions,
+					geometry.Rect(
+						surfaceSize.Width()-childSize.Width(),
+						surfaceSize.Height()-childSize.Height(),
+						surfaceSize.Width(),
+						surfaceSize.Height()),
+				)
+			}
+
+			return childrenPositions, co.MaxSize
+		},
+	)
 
 	// A 10x10 widget.
 	childWidget := NewBaseWidget(
@@ -34,9 +50,9 @@ func TestLayoutPropagateMouseEvents(t *testing.T) {
 	// A parent that position widget to bottom right corner.
 	var parent *BaseLayout
 	parent = NewBaseLayout(
-		LayoutAlgo(func(co layout.Constraint, childrenPositions []geometry.Rectangle) ([]geometry.Rectangle, geometry.Size) {
-			for child := parent.FirstChild(); child != nil; child = child.Next() {
-				childSize := child.(layout.Layout).Layout(co)
+		func(co layout.Constraint, childrenPositions []geometry.Rectangle) ([]geometry.Rectangle, geometry.Size) {
+			for child := parent.Node().FirstChild(); child != nil; child = child.Next() {
+				childSize := child.Unwrap().(layout.Layout).Layout(co)
 				childrenPositions = append(childrenPositions,
 					geometry.Rect(
 						surfaceSize.Width()-childSize.Width(),
@@ -47,14 +63,14 @@ func TestLayoutPropagateMouseEvents(t *testing.T) {
 			}
 
 			return childrenPositions, co.MaxSize
-		}),
+		},
 	)
 
 	// Add widgets to tree.
-	err := root.AppendChild(parent)
+	err := root.Node().AppendChild(parent.Node())
 	require.NoError(t, err)
 
-	err = parent.AppendChild(childWidget)
+	err = parent.Node().AppendChild(childWidget.Node())
 	require.NoError(t, err)
 
 	// Trigger a first layout so widgets are positionned.
@@ -74,7 +90,7 @@ func TestLayoutPropagateMouseEvents(t *testing.T) {
 	require.Equal(t, 1, childMousePressEventHandled, "event not propagated to child widget")
 
 	// Remove child to ensure it doesn't reveive event anymore.
-	err = parent.RemoveChild(childWidget.Node())
+	err = parent.Node().RemoveChild(childWidget.Node())
 	require.NoError(t, err)
 
 	// No need to layout again.

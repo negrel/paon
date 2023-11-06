@@ -19,10 +19,7 @@ func New(children ...widgets.Widget) *Widget {
 	w := &Widget{}
 
 	w.BaseLayout = widgets.NewBaseLayout(
-		widgets.WidgetOptions(
-			widgets.Wrap(w),
-		),
-		widgets.LayoutAlgo(func(co layout.Constraint, childrenRects []geometry.Rectangle) ([]geometry.Rectangle, geometry.Size) {
+		func(co layout.Constraint, childrenRects []geometry.Rectangle) ([]geometry.Rectangle, geometry.Size) {
 			size := geometry.NewSize(0, 0)
 			freeSpace := co.MaxSize
 
@@ -55,7 +52,10 @@ func New(children ...widgets.Widget) *Widget {
 			}
 
 			return childrenRects, size
-		}),
+		},
+		widgets.WidgetOptions(
+			widgets.Wrap(w),
+		),
 	)
 
 	for _, child := range children {
