@@ -17,6 +17,10 @@ type Widget interface {
 	draw.Drawer
 
 	Node() *tree.Node[Widget]
+	setNode(*tree.Node[Widget])
+
+	// Swap swaps this widget node with node of the given one.
+	Swap(Widget)
 }
 
 type eventTarget = events.Target
@@ -67,6 +71,18 @@ func newBaseWidget(options ...WidgetOption) *BaseWidget {
 	return widget
 }
 
+// Swap implements Widget.
+func (bw *BaseWidget) Swap(other Widget) {
+	// Swap node reference.
+	old := bw.node
+	bw.node = other.Node()
+	other.setNode(old)
+
+	// Swap data contained in tree.Node.
+	this := old.Swap(other)
+	bw.node.Swap(this)
+}
+
 // Layout implements Layout.
 func (bw *BaseWidget) Layout(co layout.Constraint) geometry.Size {
 	return bw.layout.Layout(co)
@@ -80,4 +96,8 @@ func (bw *BaseWidget) Draw(surface draw.Surface) {
 // Node implements the Widget interface.
 func (bw *BaseWidget) Node() *tree.Node[Widget] {
 	return bw.node
+}
+
+func (bw *BaseWidget) setNode(node *tree.Node[Widget]) {
+	bw.node = node
 }
