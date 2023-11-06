@@ -27,9 +27,9 @@ func main() {
 		hbox.New(
 			input,
 		),
-		button.New("Click to exit", func(_ mouse.ClickEvent) {
+		button.New("Click to exit", button.OnClick(func(_ mouse.ClickEvent) {
 			cancel()
-		}),
+		})),
 	))
 	if err != nil {
 		panic(err)

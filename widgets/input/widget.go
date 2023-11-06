@@ -6,7 +6,6 @@ import (
 	"github.com/negrel/paon/events/keypress"
 	"github.com/negrel/paon/geometry"
 	"github.com/negrel/paon/layout"
-	treevents "github.com/negrel/paon/tree/events"
 	"github.com/negrel/paon/widgets"
 	"github.com/negrel/paon/widgets/span"
 )
@@ -62,16 +61,6 @@ func New(defaultValue string) *Widget {
 			}
 		}
 	})
-
-	w.AddEventListener(treevents.LifeCycleEventListener(func(event treevents.LifeCycleEvent) {
-		switch event.Stage {
-		case treevents.LCSMounted:
-			w.Root().Unwrap().(events.Target).AddEventListener(keyPressEventType, keyPressHandler)
-
-		case treevents.LCSBeforeUnmount:
-			w.Root().Unwrap().(events.Target).RemoveEventListener(keyPressEventType, keyPressHandler)
-		}
-	}))
 
 	return w
 }

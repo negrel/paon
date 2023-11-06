@@ -4,17 +4,29 @@ import (
 	"github.com/negrel/paon/draw"
 	"github.com/negrel/paon/geometry"
 	"github.com/negrel/paon/layout"
-	"github.com/negrel/paon/styles"
 	"github.com/negrel/paon/widgets"
 )
+
+// Style define styling options for span rendering.
+type Style draw.CellStyle
+
+type Option func(*Widget)
+
+// WithStyle return an option that sets span widget style.
+func WithStyle(style Style) Option {
+	return func(w *Widget) {
+		w.style = style
+	}
+}
 
 type Widget struct {
 	*widgets.BaseWidget
 
-	text string
+	style Style
+	text  string
 }
 
-func New(text string) *Widget {
+func New(text string, options ...Option) *Widget {
 	w := &Widget{
 		text: text,
 	}
@@ -27,23 +39,13 @@ func New(text string) *Widget {
 			},
 		),
 		widgets.DrawerFunc(func(surface draw.Surface) {
-			Draw(surface, w.text, w.Style().CellStyle)
-		}),
-		widgets.Style(styles.Style{
-			CellStyle: draw.CellStyle{
-				Foreground:    0,
-				Background:    0,
-				Bold:          false,
-				Blink:         false,
-				Reverse:       false,
-				Underline:     false,
-				Dim:           false,
-				Italic:        false,
-				StrikeThrough: false,
-			},
-			Extras: map[string]any{},
+			Draw(surface, w.text, w.style)
 		}),
 	)
+
+	for _, applyOption := range options {
+		applyOption(w)
+	}
 
 	return w
 }
@@ -60,11 +62,11 @@ func Layout(text string, co layout.Constraint) geometry.Size {
 	return geometry.NewSize(len(text), 1)
 }
 
-func Draw(surface draw.Surface, text string, style draw.CellStyle) {
+func Draw(surface draw.Surface, text string, style Style) {
 	// TODO: iterate over grapheme instead of runes.
 	for i, c := range text {
 		surface.Set(geometry.NewVec2D(i, 0), draw.Cell{
-			Style:   style,
+			Style:   draw.CellStyle(style),
 			Content: c,
 		})
 	}

@@ -33,19 +33,19 @@ func main() {
 	// Start application.
 	err = app.Start(ctx, vbox.New(
 		hbox.New(
-			button.New(" - ", func(_ mouse.ClickEvent) {
+			button.New(" - ", button.OnClick(func(_ mouse.ClickEvent) {
 				counter--
 				updateCounterSpan()
-			}),
+			})),
 			counterSpan,
-			button.New(" + ", func(_ mouse.ClickEvent) {
+			button.New(" + ", button.OnClick(func(_ mouse.ClickEvent) {
 				counter++
 				updateCounterSpan()
-			}),
+			})),
 		),
-		button.New("Click to exit", func(_ mouse.ClickEvent) {
+		button.New("Click to exit", button.OnClick(func(_ mouse.ClickEvent) {
 			cancel()
-		}),
+		})),
 	))
 	if err != nil {
 		panic(err)

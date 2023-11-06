@@ -5,18 +5,48 @@ import (
 	"github.com/negrel/paon/events/mouse"
 	"github.com/negrel/paon/geometry"
 	"github.com/negrel/paon/layout"
-	"github.com/negrel/paon/styles"
 	"github.com/negrel/paon/widgets"
 	"github.com/negrel/paon/widgets/span"
 )
 
-type Widget struct {
-	*widgets.BaseWidget
-	text string
+// Style define styling options for button rendering.
+type Style span.Style
+
+type Option func(*Widget)
+
+// WithStyle return an option that sets button widget style.
+func WithStyle(style Style) Option {
+	return func(w *Widget) {
+		w.style = style
+	}
 }
 
-func New(text string, onclick func(mouse.ClickEvent)) *Widget {
+func OnClick(handler func(event mouse.ClickEvent)) Option {
+	return func(w *Widget) {
+		w.AddEventListener(mouse.ClickListener(handler))
+	}
+}
+
+type Widget struct {
+	*widgets.BaseWidget
+
+	style Style
+	text  string
+}
+
+func New(text string, options ...Option) *Widget {
 	w := &Widget{
+		style: Style{
+			Foreground:    0,
+			Background:    0,
+			Bold:          false,
+			Blink:         false,
+			Reverse:       true,
+			Underline:     false,
+			Dim:           false,
+			Italic:        false,
+			StrikeThrough: false,
+		},
 		text: text,
 	}
 
@@ -28,35 +58,21 @@ func New(text string, onclick func(mouse.ClickEvent)) *Widget {
 			},
 		),
 		widgets.DrawerFunc(func(surface draw.Surface) {
-			span.Draw(surface, w.text, w.Style().CellStyle)
-		}),
-		widgets.Style(styles.Style{
-			CellStyle: draw.CellStyle{
-				Foreground:    0,
-				Background:    0,
-				Bold:          false,
-				Blink:         false,
-				Reverse:       true,
-				Underline:     false,
-				Dim:           false,
-				Italic:        false,
-				StrikeThrough: false,
-			},
-			Extras: map[string]any{},
+			span.Draw(surface, w.text, span.Style(w.style))
 		}),
 	)
 
 	w.AddEventListener(mouse.PressListener(func(event mouse.Event) {
-		style := w.Style()
-		style.Reverse = !style.Reverse
+		w.style.Reverse = !w.style.Reverse
 	}))
 
 	w.AddEventListener(mouse.ClickListener(func(event mouse.ClickEvent) {
-		onclick(event)
-
-		style := w.Style()
-		style.Reverse = !style.Reverse
+		w.style.Reverse = !w.style.Reverse
 	}))
+
+	for _, applyOption := range options {
+		applyOption(w)
+	}
 
 	return w
 }

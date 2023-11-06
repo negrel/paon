@@ -34,9 +34,9 @@ func main() {
 			span.New(" | "),
 			span.New("Bonjour tout le monde"),
 		),
-		button.New("Click to exit", func(event mouse.ClickEvent) {
+		button.New("Click to exit", button.OnClick(func(event mouse.ClickEvent) {
 			cancel()
-		}),
+		})),
 	))
 	if err != nil {
 		panic(err)

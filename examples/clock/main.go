@@ -46,9 +46,9 @@ func main() {
 			span.New("Current datetime: "),
 			timeSpan,
 		),
-		button.New("Click to exit", func(event mouse.ClickEvent) {
+		button.New("Click to exit", button.OnClick(func(event mouse.ClickEvent) {
 			cancel()
-		}),
+		})),
 	))
 	if err != nil {
 		panic(err)
