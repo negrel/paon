@@ -37,6 +37,13 @@ func (n *Node[T]) Unwrap() T {
 	return n.value
 }
 
+// Swap swaps underlying data contained in the node and returns old one.
+func (n *Node[T]) Swap(v T) T {
+	old := n.value
+	n.value = v
+	return old
+}
+
 // NextSibling returns the next sibling of this node.
 func (n *Node[T]) Next() *Node[T] {
 	return n.next
