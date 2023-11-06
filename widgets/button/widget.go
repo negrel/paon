@@ -27,6 +27,7 @@ func OnClick(handler func(event mouse.ClickEvent)) Option {
 	}
 }
 
+// Widget define a clickable widget button.
 type Widget struct {
 	*widgets.BaseWidget
 
@@ -34,6 +35,7 @@ type Widget struct {
 	text  string
 }
 
+// New returns a new button widget configured with the given options.
 func New(text string, options ...Option) *Widget {
 	w := &Widget{
 		style: Style{
