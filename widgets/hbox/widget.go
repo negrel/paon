@@ -7,10 +7,14 @@ import (
 	"github.com/negrel/paon/widgets"
 )
 
+// Widget define a widget that displays its children in an horizontal array.
+// To cause a child to expand to fill the available horizontal space, wrap the
+// child in an Expanded widget.
 type Widget struct {
 	*widgets.BaseLayout
 }
 
+// New returns a new hbox widget configured with the given options.
 func New(children ...widgets.Widget) *Widget {
 	w := &Widget{}
 
@@ -24,7 +28,7 @@ func New(children ...widgets.Widget) *Widget {
 
 			for child := w.Node().FirstChild(); child != nil; child = child.Next() {
 				// Previous child fulfilled the surface, no need to render next siblings.
-				if freeSpace.Height() <= size.Height() {
+				if freeSpace.Height() <= 0 {
 					break
 				}
 

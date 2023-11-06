@@ -24,7 +24,7 @@ func New(children ...widgets.Widget) *Widget {
 
 			for child := w.Node().FirstChild(); child != nil; child = child.Next() {
 				// Previous child fulfilled the surface, no need to render next siblings.
-				if freeSpace.Width() <= size.Width() {
+				if freeSpace.Width() <= 0 {
 					break
 				}
 
