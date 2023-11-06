@@ -53,11 +53,17 @@ func (ss SubSurface) Size() geometry.Size {
 // Get implements the Surface interface.
 func (ss SubSurface) Get(v2 geometry.Vec2D) Cell {
 	v2 = v2.Add(ss.bounds.Min)
-	return ss.srf.Get(v2)
+	if ss.bounds.Contains(v2) {
+		return ss.srf.Get(v2)
+	}
+
+	return Cell{}
 }
 
 // Set implements the Surface interface.
 func (ss SubSurface) Set(v2 geometry.Vec2D, cell Cell) {
 	v2 = v2.Add(ss.bounds.Min)
-	ss.srf.Set(v2, cell)
+	if ss.bounds.Contains(v2) {
+		ss.srf.Set(v2, cell)
+	}
 }
