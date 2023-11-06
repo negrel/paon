@@ -6,8 +6,6 @@ import (
 	"github.com/negrel/paon/events/mouse"
 	"github.com/negrel/paon/geometry"
 	"github.com/negrel/paon/layout"
-	"github.com/negrel/paon/tree"
-	treevents "github.com/negrel/paon/tree/events"
 )
 
 // Layout is an extension of the Widget interface that adds the support for
@@ -53,11 +51,11 @@ func newBaseLayout(options ...LayoutOption) *BaseLayout {
 	dispatchPositionnedEvent := func(relpos *geometry.Vec2D, event events.Event) {
 		// If layout is root, trigger a layout to sync childrenRects with current
 		// widget tree.
-		if l.Root().IsSame(l) {
+		if l.Node().Root() == l.Node() {
 			l.Layout(latestLayoutConstraint)
 		}
 
-		child := l.FirstChild()
+		child := l.Node().FirstChild()
 		for _, boundingRect := range childrenRects {
 			if boundingRect.Contains(*relpos) {
 				*relpos = relpos.Sub(boundingRect.TopLeft())
@@ -76,7 +74,6 @@ func newBaseLayout(options ...LayoutOption) *BaseLayout {
 		widgetConstructor: NewBaseWidget,
 		widgetOptions: []WidgetOption{
 			Wrap(l),
-			NodeOptions(treevents.NodeConstructor(tree.NewNode)),
 			LayoutFunc(func(co layout.Constraint) (size geometry.Size) {
 				latestLayoutConstraint = co
 
@@ -84,7 +81,7 @@ func newBaseLayout(options ...LayoutOption) *BaseLayout {
 				return size
 			}),
 			DrawerFunc(func(surface draw.Surface) {
-				child := l.FirstChild()
+				child := l.Node().FirstChild()
 				for _, boundingRect := range childrenRects {
 					childDrawer := child.Unwrap().(draw.Drawer)
 					subsurface := draw.NewSubSurface(surface, boundingRect)

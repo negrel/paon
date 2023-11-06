@@ -4,36 +4,34 @@ import (
 	"github.com/negrel/paon/draw"
 	"github.com/negrel/paon/events"
 	"github.com/negrel/paon/geometry"
-	"github.com/negrel/paon/id"
 	"github.com/negrel/paon/layout"
 	"github.com/negrel/paon/styles"
-	treevents "github.com/negrel/paon/tree/events"
+	"github.com/negrel/paon/tree"
 )
 
 // Widget is a generic interface that define any component part of the widget/element tree.
 // Any types that implement the Widget interface can be added to the widget tree. However, it is strongly
 // recommended to create custom widgets using the BaseWidget implementation.
 type Widget interface {
-	id.Identifiable
 	events.Target
 	layout.Layout
 	draw.Drawer
 	styles.Styled
 
-	// Node returns the underlying Node used by this Widget.
-	Node() treevents.Node
+	Node() *tree.Node[Widget]
 }
 
-var _ Widget = &BaseWidget{}
+type eventTarget = events.Target
 
-// Private treevents.Node type that can be embedded in private field.
-type node treevents.Node
+var _ Widget = &BaseWidget{}
 
 // BaseWidget define a basic Widget object that implements the Widget interface.
 // BaseWidget can either be used alone (see NewBaseWidget for the required options)
 // or in composite struct.
 type BaseWidget struct {
-	node
+	eventTarget
+
+	node *tree.Node[Widget]
 
 	layout layout.Layout
 	drawer draw.Drawer
@@ -52,17 +50,19 @@ func NewBaseWidget(options ...WidgetOption) *BaseWidget {
 }
 
 func newBaseWidget(options ...WidgetOption) *BaseWidget {
-	widget := &BaseWidget{}
+	widget := &BaseWidget{
+		eventTarget: events.NewTarget(),
+	}
 	widgetConf := &baseWidgetOption{
-		BaseWidget:  widget,
-		nodeOptions: []treevents.NodeOption{treevents.Wrap(widget)},
+		BaseWidget: widget,
+		data:       widget,
 	}
 
 	for _, option := range options {
 		option(widgetConf)
 	}
 
-	widget.node = treevents.NewBaseNode(widgetConf.nodeOptions...)
+	widget.node = tree.NewNode(widgetConf.data)
 
 	for _, listener := range widgetConf.listeners {
 		widget.AddEventListener(listener.EventType, listener.Handler)
@@ -81,18 +81,8 @@ func (bw *BaseWidget) Draw(surface draw.Surface) {
 	bw.drawer.Draw(surface)
 }
 
-// ID implements the id.Identifiable interface.
-func (bw *BaseWidget) ID() id.ID {
-	return bw.node.ID()
-}
-
-// IsSame implements the id.Identifiable interface.
-func (bw *BaseWidget) IsSame(other id.Identifiable) bool {
-	return bw.node.IsSame(other)
-}
-
 // Node implements the Widget interface.
-func (bw *BaseWidget) Node() treevents.Node {
+func (bw *BaseWidget) Node() *tree.Node[Widget] {
 	return bw.node
 }
 

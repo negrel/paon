@@ -18,7 +18,7 @@ type Application struct {
 	terminal backend.Terminal
 	clock    *time.Ticker
 	do       chan func()
-	root     *widgets.Root
+	root     widgets.Widget
 	target   events.Target
 	evch     chan events.Event
 }
@@ -69,13 +69,7 @@ func (app *Application) Start(ctx context.Context, widget widgets.Widget) error 
 		return err
 	}
 
-	if app.root == nil {
-		app.root = widgets.NewRoot()
-	}
-	err = app.root.AppendChild(widget.Node())
-	if err != nil {
-		return err
-	}
+	app.root = widget
 
 	app.eventLoop(ctx)
 

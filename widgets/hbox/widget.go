@@ -22,7 +22,7 @@ func New(children ...widgets.Widget) *Widget {
 			size := geometry.NewSize(0, 0)
 			freeSpace := co.MaxSize
 
-			for child := w.FirstChild(); child != nil; child = child.Next() {
+			for child := w.Node().FirstChild(); child != nil; child = child.Next() {
 				// Previous child fulfilled the surface, no need to render next siblings.
 				if freeSpace.Height() <= size.Height() {
 					break
@@ -55,7 +55,7 @@ func New(children ...widgets.Widget) *Widget {
 	)
 
 	for _, child := range children {
-		w.AppendChild(child.Node())
+		w.Node().AppendChild(child.Node())
 	}
 
 	return w
