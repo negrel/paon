@@ -43,7 +43,7 @@ func newBaseLayout(
 	latestLayoutConstraint := layout.Constraint{}
 
 	// Event handler that forwards mouse position to children.
-	dispatchPositionnedEvent := func(relpos *geometry.Vec2D, event events.Event) {
+	dispatchClickEvent := func(event mouse.ClickEvent) {
 		// If layout is root, trigger a layout to sync childrenRects with current
 		// widget tree.
 		if l.Node().Root() == l.Node() {
@@ -52,8 +52,8 @@ func newBaseLayout(
 
 		child := l.Node().FirstChild()
 		for _, boundingRect := range childrenRects {
-			if boundingRect.Contains(*relpos) {
-				*relpos = relpos.Sub(boundingRect.TopLeft())
+			if boundingRect.Contains(event.RelPosition) {
+				event.RelPosition = event.RelPosition.Sub(boundingRect.TopLeft())
 				child.Unwrap().(events.Target).DispatchEvent(event)
 			}
 
@@ -61,7 +61,21 @@ func newBaseLayout(
 		}
 	}
 	dispatchMouseEvent := func(event mouse.Event) {
-		dispatchPositionnedEvent(&event.RelPosition, event)
+		// If layout is root, trigger a layout to sync childrenRects with current
+		// widget tree.
+		if l.Node().Root() == l.Node() {
+			l.Layout(latestLayoutConstraint)
+		}
+
+		child := l.Node().FirstChild()
+		for _, boundingRect := range childrenRects {
+			if boundingRect.Contains(event.RelPosition) {
+				event.RelPosition = event.RelPosition.Sub(boundingRect.TopLeft())
+				child.Unwrap().(events.Target).DispatchEvent(event)
+			}
+
+			child = child.Next()
+		}
 	}
 
 	layoutConf := &baseLayoutOption{
@@ -89,9 +103,7 @@ func newBaseLayout(
 			// Dispatch mouse event to child.
 			Listener(mouse.PressListener(dispatchMouseEvent)),
 			Listener(mouse.UpListener(dispatchMouseEvent)),
-			Listener(mouse.ClickListener(func(event mouse.ClickEvent) {
-				dispatchPositionnedEvent(&event.MousePress.RelPosition, event)
-			})),
+			Listener(mouse.ClickListener(dispatchClickEvent)),
 		},
 	}
 
