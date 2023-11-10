@@ -5,16 +5,19 @@ import (
 	"github.com/negrel/paon/events"
 	"github.com/negrel/paon/geometry"
 	"github.com/negrel/paon/layout"
+	"github.com/negrel/paon/styles"
 	"github.com/negrel/paon/tree"
 )
 
 // Widget is a generic interface that define any component part of the widget/element tree.
-// Any types that implement the Widget interface can be added to the widget tree. However, it is strongly
-// recommended to create custom widgets using the BaseWidget implementation.
+// Any types that implement the Widget interface can be added to the widget tree.
+// You must embed *BaseWidget or *BoxWidget to implement this interface as it
+// contains private methods.
 type Widget interface {
 	events.Target
 	layout.Layout
 	draw.Drawer
+	styles.Styled
 
 	Node() *tree.Node[Widget]
 	setNode(*tree.Node[Widget])
@@ -23,6 +26,7 @@ type Widget interface {
 	Swap(Widget)
 }
 
+// Private events.Target for private embedding.
 type eventTarget = events.Target
 
 var _ Widget = &BaseWidget{}
@@ -34,38 +38,20 @@ type BaseWidget struct {
 	eventTarget
 
 	node *tree.Node[Widget]
-
-	layout layout.Layout
-	drawer draw.Drawer
 }
 
 // NewBaseWidget returns a new BaseWidget object configured with
 // the given options.
-// The LayoutAlgo and Drawer widget options are required.
-// To embed this layout in composite struct, use the Wrap widget options.
-func NewBaseWidget(options ...WidgetOption) *BaseWidget {
-	widget := newBaseWidget(options...)
+func NewBaseWidget(nodeData Widget) *BaseWidget {
+	widget := newBaseWidget(nodeData)
 
 	return widget
 }
 
-func newBaseWidget(options ...WidgetOption) *BaseWidget {
+func newBaseWidget(nodeData Widget) *BaseWidget {
 	widget := &BaseWidget{
 		eventTarget: events.NewTarget(),
-	}
-	widgetConf := &baseWidgetOption{
-		BaseWidget: widget,
-		data:       widget,
-	}
-
-	for _, option := range options {
-		option(widgetConf)
-	}
-
-	widget.node = tree.NewNode(widgetConf.data)
-
-	for _, listener := range widgetConf.listeners {
-		widget.AddEventListener(listener.EventType, listener.Handler)
+		node:        tree.NewNode(nodeData),
 	}
 
 	return widget
@@ -83,14 +69,23 @@ func (bw *BaseWidget) Swap(other Widget) {
 	bw.node.Swap(this)
 }
 
-// Layout implements Layout.
+// Layout implements layout.Layout.
+// This function panics, you must overwrite it.
 func (bw *BaseWidget) Layout(co layout.Constraint) geometry.Size {
-	return bw.layout.Layout(co)
+	panic("Layout must be overrided")
 }
 
-// Draw implements Drawer.
+// Draw implements draw.Drawer.
+// This function panics, you must overwrite it.
 func (bw *BaseWidget) Draw(surface draw.Surface) {
-	bw.drawer.Draw(surface)
+	panic("Draw must be overrided")
+}
+
+// Style implements styles.Styled.
+// BaseWidget has no style, it always return nil. Override this function
+// if you widget needs styling.
+func (bw *BaseWidget) Style() *styles.Style {
+	return nil
 }
 
 // Node implements the Widget interface.
