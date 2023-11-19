@@ -20,7 +20,7 @@ type LayoutAlgo = func(_ layout.Constraint, _ []geometry.Rectangle) ([]geometry.
 type BaseLayout struct {
 	Widget
 
-	// Children positions.
+	// Children positions relative to layout origin.
 	childrenRects []geometry.Rectangle
 	// Layout constraint used for the latest layout.
 	latestLayoutConstraint layout.Constraint
@@ -49,8 +49,8 @@ func NewBaseLayout(
 
 		child := bl.Node().FirstChild()
 		for _, boundingRect := range bl.childrenRects {
-			if boundingRect.Contains(event.RelPosition) {
-				event.RelPosition = event.RelPosition.Sub(boundingRect.TopLeft())
+			if boundingRect.Contains(event.MousePress.RelPosition) {
+				event.MousePress.RelPosition = event.MousePress.RelPosition.Sub(boundingRect.TopLeft())
 				child.Unwrap().(events.Target).DispatchEvent(event)
 			}
 
