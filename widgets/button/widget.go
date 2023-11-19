@@ -5,19 +5,17 @@ import (
 	"github.com/negrel/paon/events/mouse"
 	"github.com/negrel/paon/geometry"
 	"github.com/negrel/paon/layout"
+	"github.com/negrel/paon/styles"
 	"github.com/negrel/paon/widgets"
 	"github.com/negrel/paon/widgets/span"
 )
 
-// Style define styling options for button rendering.
-type Style span.Style
-
 type Option func(*Widget)
 
 // WithStyle return an option that sets button widget style.
-func WithStyle(style Style) Option {
+func WithStyle(style widgets.Style) Option {
 	return func(w *Widget) {
-		w.style = style
+		w.style.InnerStyle = style
 	}
 }
 
@@ -31,45 +29,28 @@ func OnClick(handler func(event mouse.ClickEvent)) Option {
 type Widget struct {
 	*widgets.BaseWidget
 
-	style Style
+	style widgets.InheritStyle
 	text  string
 }
 
 // New returns a new button widget configured with the given options.
 func New(text string, options ...Option) *Widget {
 	w := &Widget{
-		style: Style{
-			Foreground:    0,
-			Background:    0,
-			Bold:          false,
-			Blink:         false,
-			Reverse:       true,
-			Underline:     false,
-			Dim:           false,
-			Italic:        false,
-			StrikeThrough: false,
-		},
 		text: text,
 	}
 
-	w.BaseWidget = widgets.NewBaseWidget(
-		widgets.Wrap(w),
-		widgets.LayoutFunc(
-			func(co layout.Constraint) geometry.Size {
-				return span.Layout(w.text, co)
-			},
-		),
-		widgets.DrawerFunc(func(surface draw.Surface) {
-			span.Draw(surface, w.text, span.Style(w.style))
-		}),
-	)
+	w.BaseWidget = widgets.NewBaseWidget(w)
+	w.style = widgets.InheritStyle{
+		Widget:     w,
+		InnerStyle: widgets.Style{},
+	}
 
 	w.AddEventListener(mouse.PressListener(func(event mouse.Event) {
-		w.style.Reverse = !w.style.Reverse
+		w.style.InnerStyle = w.style.InnerStyle.Reverse(true)
 	}))
 
 	w.AddEventListener(mouse.ClickListener(func(event mouse.ClickEvent) {
-		w.style.Reverse = !w.style.Reverse
+		w.style.InnerStyle = w.style.InnerStyle.Reverse(false)
 	}))
 
 	for _, applyOption := range options {
@@ -77,4 +58,25 @@ func New(text string, options ...Option) *Widget {
 	}
 
 	return w
+}
+
+// Layout implements layout.Layout.
+func (w *Widget) Layout(co layout.Constraint) geometry.Size {
+	return styles.Layout(w.style.Compute(), co, layout.LayoutFunc(func(co layout.Constraint) geometry.Size {
+		return span.Layout(w.text, co)
+	}))
+}
+
+// Draw implements draw.Drawer.
+func (w *Widget) Draw(surface draw.Surface) {
+	style := w.style.Compute()
+
+	surface = styles.Draw(style, surface)
+
+	span.Draw(surface, w.text, style.CellStyle)
+}
+
+// Style implements styles.Styled.
+func (w *Widget) Style() styles.Style {
+	return w.style
 }

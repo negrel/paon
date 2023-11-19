@@ -7,18 +7,41 @@ import (
 	"github.com/negrel/paon/widgets"
 )
 
+type Option func(*Widget)
+
+// WithChildren return an option that appends the given children.
+func WithChildren(children ...widgets.Widget) Option {
+	return func(w *Widget) {
+		for _, child := range children {
+			w.Node().AppendChild(child.Node())
+		}
+	}
+}
+
+// WithStyle return an option that sets button widget style.
+func WithStyle(style widgets.Style) Option {
+	return func(w *Widget) {
+		w.StyledLayout.SetStyle(widgets.InheritStyle{
+			Widget:     w,
+			InnerStyle: style,
+		})
+	}
+}
+
 // Widget define a widget that displays its children in an horizontal array.
 // To cause a child to expand to fill the available horizontal space, wrap the
 // child in an Expanded widget.
 type Widget struct {
-	*widgets.BaseLayout
+	widgets.StyledLayout
 }
 
 // New returns a new hbox widget configured with the given options.
-func New(children ...widgets.Widget) *Widget {
+func New(options ...Option) *Widget {
 	w := &Widget{}
 
-	w.BaseLayout = widgets.NewBaseLayout(
+	w.StyledLayout = widgets.NewStyledLayout(
+		widgets.NewBaseWidget(w),
+		nil,
 		func(co layout.Constraint, childrenRects []geometry.Rectangle) ([]geometry.Rectangle, geometry.Size) {
 			size := geometry.NewSize(0, 0)
 			freeSpace := co.MaxSize
@@ -53,13 +76,17 @@ func New(children ...widgets.Widget) *Widget {
 
 			return childrenRects, size
 		},
-		widgets.WidgetOptions(
-			widgets.Wrap(w),
-		),
 	)
 
-	for _, child := range children {
-		w.Node().AppendChild(child.Node())
+	for _, applyOption := range options {
+		applyOption(w)
+	}
+
+	if w.StyledLayout.Style() == nil {
+		w.StyledLayout.SetStyle(widgets.InheritStyle{
+			Widget:     w,
+			InnerStyle: widgets.Style{},
+		})
 	}
 
 	return w

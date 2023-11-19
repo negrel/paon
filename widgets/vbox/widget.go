@@ -7,14 +7,37 @@ import (
 	"github.com/negrel/paon/widgets"
 )
 
-type Widget struct {
-	*widgets.BaseLayout
+type Option func(*Widget)
+
+// WithChildren return an option that appends the given children.
+func WithChildren(children ...widgets.Widget) Option {
+	return func(w *Widget) {
+		for _, child := range children {
+			w.Node().AppendChild(child.Node())
+		}
+	}
 }
 
-func New(children ...widgets.Widget) *Widget {
+// WithStyle return an option that sets button widget style.
+func WithStyle(style widgets.Style) Option {
+	return func(w *Widget) {
+		w.StyledLayout.SetStyle(widgets.InheritStyle{
+			Widget:     w,
+			InnerStyle: style,
+		})
+	}
+}
+
+type Widget struct {
+	widgets.StyledLayout
+}
+
+func New(options ...Option) *Widget {
 	w := &Widget{}
 
-	w.BaseLayout = widgets.NewBaseLayout(
+	w.StyledLayout = widgets.NewStyledLayout(
+		widgets.NewBaseWidget(w),
+		nil,
 		func(co layout.Constraint, childrenRects []geometry.Rectangle) ([]geometry.Rectangle, geometry.Size) {
 			size := geometry.NewSize(0, 0)
 			freeSpace := co.MaxSize
@@ -49,13 +72,17 @@ func New(children ...widgets.Widget) *Widget {
 
 			return childrenRects, size
 		},
-		widgets.WidgetOptions(
-			widgets.Wrap(w),
-		),
 	)
 
-	for _, child := range children {
-		w.Node().AppendChild(child.Node())
+	for _, applyOption := range options {
+		applyOption(w)
+	}
+
+	if w.StyledLayout.Style() == nil {
+		w.StyledLayout.SetStyle(widgets.InheritStyle{
+			Widget:     w,
+			InnerStyle: widgets.Style{},
+		})
 	}
 
 	return w
