@@ -84,7 +84,7 @@ func (bw *BaseWidget) Draw(surface draw.Surface) {
 // Style implements styles.Styled.
 // BaseWidget has no style, it always return nil. Override this function
 // if you widget needs styling.
-func (bw *BaseWidget) Style() *styles.Style {
+func (bw *BaseWidget) Style() styles.Style {
 	return nil
 }
 
