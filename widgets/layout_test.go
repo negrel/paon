@@ -23,6 +23,7 @@ func TestLayoutPropagateMouseEvents(t *testing.T) {
 	// A layout that place widgets diagonally (top right to bottom left).
 	var parent *BaseLayout
 	parent = NewBaseLayout(
+		nil,
 		func(co layout.Constraint, childrenPositions []geometry.Rectangle) ([]geometry.Rectangle, geometry.Size) {
 			origin := geometry.NewVec2D(0, 0)
 
@@ -44,19 +45,21 @@ func TestLayoutPropagateMouseEvents(t *testing.T) {
 	)
 
 	// A 10x10 widget.
-	childWidget := NewBaseWidget(
-		LayoutFunc(func(co layout.Constraint) geometry.Size {
+	childWidget := NewComposedWidget(
+		Style{},
+		layout.LayoutFunc(func(co layout.Constraint) geometry.Size {
 			return geometry.NewSize(10, 10)
 		}),
-		DrawerFunc(func(surface draw.Surface) {}),
-		Listener(mouse.PressListener(func(event mouse.Event) {
-			childWidgetMousePress++
-		})),
+		draw.DrawerFunc(func(surface draw.Surface) {}),
 	)
+	childWidget.AddEventListener(mouse.PressListener(func(event mouse.Event) {
+		childWidgetMousePress++
+	}))
 
 	// A childLayout that place widgets diagonally (top right to bottom left).
 	var childLayout *BaseLayout
 	childLayout = NewBaseLayout(
+		nil,
 		func(co layout.Constraint, childrenPositions []geometry.Rectangle) ([]geometry.Rectangle, geometry.Size) {
 			origin := geometry.NewVec2D(0, 0)
 
@@ -75,32 +78,33 @@ func TestLayoutPropagateMouseEvents(t *testing.T) {
 
 			return childrenPositions, geometry.NewSize(origin.X(), origin.Y())
 		},
-		WidgetOptions(
-			Listener(mouse.PressListener(func(event mouse.Event) {
-				childLayoutMousePress++
-			})),
-		),
 	)
+	childLayout.AddEventListener(mouse.PressListener(func(event mouse.Event) {
+		childLayoutMousePress++
+	}))
 
 	// A 10x10 widget.
-	greatChildWidget := NewBaseWidget(
-		LayoutFunc(func(co layout.Constraint) geometry.Size {
+	greatChildWidget := NewComposedWidget(
+		Style{},
+		layout.LayoutFunc(func(co layout.Constraint) geometry.Size {
 			return geometry.NewSize(10, 10)
 		}),
-		DrawerFunc(func(surface draw.Surface) {}),
-		Listener(mouse.PressListener(func(event mouse.Event) {
-			greatChildWidgetMousePress++
-		})),
+		draw.DrawerFunc(func(surface draw.Surface) {}),
 	)
-	greatChildWidget2 := NewBaseWidget(
-		LayoutFunc(func(co layout.Constraint) geometry.Size {
+	greatChildWidget.AddEventListener(mouse.PressListener(func(event mouse.Event) {
+		greatChildWidgetMousePress++
+	}))
+
+	greatChildWidget2 := NewComposedWidget(
+		Style{},
+		layout.LayoutFunc(func(co layout.Constraint) geometry.Size {
 			return geometry.NewSize(10, 10)
 		}),
-		DrawerFunc(func(surface draw.Surface) {}),
-		Listener(mouse.PressListener(func(event mouse.Event) {
-			greatChildWidget2MousePress++
-		})),
+		draw.DrawerFunc(func(surface draw.Surface) {}),
 	)
+	greatChildWidget2.AddEventListener(mouse.PressListener(func(event mouse.Event) {
+		greatChildWidget2MousePress++
+	}))
 
 	// Add widgets to tree.
 	// parent __  childWidget

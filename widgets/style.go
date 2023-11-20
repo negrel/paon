@@ -19,6 +19,11 @@ type Style struct {
 	background *colors.Color
 }
 
+// Style implements styles.Styled.
+func (s Style) Style() styles.Style {
+	return s
+}
+
 type marginStyle struct {
 	// TODO: support relative unit
 	left, top, right, bottom int

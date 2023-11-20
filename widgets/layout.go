@@ -38,6 +38,9 @@ func NewBaseLayout(
 		childrenRects: []geometry.Rectangle{},
 		layoutAlgo:    algo,
 	}
+	if bl.Widget == nil {
+		bl.Widget = NewBaseWidget(bl)
+	}
 
 	// Event handler that forwards mouse position to children.
 	dispatchClickEvent := func(event mouse.ClickEvent) {
@@ -76,9 +79,9 @@ func NewBaseLayout(
 	}
 
 	// Dispatch mouse event to child.
-	widget.AddEventListener(mouse.PressListener(dispatchMouseEvent))
-	widget.AddEventListener(mouse.UpListener(dispatchMouseEvent))
-	widget.AddEventListener(mouse.ClickListener(dispatchClickEvent))
+	bl.Widget.AddEventListener(mouse.PressListener(dispatchMouseEvent))
+	bl.Widget.AddEventListener(mouse.UpListener(dispatchMouseEvent))
+	bl.Widget.AddEventListener(mouse.ClickListener(dispatchClickEvent))
 
 	return bl
 }
