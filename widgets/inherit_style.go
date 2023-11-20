@@ -43,6 +43,9 @@ func (i InheritStyle) Compute() styles.ComputedStyle {
 	if i.InnerStyle.borderStyle == nil {
 		computedStyle.BorderStyle = parentComputedStyle.BorderStyle
 	}
+	if i.InnerStyle.borderColor == nil {
+		computedStyle.BorderStyle.Foreground = parentComputedStyle.BorderStyle.Foreground
+	}
 	computedStyle.BorderStyle.Background = computedStyle.Background
 	if i.InnerStyle.marginStyle == nil {
 		computedStyle.MarginStyle = parentComputedStyle.MarginStyle
