@@ -5,6 +5,7 @@ import (
 	"github.com/negrel/paon/events"
 	"github.com/negrel/paon/geometry"
 	"github.com/negrel/paon/layout"
+	"github.com/negrel/paon/render"
 	"github.com/negrel/paon/styles"
 	"github.com/negrel/paon/tree"
 )
@@ -15,41 +16,51 @@ import (
 // contains private methods.
 type Widget interface {
 	events.Target
-	layout.Layout
-	draw.Drawer
 	styles.Styled
+	tree.NodeAccessor
+	render.RenderableAccessor
 
-	Node() *tree.Node[Widget]
-	setNode(*tree.Node[Widget])
+	setNode(*tree.Node)
 
 	// Swap swaps this widget node with node of the given one.
 	Swap(Widget)
 }
 
+// IsMounted return whether a Node is mounted on an active Widget tree.
+func IsMounted(n *tree.Node) bool {
+	root := n.Root()
+	if root == nil {
+		return false
+	}
+
+	_, isRoot := root.Unwrap().(Root)
+	return isRoot
+}
+
 // Private events.Target for private embedding.
 type eventTarget = events.Target
 
-var _ Widget = &BaseWidget{}
+var _ Widget = &PanicWidget{}
 
-// BaseWidget define a basic Widget object that implements the Widget interface.
-// BaseWidget can either be used alone (see NewBaseWidget for the required options)
-// or in composite struct.
-type BaseWidget struct {
+// PanicWidget define a minimal (and incomplete) Widget type.
+// PanicWidget implements panic methods for styles.Styled and render.Renderable
+// interfaces.
+type PanicWidget struct {
 	eventTarget
 
-	node *tree.Node[Widget]
+	node *tree.Node
 }
 
-// NewBaseWidget returns a new BaseWidget object configured with
+// NewPanicsWidget returns a new BaseWidget object configured with
 // the given options.
-func NewBaseWidget(nodeData Widget) *BaseWidget {
+func NewPanicsWidget(nodeData Widget) *PanicWidget {
 	widget := newBaseWidget(nodeData)
 
 	return widget
 }
 
-func newBaseWidget(nodeData Widget) *BaseWidget {
-	widget := &BaseWidget{
+func newBaseWidget(nodeData Widget) *PanicWidget {
+	widget := &PanicWidget{
 		eventTarget: events.NewTarget(),
 		node:        tree.NewNode(nodeData),
 	}
@@ -58,7 +69,7 @@ func newBaseWidget(nodeData Widget) *BaseWidget {
 }
 
 // Swap implements Widget.
-func (bw *BaseWidget) Swap(other Widget) {
+func (bw *PanicWidget) Swap(other Widget) {
 	// Swap node reference.
 	old := bw.node
 	bw.node = other.Node()
@@ -69,30 +80,31 @@ func (bw *BaseWidget) Swap(other Widget) {
 	bw.node.Swap(this)
 }
 
-// Layout implements layout.Layout.
-// This function panics, you must overwrite it.
-func (bw *BaseWidget) Layout(co layout.Constraint) geometry.Size {
-	panic("Layout must be overrided")
-}
-
-// Draw implements draw.Drawer.
-// This function panics, you must overwrite it.
-func (bw *BaseWidget) Draw(surface draw.Surface) {
-	panic("Draw must be overrided")
-}
-
-// Style implements styles.Styled.
-// BaseWidget has no style, it always return nil. Override this function
-// if you widget needs styling.
-func (bw *BaseWidget) Style() styles.Style {
-	return nil
-}
-
 // Node implements the Widget interface.
-func (bw *BaseWidget) Node() *tree.Node[Widget] {
+func (bw *PanicWidget) Node() *tree.Node {
 	return bw.node
 }
 
-func (bw *BaseWidget) setNode(node *tree.Node[Widget]) {
+func (bw *PanicWidget) setNode(node *tree.Node) {
 	bw.node = node
+}
+
+// Draw implements draw.Drawer.
+func (*PanicWidget) Draw(draw.Surface) {
+	panic("unimplemented")
+}
+
+// Layout implements layout.Layout.
+func (*PanicWidget) Layout(layout.Constraint) geometry.Size {
+	panic("unimplemented")
+}
+
+// Renderable implements Widget.
+func (*PanicWidget) Renderable() render.Renderable {
+	panic("unimplemented")
+}
+
+// Style implements styles.Styled.
+func (*PanicWidget) Style() styles.Style {
+	return nil
 }
