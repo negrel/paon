@@ -16,11 +16,17 @@ import (
 // Application define a TUI application object.
 type Application struct {
 	terminal backend.Terminal
-	clock    *time.Ticker
-	do       chan func()
-	root     widgets.Widget
-	target   events.Target
-	evch     chan events.Event
+	// Closure that throttle calls to render.
+	throttledRender func()
+	// Public do channel that execute function on main goroutine.
+	// Every write to it trigger a throttled render.
+	do chan func()
+	// do channel that don't trigger a render.
+	privateDo chan func()
+	// Root of widgets tree.
+	root widgets.Root
+	// event channel written by terminal backend and read by event loop.
+	evch chan events.Event
 }
 
 // NewApp returns a new Application object.
@@ -31,12 +37,15 @@ func NewApp() (*Application, error) {
 	}
 
 	app := &Application{
-		terminal: terminal,
-		clock:    time.NewTicker(time.Millisecond * 16), // 60 fps
-		do:       make(chan func()),
-		target:   events.NewTarget(),
-		evch:     make(chan events.Event),
+		terminal:  terminal,
+		privateDo: make(chan func()),
+		do:        make(chan func()),
+		evch:      make(chan events.Event),
 	}
+
+	app.throttledRender = throttle(time.Second/30, func() {
+		app.privateDo <- app.render
+	})
 
 	return app, nil
 }
@@ -55,13 +64,15 @@ func (app *Application) recover() {
 }
 
 // DoChannel returns a write-only channel that can be used to execute
-// function on the main thread.
+// function on the main thread. Any write to the channel will enqueue
+// a rendering of widgets tree. Note that rendering is throttled to avoid
+// excessive rendering.
 func (app *Application) DoChannel() chan<- func() {
 	return app.do
 }
 
-// Start starts the application console, event loop and render loop.
-func (app *Application) Start(ctx context.Context, widget widgets.Widget) error {
+// Start starts the application console, event loop.
+func (app *Application) Start(ctx context.Context, root widgets.Root) error {
 	defer app.recover()
 
 	err := app.terminal.Start(app.evch)
@@ -69,8 +80,12 @@ func (app *Application) Start(ctx context.Context, widget widgets.Widget) error 
 		return err
 	}
 
-	app.root = widget
+	app.root = root
+	app.root.AddEventListener(widgets.NeedRenderEventListener(func(_ widgets.NeedRenderEvent) {
+		app.throttledRender()
+	}))
 
+	app.render()
 	app.eventLoop(ctx)
 
 	return nil
@@ -79,22 +94,14 @@ func (app *Application) Start(ctx context.Context, widget widgets.Widget) error 
 func (app *Application) eventLoop(ctx context.Context) {
 	for {
 		select {
-		case <-app.clock.C:
-			app.terminal.Clear()
-			_ = app.root.Layout(layout.Constraint{
-				MinSize:    geometry.NewSize(0, 0),
-				MaxSize:    app.terminal.Size(),
-				ParentSize: app.terminal.Size(),
-				RootSize:   app.terminal.Size(),
-			})
-			app.root.Draw(app.terminal)
-			go app.terminal.Flush()
-
 		case ev := <-app.evch:
-			app.target.DispatchEvent(ev)
 			app.root.DispatchEvent(ev)
 
 		case fn := <-app.do:
+			fn()
+			app.throttledRender()
+
+		case fn := <-app.privateDo:
 			fn()
 
 		case <-ctx.Done():
@@ -102,6 +109,19 @@ func (app *Application) eventLoop(ctx context.Context) {
 			return
 		}
 	}
+}
+
+func (app *Application) render() {
+	app.terminal.Clear()
+	renderable := app.root.Renderable()
+	_ = renderable.Layout(layout.Constraint{
+		MinSize:    geometry.Size{},
+		MaxSize:    app.terminal.Size(),
+		ParentSize: app.terminal.Size(),
+		RootSize:   app.terminal.Size(),
+	})
+	renderable.Draw(app.terminal)
+	app.terminal.Flush()
 }
 
 func (app *Application) stop() {
