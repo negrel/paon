@@ -5,9 +5,13 @@ import (
 	"github.com/negrel/paon/tree"
 )
 
-// InheritStyle wraps a Widget and a Style to add inheritance capability to it.
+// InheritStyle define a Style wrapper that adds inheritance capability to it.
+// Inheritance happens when styles.Style.Compute is called.
 type InheritStyle struct {
-	Widget     Widget
+	// NodeAccessor provide node associated with this style. It is used to retrieve
+	// parent node and thus parent style.
+	NodeAccessor tree.NodeAccessor
+	// Style associated with this node. Nil property are inherited on Compute.
 	InnerStyle Style
 }
 
@@ -18,8 +22,7 @@ func (i InheritStyle) Style() styles.Style {
 
 // Compute implements styles.Style.
 func (i InheritStyle) Compute() styles.ComputedStyle {
-	parentComputedStyle := ParentStyle(i.Widget.Node().Parent())
-	_ = parentComputedStyle
+	parentComputedStyle := ParentStyle(i.NodeAccessor.Node().Parent())
 	computedStyle := i.InnerStyle.Compute()
 
 	if i.InnerStyle.textDecoration == nil {
@@ -54,12 +57,14 @@ func (i InheritStyle) Compute() styles.ComputedStyle {
 	return computedStyle
 }
 
-func ParentStyle(parent *tree.Node[Widget]) styles.ComputedStyle {
+// ParentStyle finds the first ancestor of node that is styled and returns its
+// computed style.
+func ParentStyle(parent *tree.Node) styles.ComputedStyle {
 	if parent == nil {
 		return styles.ComputedStyle{}
 	}
 
-	styled := parent.Unwrap()
+	styled := parent.Unwrap().(styles.Styled)
 	if s := styled.Style(); s != nil {
 		return s.Compute()
 	}
