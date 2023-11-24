@@ -9,7 +9,7 @@ import (
 
 type nodeTest struct {
 	name string
-	test func(t *testing.T, constructor func() *Node[any])
+	test func(t *testing.T, constructor func() *Node)
 }
 
 func TestNode(t *testing.T) {
@@ -17,8 +17,8 @@ func TestNode(t *testing.T) {
 
 	for _, methodTest := range nodeTests {
 		t.Run(methodTest.name, func(t *testing.T) {
-			methodTest.test(t, func() *Node[any] {
-				return NewNode[any](time.Now())
+			methodTest.test(t, func() *Node {
+				return NewNode(time.Now())
 			})
 		})
 	}
@@ -28,7 +28,7 @@ func generateNodeTests() []nodeTest {
 	tests := []nodeTest{
 		{
 			name: "IsDescendantOf",
-			test: func(t *testing.T, constructor func() *Node[any]) {
+			test: func(t *testing.T, constructor func() *Node) {
 				t.Run("NilParent", func(t *testing.T) {
 					testNodeIsDescendantOfNilParent(t, constructor())
 				})
@@ -48,7 +48,7 @@ func generateNodeTests() []nodeTest {
 		},
 		{
 			name: "Root",
-			test: func(t *testing.T, constructor func() *Node[any]) {
+			test: func(t *testing.T, constructor func() *Node) {
 				t.Run("Nil", func(t *testing.T) {
 					testNodeRootNil(t, constructor())
 				})
@@ -62,7 +62,7 @@ func generateNodeTests() []nodeTest {
 		},
 		{
 			name: "AppendChild",
-			test: func(t *testing.T, constructor func() *Node[any]) {
+			test: func(t *testing.T, constructor func() *Node) {
 				t.Run("ToEmptyNode", func(t *testing.T) {
 					testNodeAppendChildToEmptyNode(t, constructor())
 				})
@@ -88,7 +88,7 @@ func generateNodeTests() []nodeTest {
 		},
 		{
 			name: "InsertBefore",
-			test: func(t *testing.T, constructor func() *Node[any]) {
+			test: func(t *testing.T, constructor func() *Node) {
 				t.Run("Node", func(t *testing.T) {
 					testNodeInsertBeforeNode(t, constructor())
 				})
@@ -114,7 +114,7 @@ func generateNodeTests() []nodeTest {
 		},
 		{
 			name: "RemoveChild",
-			test: func(t *testing.T, constructor func() *Node[any]) {
+			test: func(t *testing.T, constructor func() *Node) {
 				t.Run("", func(t *testing.T) {
 					testNodeRemoveChild(t, constructor())
 				})
@@ -134,27 +134,27 @@ func generateNodeTests() []nodeTest {
 	return tests
 }
 
-func testNodeIsDescendantOfNilParent(t *testing.T, node *Node[any]) {
+func testNodeIsDescendantOfNilParent(t *testing.T, node *Node) {
 	node.parent = nil
 	require.False(t, node.IsDescendantOf(nil))
 }
 
-func testNodeIsDescendantOfParent(t *testing.T, node *Node[any]) {
-	parent := NewNode[any](nil)
+func testNodeIsDescendantOfParent(t *testing.T, node *Node) {
+	parent := NewNode(nil)
 	node.parent = parent
 
 	require.True(t, node.IsDescendantOf(parent))
 }
 
-func testNodeIsDescendantOfNonChildNode(t *testing.T, node *Node[any]) {
-	otherNode := NewNode[any](nil)
+func testNodeIsDescendantOfNonChildNode(t *testing.T, node *Node) {
+	otherNode := NewNode(nil)
 	node.parent = nil
 
 	require.False(t, node.IsDescendantOf(otherNode))
 }
 
-func testNodeIsDescendantOfPreviousParent(t *testing.T, node *Node[any]) {
-	parent := NewNode[any](nil)
+func testNodeIsDescendantOfPreviousParent(t *testing.T, node *Node) {
+	parent := NewNode(nil)
 
 	err := parent.AppendChild(node)
 	require.NoError(t, err)
@@ -165,9 +165,9 @@ func testNodeIsDescendantOfPreviousParent(t *testing.T, node *Node[any]) {
 	require.False(t, node.IsDescendantOf(parent))
 }
 
-func testNodeIsDescendantOfGreatParent(t *testing.T, node *Node[any]) {
-	greatParent := NewNode[any](nil)
-	parent := NewNode[any](nil)
+func testNodeIsDescendantOfGreatParent(t *testing.T, node *Node) {
+	greatParent := NewNode(nil)
+	parent := NewNode(nil)
 
 	err := parent.AppendChild(node)
 	require.NoError(t, err)
@@ -178,21 +178,21 @@ func testNodeIsDescendantOfGreatParent(t *testing.T, node *Node[any]) {
 	require.True(t, node.IsDescendantOf(greatParent))
 }
 
-func testNodeRootNil(t *testing.T, node *Node[any]) {
+func testNodeRootNil(t *testing.T, node *Node) {
 	node.parent = nil
 	require.Equal(t, node.Root(), node)
 }
 
-func testNodeRootParent(t *testing.T, node *Node[any]) {
-	root := NewNode[any](nil)
+func testNodeRootParent(t *testing.T, node *Node) {
+	root := NewNode(nil)
 	err := root.AppendChild(node)
 	require.NoError(t, err)
 	require.Equal(t, root, node.Root())
 }
 
-func testNodeRootGreatParent(t *testing.T, node *Node[any]) {
-	root := NewNode[any](nil)
-	parent := NewNode[any](nil)
+func testNodeRootGreatParent(t *testing.T, node *Node) {
+	root := NewNode(nil)
+	parent := NewNode(nil)
 
 	err := root.AppendChild(parent)
 	require.NoError(t, err)
@@ -203,11 +203,11 @@ func testNodeRootGreatParent(t *testing.T, node *Node[any]) {
 	require.Equal(t, root, node.Root())
 }
 
-func testNodeAppendChildToEmptyNode(t *testing.T, node *Node[any]) {
+func testNodeAppendChildToEmptyNode(t *testing.T, node *Node) {
 	require.Nil(t, node.FirstChild())
 	require.Nil(t, node.LastChild())
 
-	child := NewNode[any](nil)
+	child := NewNode(nil)
 
 	err := node.AppendChild(child)
 	require.NoError(t, err)
@@ -217,15 +217,15 @@ func testNodeAppendChildToEmptyNode(t *testing.T, node *Node[any]) {
 	require.Equal(t, node.LastChild(), child)
 }
 
-func testNodeAppendChildToNonEmptyNode(t *testing.T, node *Node[any]) {
+func testNodeAppendChildToNonEmptyNode(t *testing.T, node *Node) {
 	require.Nil(t, node.FirstChild())
 	require.Nil(t, node.LastChild())
-	firstChild := NewNode[any](nil)
+	firstChild := NewNode(nil)
 
 	err := node.AppendChild(firstChild)
 	require.NoError(t, err)
 
-	lastChild := NewNode[any](nil)
+	lastChild := NewNode(nil)
 	err = node.AppendChild(lastChild)
 	require.NoError(t, err)
 
@@ -236,7 +236,7 @@ func testNodeAppendChildToNonEmptyNode(t *testing.T, node *Node[any]) {
 	require.Equal(t, firstChild.Next(), lastChild)
 }
 
-func testNodeAppendChildNilNode(t *testing.T, node *Node[any]) {
+func testNodeAppendChildNilNode(t *testing.T, node *Node) {
 	require.Nil(t, node.FirstChild())
 	require.Nil(t, node.LastChild())
 
@@ -244,11 +244,11 @@ func testNodeAppendChildNilNode(t *testing.T, node *Node[any]) {
 	require.Error(t, err)
 }
 
-func testNodeAppendChildParentOfNode(t *testing.T, node *Node[any]) {
+func testNodeAppendChildParentOfNode(t *testing.T, node *Node) {
 	require.Nil(t, node.FirstChild())
 	require.Nil(t, node.LastChild())
 
-	parent := NewNode[any](nil)
+	parent := NewNode(nil)
 	err := parent.AppendChild(node)
 	require.NoError(t, err)
 
@@ -256,12 +256,12 @@ func testNodeAppendChildParentOfNode(t *testing.T, node *Node[any]) {
 	require.Error(t, err)
 }
 
-func testNodeAppendChildGreatParentOfNode(t *testing.T, node *Node[any]) {
+func testNodeAppendChildGreatParentOfNode(t *testing.T, node *Node) {
 	require.Nil(t, node.FirstChild())
 	require.Nil(t, node.LastChild())
 
-	greatParent := NewNode[any](nil)
-	parent := NewNode[any](nil)
+	greatParent := NewNode(nil)
+	parent := NewNode(nil)
 
 	err := greatParent.AppendChild(parent)
 	require.NoError(t, err)
@@ -273,12 +273,12 @@ func testNodeAppendChildGreatParentOfNode(t *testing.T, node *Node[any]) {
 	require.Error(t, err)
 }
 
-func testNodeAppendChildNodeWithParent(t *testing.T, node *Node[any]) {
+func testNodeAppendChildNodeWithParent(t *testing.T, node *Node) {
 	require.Nil(t, node.FirstChild())
 	require.Nil(t, node.LastChild())
 
-	parent := NewNode[any](nil)
-	child := NewNode[any](nil)
+	parent := NewNode(nil)
+	child := NewNode(nil)
 
 	err := parent.AppendChild(child)
 	require.NoError(t, err)
@@ -290,7 +290,7 @@ func testNodeAppendChildNodeWithParent(t *testing.T, node *Node[any]) {
 	require.Equal(t, node.LastChild(), child)
 }
 
-func testNodeAppendChildItself(t *testing.T, node *Node[any]) {
+func testNodeAppendChildItself(t *testing.T, node *Node) {
 	require.Nil(t, node.FirstChild())
 	require.Nil(t, node.LastChild())
 
@@ -298,12 +298,12 @@ func testNodeAppendChildItself(t *testing.T, node *Node[any]) {
 	require.Error(t, err)
 }
 
-func testNodeInsertBeforeNode(t *testing.T, node *Node[any]) {
+func testNodeInsertBeforeNode(t *testing.T, node *Node) {
 	require.Nil(t, node.FirstChild())
 	require.Nil(t, node.LastChild())
 
-	reference := NewNode[any](nil)
-	child := NewNode[any](nil)
+	reference := NewNode(nil)
+	child := NewNode(nil)
 
 	err := node.AppendChild(reference)
 	require.NoError(t, err)
@@ -319,25 +319,25 @@ func testNodeInsertBeforeNode(t *testing.T, node *Node[any]) {
 	require.Equal(t, reference, child.Next())
 }
 
-func testNodeInsertBeforeNodeNonChildReference(t *testing.T, node *Node[any]) {
+func testNodeInsertBeforeNodeNonChildReference(t *testing.T, node *Node) {
 	require.Nil(t, node.FirstChild())
 	require.Nil(t, node.LastChild())
 
-	reference := NewNode[any](nil)
-	err := NewNode[any](nil).AppendChild(reference)
+	reference := NewNode(nil)
+	err := NewNode(nil).AppendChild(reference)
 	require.NoError(t, err)
 
-	child := NewNode[any](nil)
+	child := NewNode(nil)
 
 	err = node.InsertBefore(reference, child)
 	require.Error(t, err)
 }
 
-func testNodeInsertBeforeNilReference(t *testing.T, node *Node[any]) {
+func testNodeInsertBeforeNilReference(t *testing.T, node *Node) {
 	require.Nil(t, node.FirstChild())
 	require.Nil(t, node.LastChild())
 
-	child := NewNode[any](nil)
+	child := NewNode(nil)
 
 	err := node.InsertBefore(child, nil)
 	require.NoError(t, err)
@@ -347,25 +347,25 @@ func testNodeInsertBeforeNilReference(t *testing.T, node *Node[any]) {
 	require.Equal(t, node.LastChild(), child)
 }
 
-func testNodeInsertBeforeNilChild(t *testing.T, node *Node[any]) {
+func testNodeInsertBeforeNilChild(t *testing.T, node *Node) {
 	require.Nil(t, node.FirstChild())
 	require.Nil(t, node.LastChild())
 
-	reference := NewNode[any](nil)
+	reference := NewNode(nil)
 
 	err := node.InsertBefore(nil, reference)
 	require.Error(t, err)
 }
 
-func testNodeInsertBeforeParentOfNode(t *testing.T, node *Node[any]) {
+func testNodeInsertBeforeParentOfNode(t *testing.T, node *Node) {
 	require.Nil(t, node.FirstChild())
 	require.Nil(t, node.LastChild())
 
-	parent := NewNode[any](nil)
+	parent := NewNode(nil)
 	err := parent.AppendChild(node)
 	require.NoError(t, err)
 
-	reference := NewNode[any](nil)
+	reference := NewNode(nil)
 	err = node.AppendChild(reference)
 	require.NoError(t, err)
 
@@ -373,18 +373,18 @@ func testNodeInsertBeforeParentOfNode(t *testing.T, node *Node[any]) {
 	require.Error(t, err)
 }
 
-func NodeInsertBeforeNodeGreatParentOfNode(t *testing.T, node *Node[any]) {
+func NodeInsertBeforeNodeGreatParentOfNode(t *testing.T, node *Node) {
 	require.Nil(t, node.FirstChild())
 	require.Nil(t, node.LastChild())
 
-	greatParent := NewNode[any](nil)
-	parent := NewNode[any](nil)
+	greatParent := NewNode(nil)
+	parent := NewNode(nil)
 	err := greatParent.AppendChild(node)
 	require.NoError(t, err)
 	err = parent.AppendChild(node)
 	require.NoError(t, err)
 
-	reference := NewNode[any](nil)
+	reference := NewNode(nil)
 	err = node.AppendChild(reference)
 	require.NoError(t, err)
 
@@ -392,16 +392,16 @@ func NodeInsertBeforeNodeGreatParentOfNode(t *testing.T, node *Node[any]) {
 	require.Error(t, err)
 }
 
-func NodeInsertBeforeNodeChildWithParent(t *testing.T, node *Node[any]) {
+func NodeInsertBeforeNodeChildWithParent(t *testing.T, node *Node) {
 	require.Nil(t, node.FirstChild())
 	require.Nil(t, node.LastChild())
 
-	parent := NewNode[any](nil)
-	child := NewNode[any](nil)
+	parent := NewNode(nil)
+	child := NewNode(nil)
 	err := parent.AppendChild(child)
 	require.NoError(t, err)
 
-	reference := NewNode[any](nil)
+	reference := NewNode(nil)
 	err = node.AppendChild(reference)
 	require.NoError(t, err)
 
@@ -416,13 +416,13 @@ func NodeInsertBeforeNodeChildWithParent(t *testing.T, node *Node[any]) {
 	require.Equal(t, reference, child.Next())
 }
 
-func testNodeInsertBeforeBetweenTwoNode(t *testing.T, node *Node[any]) {
+func testNodeInsertBeforeBetweenTwoNode(t *testing.T, node *Node) {
 	require.Nil(t, node.FirstChild())
 	require.Nil(t, node.LastChild())
 
-	previous := NewNode[any](nil)
-	next := NewNode[any](nil)
-	child := NewNode[any](nil)
+	previous := NewNode(nil)
+	next := NewNode(nil)
+	child := NewNode(nil)
 
 	err := node.AppendChild(previous)
 	require.NoError(t, err)
@@ -444,11 +444,11 @@ func testNodeInsertBeforeBetweenTwoNode(t *testing.T, node *Node[any]) {
 	require.Equal(t, previous, child.Previous())
 }
 
-func testNodeInsertBeforeItself(t *testing.T, node *Node[any]) {
+func testNodeInsertBeforeItself(t *testing.T, node *Node) {
 	require.Nil(t, node.FirstChild())
 	require.Nil(t, node.LastChild())
 
-	reference := NewNode[any](nil)
+	reference := NewNode(nil)
 	err := node.AppendChild(reference)
 	require.NoError(t, err)
 
@@ -456,12 +456,12 @@ func testNodeInsertBeforeItself(t *testing.T, node *Node[any]) {
 	require.Error(t, err)
 }
 
-func testNodeRemoveChild(t *testing.T, node *Node[any]) {
+func testNodeRemoveChild(t *testing.T, node *Node) {
 	require.Nil(t, node.FirstChild())
 	require.Nil(t, node.LastChild())
 
-	firstChild := NewNode[any](nil)
-	lastChild := NewNode[any](nil)
+	firstChild := NewNode(nil)
+	lastChild := NewNode(nil)
 
 	err := node.AppendChild(firstChild)
 	require.NoError(t, err)
@@ -480,7 +480,7 @@ func testNodeRemoveChild(t *testing.T, node *Node[any]) {
 	require.Nil(t, firstChild.Parent())
 }
 
-func testNodeRemoveChildNil(t *testing.T, node *Node[any]) {
+func testNodeRemoveChildNil(t *testing.T, node *Node) {
 	require.Nil(t, node.FirstChild())
 	require.Nil(t, node.LastChild())
 
@@ -490,12 +490,12 @@ func testNodeRemoveChildNil(t *testing.T, node *Node[any]) {
 	})
 }
 
-func testNodeRemoveChildAnotherParentChild(t *testing.T, node *Node[any]) {
+func testNodeRemoveChildAnotherParentChild(t *testing.T, node *Node) {
 	require.Nil(t, node.FirstChild())
 	require.Nil(t, node.LastChild())
 
-	parent := NewNode[any](nil)
-	child := NewNode[any](nil)
+	parent := NewNode(nil)
+	child := NewNode(nil)
 	err := parent.AppendChild(child)
 	require.NoError(t, err)
 
@@ -503,13 +503,13 @@ func testNodeRemoveChildAnotherParentChild(t *testing.T, node *Node[any]) {
 	require.Error(t, err)
 }
 
-func testNodeRemoveChildSecondChild(t *testing.T, node *Node[any]) {
+func testNodeRemoveChildSecondChild(t *testing.T, node *Node) {
 	require.Nil(t, node.FirstChild())
 	require.Nil(t, node.LastChild())
 
-	first := NewNode[any](nil)
-	child := NewNode[any](nil)
-	third := NewNode[any](nil)
+	first := NewNode(nil)
+	child := NewNode(nil)
+	third := NewNode(nil)
 
 	err := node.AppendChild(first)
 	require.NoError(t, err)
