@@ -19,11 +19,13 @@ func Draw(s ComputedStyle, surface draw.Surface) draw.Surface {
 	}
 
 	subsurface := draw.NewSubSurface(surface, borderBox)
-	for w := 0; w < subsurface.Size().Width(); w++ {
-		for h := 0; h < subsurface.Size().Height(); h++ {
-			subsurface.Set(geometry.NewVec2D(w, h), draw.Cell{
-				Style: s.CellStyle,
-			})
+	if (s.CellStyle != draw.CellStyle{}) {
+		for w := 0; w < subsurface.Size().Width(); w++ {
+			for h := 0; h < subsurface.Size().Height(); h++ {
+				subsurface.Set(geometry.NewVec2D(w, h), draw.Cell{
+					Style: s.CellStyle,
+				})
+			}
 		}
 	}
 
