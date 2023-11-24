@@ -1,10 +1,7 @@
 package widgets
 
 import (
-	"github.com/negrel/paon/draw"
 	"github.com/negrel/paon/events"
-	"github.com/negrel/paon/geometry"
-	"github.com/negrel/paon/layout"
 	"github.com/negrel/paon/render"
 	"github.com/negrel/paon/styles"
 	"github.com/negrel/paon/tree"
@@ -43,7 +40,7 @@ type eventTarget = events.Target
 var _ Widget = &PanicWidget{}
 
 // PanicWidget define a minimal (and incomplete) Widget type.
-// PanicWidget implements panic methods for styles.Styled and render.Renderable
+// PanicWidget implements panic methods for styles.Styled and render.RenderableAccessor
 // interfaces.
 type PanicWidget struct {
 	eventTarget
@@ -76,7 +73,7 @@ func (bw *PanicWidget) Swap(other Widget) {
 	other.setNode(old)
 
 	// Swap data contained in tree.Node.
-	this := old.Swap(other)
+	this := old.Swap(other.Node().Unwrap())
 	bw.node.Swap(this)
 }
 
@@ -87,16 +84,6 @@ func (bw *PanicWidget) Node() *tree.Node {
 
 func (bw *PanicWidget) setNode(node *tree.Node) {
 	bw.node = node
-}
-
-// Draw implements draw.Drawer.
-func (*PanicWidget) Draw(draw.Surface) {
-	panic("unimplemented")
-}
-
-// Layout implements layout.Layout.
-func (*PanicWidget) Layout(layout.Constraint) geometry.Size {
-	panic("unimplemented")
 }
 
 // Renderable implements Widget.
