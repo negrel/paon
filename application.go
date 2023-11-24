@@ -7,6 +7,7 @@ import (
 
 	"github.com/negrel/paon/backend"
 	"github.com/negrel/paon/backend/tcell"
+	"github.com/negrel/paon/draw"
 	"github.com/negrel/paon/events"
 	"github.com/negrel/paon/geometry"
 	"github.com/negrel/paon/layout"
@@ -114,13 +115,13 @@ func (app *Application) eventLoop(ctx context.Context) {
 func (app *Application) render() {
 	app.terminal.Clear()
 	renderable := app.root.Renderable()
-	_ = renderable.Layout(layout.Constraint{
+	rootSize := renderable.Layout(layout.Constraint{
 		MinSize:    geometry.Size{},
 		MaxSize:    app.terminal.Size(),
 		ParentSize: app.terminal.Size(),
 		RootSize:   app.terminal.Size(),
 	})
-	renderable.Draw(app.terminal)
+	renderable.Draw(draw.NewSubSurface(app.terminal, geometry.Rect(0, 0, rootSize.Width(), rootSize.Height())))
 	app.terminal.Flush()
 }
 
