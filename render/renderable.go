@@ -41,6 +41,11 @@ func NewVoidRenderable(nodeAccessor tree.NodeAccessor) VoidRenderable {
 	}
 }
 
+// Renderable implements RenderableAccessor.
+func (vr *VoidRenderable) Renderable() Renderable {
+	return vr
+}
+
 // Node implements tree.NodeAccessor.
 func (vr *VoidRenderable) Node() *tree.Node {
 	return vr.nodeAccessor.Node()
@@ -73,4 +78,38 @@ func (vr *VoidRenderable) MarkDirty() {
 			parent.Unwrap().(RenderableAccessor).Renderable().MarkDirty()
 		}
 	}
+}
+
+type LayoutLayout = layout.Layout
+
+// ComposedRenderable define a Renderable composed of a VoidRenderable,
+// a layout.Layout and a draw.Drawer.
+type ComposedRenderable struct {
+	VoidRenderable
+	LayoutLayout
+	draw.Drawer
+}
+
+func NewComposedRenderable(nodeAccessor tree.NodeAccessor, layout layout.Layout, drawer draw.Drawer) *ComposedRenderable {
+	return &ComposedRenderable{
+		VoidRenderable: NewVoidRenderable(nodeAccessor),
+		LayoutLayout:   layout,
+		Drawer:         drawer,
+	}
+}
+
+// Renderable implements render.RenderableAccessor.
+func (cr *ComposedRenderable) Renderable() Renderable {
+	return cr
+}
+
+// Layout implements Renderable.
+func (cr *ComposedRenderable) Layout(co layout.Constraint) geometry.Size {
+	return cr.LayoutLayout.Layout(co)
+}
+
+// Draw implements Renderable.
+func (cr *ComposedRenderable) Draw(surface draw.Surface) {
+	cr.VoidRenderable.Draw(surface)
+	cr.Drawer.Draw(surface)
 }
