@@ -43,9 +43,11 @@ func TestPanicsWidget(t *testing.T) {
 		})
 	})
 
-	t.Run("Style/Nil", func(t *testing.T) {
+	t.Run("Style/Unimplemented", func(t *testing.T) {
 		widget := panicsWrapper{}
 		widget.PanicWidget = NewPanicWidget(&widget)
-		require.Nil(t, widget.Style())
+		require.Panics(t, func() {
+			widget.Style()
+		})
 	})
 }

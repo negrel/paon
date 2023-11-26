@@ -93,5 +93,5 @@ func (*PanicWidget) Renderable() render.Renderable {
 
 // Style implements styles.Styled.
 func (*PanicWidget) Style() styles.Style {
-	return nil
+	panic("unimplemented")
 }
