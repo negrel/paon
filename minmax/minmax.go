@@ -1,7 +1,9 @@
-package math
+package minmax
+
+import "cmp"
 
 // Constrain the value between the given minimum and maximum.
-func Constrain(value, min, max int) int {
+func Constrain[T cmp.Ordered](value, min, max T) T {
 	value = Max(value, min)
 	value = Min(value, max)
 
@@ -9,7 +11,7 @@ func Constrain(value, min, max int) int {
 }
 
 // Min returns the smallest integer.
-func Min(nbrs ...int) int {
+func Min[T cmp.Ordered](nbrs ...T) T {
 	min := nbrs[0]
 	for _, nbr := range nbrs {
 		if nbr < min {
@@ -21,7 +23,7 @@ func Min(nbrs ...int) int {
 }
 
 // Max returns the biggest integer.
-func Max(nbrs ...int) int {
+func Max[T cmp.Ordered](nbrs ...T) T {
 	max := nbrs[0]
 	for _, nbr := range nbrs {
 		if nbr > max {

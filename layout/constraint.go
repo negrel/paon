@@ -2,7 +2,7 @@ package layout
 
 import (
 	"github.com/negrel/paon/geometry"
-	"github.com/negrel/paon/math"
+	"github.com/negrel/paon/minmax"
 )
 
 // Constraint define layout constraint.
@@ -30,13 +30,13 @@ func (c Constraint) ApplyOnSize(size geometry.Size) geometry.Size {
 // ApplyOnWidth applies the width constraints on the given width and return the
 // constrained width.
 func (c Constraint) ApplyOnWidth(width int) int {
-	width = math.Max(width, c.MinSize.Width())
-	return math.Min(width, c.MaxSize.Width())
+	width = minmax.Max(width, c.MinSize.Width())
+	return minmax.Min(width, c.MaxSize.Width())
 }
 
 // ApplyOnHeight applies the height constraints on the given height and return the
 // constrained height.
 func (c Constraint) ApplyOnHeight(height int) int {
-	height = math.Max(height, c.MinSize.Height())
-	return math.Min(height, c.MaxSize.Height())
+	height = minmax.Max(height, c.MinSize.Height())
+	return minmax.Min(height, c.MaxSize.Height())
 }
