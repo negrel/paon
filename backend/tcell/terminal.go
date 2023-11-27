@@ -143,14 +143,36 @@ func eventLoop(pollFunc func() tcell.Event, evch chan<- events.Event) {
 				continue
 			}
 
-			// Store until another event is triggered.
-			if mousePress.Event == nil && ev.Buttons() != tcell.ButtonNone {
+			if mousePress.Event == nil && ev.Buttons() >= tcell.Button1 && ev.Buttons() <= tcell.Button8 {
+				// Store mouse press until button is released.
 				mousePress = mouse.NewPress(
 					geometry.NewVec2D(ev.Position()),
 					mouse.ButtonMask(ev.Buttons()),
 					keypress.ModMask(ev.Modifiers()),
 				)
 				evch <- mousePress
+			}
+
+			if ev.Buttons() >= tcell.WheelUp && ev.Buttons() <= tcell.WheelRight {
+				scrollDir := mouse.ScrollUp
+				switch ev.Buttons() {
+				case tcell.WheelUp:
+				// Default.
+				case tcell.WheelDown:
+					scrollDir = mouse.ScrollDown
+				case tcell.WheelLeft:
+					scrollDir = mouse.ScrollLeft
+				case tcell.WheelRight:
+					scrollDir = mouse.ScrollRight
+				}
+
+				// Store scroll event until scroll ends is triggered.
+				scrollEvent := mouse.NewScroll(
+					geometry.NewVec2D(ev.Position()),
+					keypress.ModMask(ev.Modifiers()),
+					scrollDir,
+				)
+				evch <- scrollEvent
 			}
 
 		case *tcell.EventKey:

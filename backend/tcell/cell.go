@@ -6,7 +6,6 @@ import (
 	"github.com/negrel/paon/draw"
 )
 
-var _, _, defaultAttr = tcell.StyleDefault.Decompose()
 var defaultFg = tcell.ColorDefault
 var defaultBg = tcell.ColorDefault
 

@@ -50,11 +50,20 @@ func NewBaseLayout(
 			}
 		}
 	}
+	dispatchScrollEvent := func(event mouse.ScrollEvent) {
+		for _, childLayout := range bl.LayoutRenderable.ChildrenRects() {
+			if childLayout.Bounds.Contains(event.RelPosition) {
+				event.RelPosition = event.RelPosition.Sub(childLayout.Bounds.TopLeft())
+				childLayout.Node.Unwrap().(events.Target).DispatchEvent(event)
+			}
+		}
+	}
 
 	// Dispatch mouse event to child.
 	bl.Widget.AddEventListener(mouse.PressListener(dispatchMouseEvent))
 	bl.Widget.AddEventListener(mouse.UpListener(dispatchMouseEvent))
 	bl.Widget.AddEventListener(mouse.ClickListener(dispatchClickEvent))
+	bl.Widget.AddEventListener(mouse.ScrollListener(dispatchScrollEvent))
 
 	return bl
 }

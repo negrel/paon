@@ -5,10 +5,10 @@ package mouse
 // ButtonMask is a mask of mouse buttons and wheel events. Mouse button presses
 // are normally delivered as both press and release events. Mouse wheel events
 // are normally just single impulse events. Windows supports up to eight
-// separate buttons plus all four wheel directions, but XTerm can only support
-// mouse buttons 1-3 and wheel up/down. Its not unheard of for terminals
-// to support only one or two buttons (think Macs). Old terminals, and true
-// emulations (such as vt100) won't support mice at all, of course.
+// separate buttons, but XTerm can only support mouse buttons 1-3.
+// Its not unheard of for terminals to support only one or two buttons
+// (think Macs). Old terminals, and true emulations (such as vt100) won't support
+// mice at all, of course.
 type ButtonMask int16
 
 // These are the actual button values. Note that tcell version 1.x reversed buttons
@@ -23,11 +23,7 @@ const (
 	Button6
 	Button7
 	Button8
-	WheelUp                   // Wheel motion up/away from user.
-	WheelDown                 // Wheel motion down/towards user.
-	WheelLeft                 // Wheel motion to left.
-	WheelRight                // Wheel motion to right.
-	ButtonNone ButtonMask = 0 // No button or wheel events.
+	ButtonNone ButtonMask = 0 // No button.
 
 	ButtonPrimary   = Button1
 	ButtonSecondary = Button2
