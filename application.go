@@ -44,7 +44,7 @@ func NewApp() (*Application, error) {
 		evch:      make(chan events.Event),
 	}
 
-	app.throttledRender = throttle(time.Second/30, func() {
+	app.throttledRender = throttle(time.Second/60, func() {
 		app.privateDo <- app.render
 	})
 
