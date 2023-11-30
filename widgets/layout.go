@@ -35,7 +35,10 @@ func NewBaseLayout(
 
 	// Event handler that forwards mouse position to children.
 	dispatchClickEvent := func(event mouse.ClickEvent) {
-		for _, childLayout := range bl.LayoutRenderable.ChildrenRects() {
+		childrenLayout := bl.LayoutRenderable.ChildrenLayout()
+		for i := 0; i < childrenLayout.Size(); i++ {
+			childLayout := childrenLayout.Get(i)
+
 			if childLayout.Bounds.Contains(event.MousePress.RelPosition) {
 				event.MousePress.RelPosition = event.MousePress.RelPosition.Sub(childLayout.Bounds.TopLeft())
 				childLayout.Node.Unwrap().(events.Target).DispatchEvent(event)
@@ -43,7 +46,10 @@ func NewBaseLayout(
 		}
 	}
 	dispatchMouseEvent := func(event mouse.Event) {
-		for _, childLayout := range bl.LayoutRenderable.ChildrenRects() {
+		childrenLayout := bl.LayoutRenderable.ChildrenLayout()
+		for i := 0; i < childrenLayout.Size(); i++ {
+			childLayout := childrenLayout.Get(i)
+
 			if childLayout.Bounds.Contains(event.RelPosition) {
 				event.RelPosition = event.RelPosition.Sub(childLayout.Bounds.TopLeft())
 				childLayout.Node.Unwrap().(events.Target).DispatchEvent(event)
@@ -51,7 +57,10 @@ func NewBaseLayout(
 		}
 	}
 	dispatchScrollEvent := func(event mouse.ScrollEvent) {
-		for _, childLayout := range bl.LayoutRenderable.ChildrenRects() {
+		childrenLayout := bl.LayoutRenderable.ChildrenLayout()
+		for i := 0; i < childrenLayout.Size(); i++ {
+			childLayout := childrenLayout.Get(i)
+
 			if childLayout.Bounds.Contains(event.RelPosition) {
 				event.RelPosition = event.RelPosition.Sub(childLayout.Bounds.TopLeft())
 				childLayout.Node.Unwrap().(events.Target).DispatchEvent(event)
@@ -81,27 +90,18 @@ func (bl *BaseLayout) Style() styles.Style {
 	return bl.Widget.Style()
 }
 
-// ChildLayout define position and size of children Node.
-type ChildLayout struct {
-	// Node associated to rectangle.
-	Node *tree.Node
-	// Bounds relative to layout origin.
-	Bounds geometry.Rectangle
-}
-
 // LayoutChildren define any type that can layout its children.
 type LayoutChildren interface {
-	// Determine position and size of each children and return it along its own size.
-	// ChildLayout slice argument can be used for appending element instead of allocating
-	// a slice on each layout.
-	LayoutChildren(_ layout.Constraint, _ []ChildLayout) ([]ChildLayout, geometry.Size)
+	// LayoutChildren layout each children and append them in the given
+	// ChildrenLayout.
+	LayoutChildren(_ layout.Constraint, _ *ChildrenLayout) geometry.Size
 }
 
 // LayoutChildrenFunc is function type that implements LayoutChildren interface.
-type LayoutChildrenFunc func(_ layout.Constraint, _ []ChildLayout) ([]ChildLayout, geometry.Size)
+type LayoutChildrenFunc func(_ layout.Constraint, _ *ChildrenLayout) geometry.Size
 
 // LayoutChildren implements LayoutChildren.
-func (lcf LayoutChildrenFunc) LayoutChildren(co layout.Constraint, r []ChildLayout) ([]ChildLayout, geometry.Size) {
+func (lcf LayoutChildrenFunc) LayoutChildren(co layout.Constraint, r *ChildrenLayout) geometry.Size {
 	return lcf(co, r)
 }
 
@@ -109,47 +109,49 @@ func (lcf LayoutChildrenFunc) LayoutChildren(co layout.Constraint, r []ChildLayo
 type LayoutRenderable interface {
 	render.Renderable
 	// Returns children bounding rectangle relative to layout origin
-	ChildrenRects() []ChildLayout
+	ChildrenLayout() *ChildrenLayout
 }
 
-var _ LayoutRenderable = &BaseLayoutRenderable{}
+var _ LayoutRenderable = BaseLayoutRenderable{}
 
 // BaseLayoutRenderable is a wrapper of render.VoidRenderable that implements LayoutRenderable.
 type BaseLayoutRenderable struct {
-	render.VoidRenderable
+	*render.VoidRenderable
 
-	layout LayoutChildren
-	// Children positions relative to layout origin.
-	childrenLayout []ChildLayout
+	layout         LayoutChildren
+	childrenLayout *ChildrenLayout
 }
 
 // NewBaseLayoutRenderable returns a new LayoutRenderable for the given NodeAccessor.
 func NewBaseLayoutRenderable(nodeAccessor tree.NodeAccessor, layoutChildren LayoutChildren) *BaseLayoutRenderable {
+	vr := render.NewVoidRenderable(nodeAccessor)
+
 	return &BaseLayoutRenderable{
-		VoidRenderable: render.NewVoidRenderable(nodeAccessor),
+		VoidRenderable: &vr,
 		layout:         layoutChildren,
-		childrenLayout: []ChildLayout{},
+		childrenLayout: &ChildrenLayout{},
 	}
 }
 
 // ChildrenRects implements LayoutRenderable.
-func (lr *BaseLayoutRenderable) ChildrenRects() []ChildLayout {
+func (lr BaseLayoutRenderable) ChildrenLayout() *ChildrenLayout {
 	return lr.childrenLayout
 }
 
 // Layout implements layout.Layout.
-func (lr *BaseLayoutRenderable) Layout(co layout.Constraint) geometry.Size {
-	var size geometry.Size
-	lr.childrenLayout, size = lr.layout.LayoutChildren(co, lr.childrenLayout[:0])
-	return size
+func (lr BaseLayoutRenderable) Layout(co layout.Constraint) geometry.Size {
+	lr.childrenLayout.reset()
+	return lr.layout.LayoutChildren(co, lr.childrenLayout)
 }
 
 // Draw implements layout.Layout.
 // BaseLayoutRenderable draw
-func (lr *BaseLayoutRenderable) Draw(surface draw.Surface) {
+func (lr BaseLayoutRenderable) Draw(surface draw.Surface) {
 	lr.VoidRenderable.Draw(surface)
 
-	for _, childLayout := range lr.childrenLayout {
+	for i := 0; i < lr.childrenLayout.Size(); i++ {
+		childLayout := lr.childrenLayout.Get(i)
+
 		childDrawer := childLayout.Node.Unwrap().(render.RenderableAccessor).Renderable()
 		subsurface := draw.NewSubSurface(surface, childLayout.Bounds)
 
@@ -174,59 +176,63 @@ func NewLayoutRenderableCache(nodeAccessor tree.NodeAccessor, layout LayoutChild
 	}
 }
 
-// ChildrenRects implements LayoutRenderable.
-func (lrc LayoutRenderableCache) ChildrenRects() []ChildLayout {
-	return lrc.Cache.Unwrap().ChildrenRects()
+// ChildrenLayout implements LayoutRenderable.
+func (lrc LayoutRenderableCache) ChildrenLayout() *ChildrenLayout {
+	return lrc.Cache.Unwrap().ChildrenLayout()
 }
 
 // StyledLayoutRenderable define a LayoutRenderable wrapper that adds styling
 // to it.
 type StyledLayoutRenderable struct {
-	LayoutRenderable
-	styled styles.Styled
+	styles.Renderable[LayoutRenderable]
 }
 
 // NewStyledLayoutRenderable returns a new StyledLayoutRenderable that wraps
 // the given LayoutRenderable.
 func NewStyledLayoutRenderable(styled styles.Styled, layoutRenderable LayoutRenderable) StyledLayoutRenderable {
 	return StyledLayoutRenderable{
-		LayoutRenderable: layoutRenderable,
-		styled:           styled,
+		Renderable: styles.Renderable[LayoutRenderable]{
+			Renderable: layoutRenderable,
+			Styled:     styled,
+		},
 	}
 }
 
 // Style implements styled.Styled.
 func (slr StyledLayoutRenderable) Style() styles.Style {
-	return slr.styled.Style()
+	return slr.Renderable.Styled.Style()
+}
+
+// ChildrenLayout implements LayoutRenderable.
+func (slr StyledLayoutRenderable) ChildrenLayout() *ChildrenLayout {
+	return slr.Renderable.Renderable.ChildrenLayout()
 }
 
 // Layout implements layout.Layout.
 func (slr StyledLayoutRenderable) Layout(co layout.Constraint) geometry.Size {
-	style := slr.styled.Style().Compute()
-	origin := styles.LayoutContentBoxOrigin(style)
-
-	size := styles.Layout(
-		slr.styled.Style().Compute(),
-		co,
-		layout.LayoutFunc(func(co layout.Constraint) geometry.Size {
-			return slr.LayoutRenderable.Layout(co)
-		}),
-	)
-
-	// Translate widgets inside content box.
-	if origin.X() != 0 || origin.Y() != 0 {
-		childrenLayout := slr.LayoutRenderable.ChildrenRects()
-		for i := range childrenLayout {
-			childLayout := &childrenLayout[i]
-			childLayout.Bounds = childLayout.Bounds.MoveBy(origin)
-		}
+	style := slr.Styled.Style()
+	if style == nil {
+		return slr.Renderable.Layout(co)
 	}
+
+	size := slr.Renderable.Layout(co)
+
+	computedStyle := style.Compute()
+	origin := styles.LayoutContentBoxOrigin(computedStyle)
+	slr.ChildrenLayout().origin = origin
 
 	return size
 }
 
-// Draw implements draw.Drawer
+// Draw implements draw.Drawer.
 func (slr StyledLayoutRenderable) Draw(surface draw.Surface) {
-	_ = styles.Draw(slr.styled.Style().Compute(), surface)
-	slr.LayoutRenderable.Draw(surface)
+	// Alter origin.
+	childrenLayout := slr.ChildrenLayout()
+	origin := childrenLayout.origin
+	childrenLayout.origin = geometry.Vec2D{}
+
+	slr.Renderable.Draw(surface)
+
+	// Restore origin.
+	childrenLayout.origin = origin
 }
