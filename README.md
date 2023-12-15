@@ -1,5 +1,5 @@
 <h1 align="center">
-    <img height="250" src="https://raw.githubusercontent.com/negrel/paon/master/.github/paon.webp">
+    <img height="250" src="https://github.com/negrel/Animated-Fluent-Emojis/blob/master/Emojis/Animals/Peacock.png?raw=true">
 </h1>
 
 <p align="center">
@@ -64,11 +64,6 @@
 └── widgets                            # Built-in widgets (see list above)
 
 ```
-
-## Acknowledgments
-
-Peacock illustration by [Alessandra Stanga](https://www.domestika.org/en/alessandra_stanga) on
-[Domestika](https://www.domestika.org/en/alessandra_stanga)
 
 ## :stars: Show your support
 
