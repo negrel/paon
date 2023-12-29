@@ -121,7 +121,13 @@ func (app *Application) render() {
 		ParentSize: app.terminal.Size(),
 		RootSize:   app.terminal.Size(),
 	})
-	renderable.Draw(draw.NewSubSurface(app.terminal, geometry.Rect(0, 0, rootSize.Width(), rootSize.Height())))
+	renderable.Draw(draw.NewSubSurface(
+		app.terminal,
+		geometry.Rectangle{
+			Origin:   geometry.Vec2D{},
+			RectSize: rootSize,
+		},
+	))
 	app.terminal.Flush()
 }
 

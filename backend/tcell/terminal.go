@@ -52,18 +52,18 @@ func NewTerminal(options ...Option) (*Terminal, error) {
 // Size implements the geometry.Sized interface.
 func (c *Terminal) Size() geometry.Size {
 	w, h := c.screen.Size()
-	return geometry.NewSize(w, h)
+	return geometry.Size{Width: w, Height: h}
 }
 
 // Get implements the draw.Canvas interface.
 func (c *Terminal) Get(pos geometry.Vec2D) draw.Cell {
-	return fromTcell(c.screen.GetContent(pos.X(), pos.Y()))
+	return fromTcell(c.screen.GetContent(pos.X, pos.Y))
 }
 
 // Set implements the draw.Canvas interface.
 func (c *Terminal) Set(pos geometry.Vec2D, cell draw.Cell) {
 	mainc, combc, style := toTcell(cell)
-	c.screen.SetContent(pos.X(), pos.Y(), mainc, combc, style)
+	c.screen.SetContent(pos.X, pos.Y, mainc, combc, style)
 }
 
 // Clear implements the backend.Terminal interface.
@@ -111,26 +111,27 @@ func eventLoop(pollFunc func() tcell.Event, evch chan<- events.Event) {
 			_ = ev
 
 		case *tcell.EventResize:
-			newSize := geometry.NewSize(ev.Size())
+			newWidth, newHeight := ev.Size()
+			newSize := geometry.Size{Width: newWidth, Height: newHeight}
 			resize := resize.New(oldSize, newSize)
 			oldSize = newSize
 
 			evch <- resize
 
 		case *tcell.EventMouse:
+			newX, newY := ev.Position()
+			pos := geometry.Vec2D{X: newX, Y: newY}
+
 			// A button was pressed in previous event.
 			if mousePress.Event != nil && ev.Buttons() == tcell.ButtonNone {
-				newX, newY := ev.Position()
-
 				// Mouse up.
 				evch <- mouse.NewUp(
-					geometry.NewVec2D(ev.Position()),
+					pos,
 					mouse.ButtonMask(ev.Buttons()),
 					keypress.ModMask(ev.Modifiers()),
 				)
 
 				if mousePress.Buttons&mouse.ButtonPrimary != 0 {
-					pos := geometry.NewVec2D(newX, newY)
 					evch <- mouse.NewClick(
 						pos,
 						mouse.ButtonMask(ev.Buttons()),
@@ -146,7 +147,7 @@ func eventLoop(pollFunc func() tcell.Event, evch chan<- events.Event) {
 			if mousePress.Event == nil && ev.Buttons() >= tcell.Button1 && ev.Buttons() <= tcell.Button8 {
 				// Store mouse press until button is released.
 				mousePress = mouse.NewPress(
-					geometry.NewVec2D(ev.Position()),
+					pos,
 					mouse.ButtonMask(ev.Buttons()),
 					keypress.ModMask(ev.Modifiers()),
 				)
@@ -168,7 +169,7 @@ func eventLoop(pollFunc func() tcell.Event, evch chan<- events.Event) {
 
 				// Store scroll event until scroll ends is triggered.
 				scrollEvent := mouse.NewScroll(
-					geometry.NewVec2D(ev.Position()),
+					pos,
 					keypress.ModMask(ev.Modifiers()),
 					scrollDir,
 				)

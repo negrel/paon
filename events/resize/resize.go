@@ -39,10 +39,10 @@ func (r Event) String() string {
 
 // IsWider returns true if the new terminal size is wider.
 func (r Event) IsWider() bool {
-	return r.Old.Size().Width() < r.New.Size().Width()
+	return r.Old.Size().Width < r.New.Size().Width
 }
 
 // IsGreater returns true if the new terminal size is greater.
 func (r Event) IsGreater() bool {
-	return r.Old.Size().Height() < r.New.Size().Height()
+	return r.Old.Size().Height < r.New.Size().Height
 }
