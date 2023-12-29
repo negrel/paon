@@ -226,7 +226,7 @@ func (slr StyledLayoutRenderable) Layout(co layout.Constraint) geometry.Size {
 
 // Draw implements draw.Drawer.
 func (slr StyledLayoutRenderable) Draw(surface draw.Surface) {
-	// Alter origin.
+	// Alter origin so renderable.Draw uses surface origin.
 	childrenLayout := slr.ChildrenLayout()
 	origin := childrenLayout.origin
 	childrenLayout.origin = geometry.Vec2D{}

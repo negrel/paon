@@ -2,17 +2,14 @@ package widgets
 
 import (
 	"github.com/negrel/paon/colors"
-	"github.com/negrel/paon/draw"
 	"github.com/negrel/paon/styles"
-	"github.com/negrel/paon/widgets/border"
 )
 
 // Style define a basic style type for widgets.
 type Style struct {
 	// nil values means that styling prop must be inherited
 	*marginStyle
-	borderStyle *border.Border
-	borderColor *colors.Color
+	bordersStyle *bordersStyle
 	*paddingStyle
 	*textDecoration
 	foreground *colors.Color
@@ -125,20 +122,104 @@ func (s Style) MarginY(m int) Style {
 	return s
 }
 
-func (s Style) InheritBorder() Style {
-	s.borderStyle = nil
-	s.borderColor = nil
+type bordersStyle struct {
+	// TODO: use custom struct to hold info.
+	left, top, right, bottom styles.BorderSide
+}
+
+func (s Style) InheritBorders() Style {
+	s.bordersStyle = nil
 	return s
 }
 
-func (s Style) Border(b border.Border) Style {
-	s.borderStyle = &b
+func (s Style) Borders(borders ...styles.BorderSide) Style {
+	if s.bordersStyle == nil {
+		s.bordersStyle = &bordersStyle{}
+	}
+
+	switch len(borders) {
+	case 1:
+		s.bordersStyle.left = borders[0]
+		s.bordersStyle.top = borders[0]
+		s.bordersStyle.right = borders[0]
+		s.bordersStyle.bottom = borders[0]
+
+	case 2:
+		s.bordersStyle.left = borders[1]
+		s.bordersStyle.top = borders[0]
+		s.bordersStyle.right = borders[1]
+		s.bordersStyle.bottom = borders[0]
+
+	case 3:
+		s.bordersStyle.left = borders[1]
+		s.bordersStyle.top = borders[0]
+		s.bordersStyle.right = borders[1]
+		s.bordersStyle.bottom = borders[2]
+
+	case 4:
+		s.bordersStyle.left = borders[3]
+		s.bordersStyle.top = borders[0]
+		s.bordersStyle.right = borders[1]
+		s.bordersStyle.bottom = borders[2]
+	}
 
 	return s
 }
 
-func (s Style) BorderColor(c colors.Color) Style {
-	s.borderColor = &c
+func (s Style) BorderLeft(b styles.BorderSide) Style {
+	if s.bordersStyle == nil {
+		s.bordersStyle = &bordersStyle{}
+	}
+
+	s.bordersStyle.left = b
+	return s
+}
+
+func (s Style) BorderTop(b styles.BorderSide) Style {
+	if s.bordersStyle == nil {
+		s.bordersStyle = &bordersStyle{}
+	}
+
+	s.bordersStyle.top = b
+	return s
+}
+
+func (s Style) BorderRight(b styles.BorderSide) Style {
+	if s.bordersStyle == nil {
+		s.bordersStyle = &bordersStyle{}
+	}
+
+	s.bordersStyle.right = b
+	return s
+}
+
+func (s Style) BorderBottom(b styles.BorderSide) Style {
+	if s.bordersStyle == nil {
+		s.bordersStyle = &bordersStyle{}
+	}
+
+	s.bordersStyle.bottom = b
+	return s
+}
+
+func (s Style) BorderX(b styles.BorderSide) Style {
+	if s.bordersStyle == nil {
+		s.bordersStyle = &bordersStyle{}
+	}
+
+	s.bordersStyle.left = b
+	s.bordersStyle.right = b
+
+	return s
+}
+
+func (s Style) BorderY(b styles.BorderSide) Style {
+	if s.bordersStyle == nil {
+		s.bordersStyle = &bordersStyle{}
+	}
+
+	s.bordersStyle.top = b
+	s.bordersStyle.bottom = b
 
 	return s
 }
@@ -356,16 +437,13 @@ func (s Style) Compute() styles.ComputedStyle {
 			Bottom: s.marginStyle.bottom,
 		}
 	}
-	if s.borderStyle != nil {
-		result.BorderStyle = styles.BorderStyle{
-			Border: *s.borderStyle,
-			CellStyle: draw.CellStyle{
-				Background: result.Background,
-			},
+	if s.bordersStyle != nil {
+		result.BordersStyle = styles.BordersStyle{
+			Top:    s.bordersStyle.top,
+			Bottom: s.bordersStyle.bottom,
+			Left:   s.bordersStyle.left,
+			Right:  s.bordersStyle.right,
 		}
-	}
-	if s.borderColor != nil {
-		result.BorderStyle.CellStyle.Foreground = *s.foreground
 	}
 	if s.paddingStyle != nil {
 		result.PaddingStyle = styles.MarginPaddingStyle{
