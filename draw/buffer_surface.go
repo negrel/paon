@@ -17,7 +17,7 @@ type BufferSurface struct {
 
 // NewBufferSurface returns a new BufferSurface with the given bounds.
 func NewBufferSurface(size geometry.Size) BufferSurface {
-	bounds := geometry.Rect(0, 0, size.Width(), size.Height())
+	bounds := geometry.Rectangle{Origin: geometry.Vec2D{}, RectSize: size}
 
 	return BufferSurface{
 		cells:  make([]Cell, bounds.Area()),
@@ -31,7 +31,7 @@ func (bs BufferSurface) Size() geometry.Size {
 }
 
 func (bs BufferSurface) index(v2 geometry.Vec2D) int {
-	return v2.Y()*bs.bounds.Width() + v2.X()
+	return v2.Y*bs.bounds.Size().Width + v2.X
 }
 
 // Get implements the Surface interface.
@@ -40,7 +40,7 @@ func (bs BufferSurface) Get(v2 geometry.Vec2D) Cell {
 }
 
 func (bs BufferSurface) get(v2 geometry.Vec2D) Cell {
-	v2 = v2.Add(bs.bounds.Min)
+	v2 = v2.Add(bs.bounds.TopLeft())
 	if bs.bounds.Contains(v2) {
 		return bs.cells[bs.index(v2)]
 	}
@@ -54,7 +54,7 @@ func (bs BufferSurface) Set(v2 geometry.Vec2D, cell Cell) {
 }
 
 func (bs BufferSurface) set(v2 geometry.Vec2D, cell Cell) {
-	v2 = v2.Add(bs.bounds.Min)
+	v2 = v2.Add(bs.bounds.TopLeft())
 
 	if bs.bounds.Contains(v2) {
 		bs.cells[bs.index(v2)] = cell
@@ -66,7 +66,7 @@ func (bs BufferSurface) Dump(w io.Writer) {
 	var buf bytes.Buffer
 
 	for i, cell := range bs.cells {
-		if i != 0 && i%bs.bounds.Width() == 0 {
+		if i != 0 && i%bs.bounds.Size().Width == 0 {
 			buf.WriteRune('\n')
 			w.Write(buf.Bytes())
 			buf.Reset()

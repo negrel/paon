@@ -1,6 +1,7 @@
 package styles
 
 import (
+	"github.com/negrel/paon/colors"
 	"github.com/negrel/paon/draw"
 	"github.com/negrel/paon/geometry"
 	"github.com/negrel/paon/layout"
@@ -46,16 +47,16 @@ func (r Renderable[R]) Layout(co layout.Constraint) geometry.Size {
 	}
 
 	if computedStyle.BordersStyle.Left.Size != 0 {
-		diffWidth++
+		diffWidth += computedStyle.BordersStyle.Left.Size
 	}
 	if computedStyle.BordersStyle.Right.Size != 0 {
-		diffWidth++
+		diffWidth += computedStyle.BordersStyle.Right.Size
 	}
 	if computedStyle.BordersStyle.Top.Size != 0 {
-		diffHeight++
+		diffHeight += computedStyle.BordersStyle.Top.Size
 	}
 	if computedStyle.BordersStyle.Bottom.Size != 0 {
-		diffHeight++
+		diffHeight += computedStyle.BordersStyle.Bottom.Size
 	}
 
 	if (computedStyle.PaddingStyle != MarginPaddingStyle{}) {
@@ -63,17 +64,17 @@ func (r Renderable[R]) Layout(co layout.Constraint) geometry.Size {
 		diffHeight += computedStyle.PaddingStyle.Top + computedStyle.PaddingStyle.Bottom
 	}
 
-	co.MaxSize = geometry.NewSize(
-		co.MaxSize.Width()-diffWidth,
-		co.MaxSize.Height()-diffHeight,
-	)
+	co.MaxSize = geometry.Size{
+		Width:  co.MaxSize.Width - diffWidth,
+		Height: co.MaxSize.Height - diffHeight,
+	}
 
 	size := r.Renderable.Layout(co)
 
-	return geometry.NewSize(
-		size.Width()+diffWidth,
-		size.Height()+diffHeight,
-	)
+	return geometry.Size{
+		Width:  size.Width + diffWidth,
+		Height: size.Height + diffHeight,
+	}
 }
 
 // Draw implements draw.Drawer.
@@ -86,7 +87,11 @@ func (r Renderable[R]) Draw(surface draw.Surface) {
 	computedStyle := style.Compute()
 
 	surfaceSize := surface.Size()
-	borderBox := geometry.Rect(0, 0, surfaceSize.Width(), surfaceSize.Height())
+	borderBox := geometry.Rectangle{
+		Origin:   geometry.Vec2D{},
+		RectSize: surfaceSize,
+	}
+
 	if (computedStyle.MarginStyle != MarginPaddingStyle{}) {
 		borderBox = borderBox.GrowLeft(-computedStyle.MarginStyle.Left)
 		borderBox = borderBox.GrowTop(-computedStyle.MarginStyle.Top)
@@ -95,15 +100,9 @@ func (r Renderable[R]) Draw(surface draw.Surface) {
 	}
 
 	subsurface := draw.NewSubSurface(surface, borderBox)
-	if (computedStyle.CellStyle != draw.CellStyle{}) {
-		for w := 0; w < subsurface.Size().Width(); w++ {
-			for h := 0; h < subsurface.Size().Height(); h++ {
-				subsurface.Set(geometry.NewVec2D(w, h), draw.Cell{
-					Style: computedStyle.CellStyle,
-				})
-			}
-		}
-	}
+	fillSurfaceWithCellStyle(draw.CellStyle{
+		Background: colors.ColorGreen,
+	}, subsurface)
 
 	paddingBox := borderBox
 
@@ -111,64 +110,43 @@ func (r Renderable[R]) Draw(surface draw.Surface) {
 		if leftBorderStyle := computedStyle.BordersStyle.Left; leftBorderStyle.Size != 0 {
 			subsurface = draw.NewSubSurface(
 				surface,
-				geometry.Rect(
-					borderBox.TopLeft().X(),
-					borderBox.TopLeft().Y(),
-					borderBox.BottomLeft().X()+leftBorderStyle.Size,
-					borderBox.BottomLeft().Y(),
-				),
+				borderBox.ShrinkRight(borderBox.Size().Width-leftBorderStyle.Size),
 			)
 			BorderDrawers[leftBorderStyle.Style].Left(computedStyle.BordersStyle, subsurface)
 
-			paddingBox = paddingBox.GrowLeft(-1)
+			paddingBox = paddingBox.ShrinkLeft(leftBorderStyle.Size)
 		}
 		if topBorderStyle := computedStyle.BordersStyle.Top; topBorderStyle.Size != 0 {
 			subsurface = draw.NewSubSurface(
 				surface,
-				geometry.Rect(
-					borderBox.TopLeft().X(),
-					borderBox.TopLeft().Y(),
-					borderBox.TopRight().Y(),
-					borderBox.TopRight().Y()+topBorderStyle.Size,
-				),
+				borderBox.ShrinkBottom(borderBox.Size().Height-topBorderStyle.Size),
 			)
 			BorderDrawers[topBorderStyle.Style].Top(computedStyle.BordersStyle, subsurface)
 
-			paddingBox = paddingBox.GrowTop(-1)
+			paddingBox = paddingBox.ShrinkTop(topBorderStyle.Size)
 		}
 		if rightBorderStyle := computedStyle.BordersStyle.Right; rightBorderStyle.Size != 0 {
 			subsurface = draw.NewSubSurface(
 				surface,
-				geometry.Rect(
-					borderBox.TopRight().X()-rightBorderStyle.Size,
-					borderBox.TopRight().Y(),
-					borderBox.BottomRight().X(),
-					borderBox.BottomRight().Y(),
-				),
+				borderBox.ShrinkLeft(borderBox.Size().Width-rightBorderStyle.Size),
 			)
 			BorderDrawers[rightBorderStyle.Style].Right(computedStyle.BordersStyle, subsurface)
 
-			paddingBox = paddingBox.GrowRight(-1)
+			paddingBox = paddingBox.ShrinkRight(rightBorderStyle.Size)
 		}
 		if bottomBorderStyle := computedStyle.BordersStyle.Bottom; bottomBorderStyle.Size != 0 {
 			subsurface = draw.NewSubSurface(
 				surface,
-				geometry.Rect(
-					borderBox.BottomLeft().X(),
-					borderBox.BottomLeft().Y()-bottomBorderStyle.Size,
-					borderBox.BottomRight().X(),
-					borderBox.BottomRight().Y(),
-				),
+				borderBox.ShrinkTop(borderBox.Size().Height-bottomBorderStyle.Size),
 			)
 			BorderDrawers[bottomBorderStyle.Style].Bottom(computedStyle.BordersStyle, subsurface)
 
-			paddingBox = paddingBox.GrowBottom(-1)
+			paddingBox = paddingBox.GrowBottom(-bottomBorderStyle.Size)
 		}
 	}
 
 	subsurface = draw.NewSubSurface(surface, paddingBox)
-
-	fillSurfaceWithCellStyle(r.Styled.Style().Compute().CellStyle, subsurface)
+	fillSurfaceWithCellStyle(computedStyle.CellStyle, subsurface)
 
 	contentBox := paddingBox
 	if (computedStyle.PaddingStyle != MarginPaddingStyle{}) {
@@ -193,10 +171,10 @@ func LayoutContentBoxOrigin(s ComputedStyle) geometry.Vec2D {
 	}
 
 	if s.BordersStyle.Left.Size != 0 {
-		originX++
+		originX += s.BordersStyle.Left.Size
 	}
 	if s.BordersStyle.Top.Size != 0 {
-		originY++
+		originY += s.BordersStyle.Top.Size
 	}
 
 	if (s.PaddingStyle != MarginPaddingStyle{}) {
@@ -204,5 +182,5 @@ func LayoutContentBoxOrigin(s ComputedStyle) geometry.Vec2D {
 		originY += s.PaddingStyle.Top
 	}
 
-	return geometry.NewVec2D(originX, originY)
+	return geometry.Vec2D{X: originX, Y: originY}
 }

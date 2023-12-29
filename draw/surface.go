@@ -34,8 +34,8 @@ func NewSubSurface(s Surface, bounds geometry.Rectangle) SubSurface {
 	if srf, ok := s.(SubSurface); ok {
 		s = srf.srf
 		bounds = geometry.Rectangle{
-			Min: srf.bounds.Min.Add(bounds.Min),
-			Max: srf.bounds.Min.Add(bounds.Max),
+			Origin:   srf.bounds.Origin.Add(bounds.Origin),
+			RectSize: bounds.Size(),
 		}
 	}
 
@@ -52,7 +52,7 @@ func (ss SubSurface) Size() geometry.Size {
 
 // Get implements the Surface interface.
 func (ss SubSurface) Get(v2 geometry.Vec2D) Cell {
-	v2 = v2.Add(ss.bounds.Min)
+	v2 = v2.Add(ss.bounds.TopLeft())
 	if ss.bounds.Contains(v2) {
 		return ss.srf.Get(v2)
 	}
@@ -62,7 +62,7 @@ func (ss SubSurface) Get(v2 geometry.Vec2D) Cell {
 
 // Set implements the Surface interface.
 func (ss SubSurface) Set(v2 geometry.Vec2D, cell Cell) {
-	v2 = v2.Add(ss.bounds.Min)
+	v2 = v2.Add(ss.bounds.TopLeft())
 	if ss.bounds.Contains(v2) {
 		ss.srf.Set(v2, cell)
 	}
