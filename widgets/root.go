@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	NeedRenderEventType = events.NewType("need-render")
+	NeedRenderEventType = events.NewType("NeedRender")
 )
 
 // NeedRenderEvent is emitted by Root widget when widgets tree needs to be rendered.
