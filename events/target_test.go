@@ -8,7 +8,7 @@ import (
 )
 
 func TestTarget(t *testing.T) {
-	testEventType := NewType("test-type")
+	testEventType := NewType("TestType")
 	target := NewTarget()
 
 	counter := 0
@@ -32,7 +32,7 @@ func BenchmarkTargetDispatchEvent(b *testing.B) {
 		for nbListener := 1; nbListener <= 1024; nbListener = nbListener << 1 {
 			testName := fmt.Sprintf("%d/With-%d-Listeners", nbEvent, nbListener)
 			b.Run(testName, func(b *testing.B) {
-				benchEventType := NewType("bench-type")
+				benchEventType := NewType("BenchType")
 				target := NewTarget()
 
 				for i := 0; i < nbListener; i++ {

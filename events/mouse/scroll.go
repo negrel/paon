@@ -6,7 +6,7 @@ import (
 	"github.com/negrel/paon/geometry"
 )
 
-var ScrollEventType = events.NewType("scroll")
+var ScrollEventType = events.NewType("Scroll")
 
 func ScrollListener(handler func(ev ScrollEvent)) (events.Type, events.Handler) {
 	return ScrollEventType, events.HandlerFunc(func(ev events.Event) {

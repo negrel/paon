@@ -7,7 +7,7 @@ import (
 	"github.com/negrel/paon/geometry"
 )
 
-var EventType = events.NewType("resize")
+var EventType = events.NewType("Resize")
 
 // Listener returns an events.Listener that will call the given handler
 // on resize events.
