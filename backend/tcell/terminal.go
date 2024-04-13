@@ -55,12 +55,12 @@ func (c *Terminal) Size() geometry.Size {
 	return geometry.Size{Width: w, Height: h}
 }
 
-// Get implements the draw.Canvas interface.
+// Get implements the draw.Surface interface.
 func (c *Terminal) Get(pos geometry.Vec2D) draw.Cell {
 	return fromTcell(c.screen.GetContent(pos.X, pos.Y))
 }
 
-// Set implements the draw.Canvas interface.
+// Set implements the draw.Surface interface.
 func (c *Terminal) Set(pos geometry.Vec2D, cell draw.Cell) {
 	mainc, combc, style := toTcell(cell)
 	c.screen.SetContent(pos.X, pos.Y, mainc, combc, style)
@@ -121,6 +121,12 @@ func eventLoop(pollFunc func() tcell.Event, evch chan<- events.Event) {
 		case *tcell.EventMouse:
 			newX, newY := ev.Position()
 			pos := geometry.Vec2D{X: newX, Y: newY}
+
+			evch <- mouse.NewEvent(
+				pos,
+				mouse.ButtonMask(ev.Buttons()),
+				keypress.ModMask(ev.Modifiers()),
+			)
 
 			// A button was pressed in previous event.
 			if mousePress.Event != nil && ev.Buttons() == tcell.ButtonNone {

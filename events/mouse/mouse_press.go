@@ -8,7 +8,7 @@ import (
 
 var PressEventType = events.NewType("MousePress")
 
-// Listener returns an events.Listener that will call the given handler
+// PressListener returns an events.Listener that will call the given handler
 // on mouse press events.
 func PressListener(handler func(Event)) (events.Type, events.Handler) {
 	return PressEventType, events.HandlerFunc(func(event events.Event) {

@@ -6,6 +6,16 @@ import (
 	"github.com/negrel/paon/geometry"
 )
 
+var MouseEventType = events.NewType("Mouse")
+
+// EventListener returns an events.Listener that will call the given handler
+// on mouse events.
+func EventListener(handler func(Event)) (events.Type, events.Handler) {
+	return MouseEventType, events.HandlerFunc(func(event events.Event) {
+		handler(event.(Event))
+	})
+}
+
 // Event is a generic mouse event. A mouse event can be an event of type:
 //
 // * MousePress
@@ -24,4 +34,15 @@ type Event struct {
 	// cases we will not not know for sure. Hence, applications should avoid
 	// using this in most circumstances.
 	Modifiers keypress.ModMask
+}
+
+// NewEvent returns a new mouse event.
+func NewEvent(pos geometry.Vec2D, buttons ButtonMask, mods keypress.ModMask) Event {
+	return Event{
+		Event:       events.NewEvent(MouseEventType),
+		AbsPosition: pos,
+		RelPosition: pos,
+		Buttons:     buttons,
+		Modifiers:   mods,
+	}
 }
