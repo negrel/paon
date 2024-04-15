@@ -1,7 +1,6 @@
 package tcell
 
 import (
-	"context"
 	"reflect"
 
 	"github.com/gdamore/tcell/v2"
@@ -22,8 +21,6 @@ type Terminal struct {
 	// the wrapped tcell.Screen.
 	// It is initialized in NewTerminal and never reassigned.
 	screen tcell.Screen
-
-	eventLoopCancel context.CancelFunc
 }
 
 // NewTerminal returns a new Terminal object configured with the

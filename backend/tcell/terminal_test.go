@@ -30,7 +30,7 @@ func TestTerminalHappyPath(t *testing.T) {
 		Return(' ', []rune{}, tcell.StyleDefault.Reverse(true), 1).
 		Times(1)
 
-	cell := ter.Get(geometry.NewVec2D(1, 2))
+	cell := ter.Get(geometry.Vec2D{X: 1, Y: 2})
 	require.Equal(t, cell, draw.Cell{
 		Style: draw.CellStyle{
 			Foreground:    0,
@@ -48,7 +48,7 @@ func TestTerminalHappyPath(t *testing.T) {
 
 	screenMock.EXPECT().SetContent(3, 1, 'a', []rune{}, tcell.StyleDefault.Bold(true)).
 		Times(1)
-	ter.Set(geometry.NewVec2D(3, 1), draw.Cell{
+	ter.Set(geometry.Vec2D{X: 3, Y: 1}, draw.Cell{
 		Style: draw.CellStyle{
 			Foreground:    0,
 			Background:    0,

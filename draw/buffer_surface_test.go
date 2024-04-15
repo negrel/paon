@@ -11,26 +11,21 @@ import (
 
 func TestBufferSurface(t *testing.T) {
 	t.Run("CornerDrawing", func(t *testing.T) {
-		bf := NewBufferSurface(geometry.NewSize(10, 2))
-		bf.Set(geometry.NewVec2D(0, 0), Cell{
+		bf := NewBufferSurface(geometry.Size{Width: 10, Height: 2})
+		bf.Set(geometry.Vec2D{X: 0, Y: 0}, Cell{
 			Style:   CellStyle{},
 			Content: 'a',
 		})
-		bf.Set(geometry.NewVec2D(9, 0), Cell{
-			Style:   CellStyle{},
-			Content: 'b',
-		})
-		bf.Set(geometry.NewVec2D(0, 1), Cell{
+		bf.set(geometry.Vec2D{X: 9, Y: 0}, Cell{Style: CellStyle{}, Content: 'b'})
+		bf.Set(geometry.Vec2D{X: 0, Y: 1}, Cell{
 			Style:   CellStyle{},
 			Content: 'c',
 		})
-		bf.Set(geometry.NewVec2D(9, 1), Cell{
-			Style:   CellStyle{},
-			Content: 'd',
-		})
+		bf.set(geometry.Vec2D{X: 9, Y: 1}, Cell{Style: CellStyle{}, Content: 'd'})
 
 		var buf bytes.Buffer
-		bf.Dump(&buf)
+		err := bf.Dump(&buf)
+		require.NoError(t, err)
 
 		require.Equal(t, ""+
 			"a        b\n"+
@@ -40,33 +35,35 @@ func TestBufferSurface(t *testing.T) {
 	})
 
 	t.Run("OutOfBoundDrawing", func(t *testing.T) {
-		bf := NewBufferSurface(geometry.NewSize(10, 1))
+		bf := NewBufferSurface(geometry.Size{Width: 10, Height: 1})
 
-		bf.Set(geometry.NewVec2D(0, 1), Cell{
+		bf.Set(geometry.Vec2D{X: 0, Y: 1}, Cell{
 			Style:   CellStyle{},
 			Content: '!',
 		})
 
 		var buf bytes.Buffer
-		bf.Dump(&buf)
+		err := bf.Dump(&buf)
+		require.NoError(t, err)
 
 		require.Regexp(t, regexp.MustCompile(`\s{10}\n`), buf.String())
 	})
 
 	t.Run("Overwrite", func(t *testing.T) {
-		bf := NewBufferSurface(geometry.NewSize(10, 1))
+		bf := NewBufferSurface(geometry.Size{Width: 10, Height: 1})
 
-		bf.Set(geometry.NewVec2D(0, 0), Cell{
+		bf.Set(geometry.Vec2D{X: 0, Y: 0}, Cell{
 			Style:   CellStyle{},
 			Content: '!',
 		})
-		bf.Set(geometry.NewVec2D(0, 0), Cell{
+		bf.Set(geometry.Vec2D{X: 0, Y: 0}, Cell{
 			Style:   CellStyle{},
 			Content: '.',
 		})
 
 		var buf bytes.Buffer
-		bf.Dump(&buf)
+		err := bf.Dump(&buf)
+		require.NoError(t, err)
 
 		require.Regexp(t, regexp.MustCompile(`\.\s{9}\n`), buf.String())
 	})

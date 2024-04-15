@@ -9,7 +9,6 @@ import (
 	"github.com/negrel/paon/geometry"
 	"github.com/negrel/paon/layout"
 	"github.com/negrel/paon/render"
-	"github.com/negrel/paon/widgets/border"
 	"github.com/stretchr/testify/require"
 )
 
@@ -21,8 +20,8 @@ func TestBaseLayout(t *testing.T) {
 	t.Run("Renderable/BaseLayoutRenderable", func(t *testing.T) {
 		baseLayout := &testLayout{}
 		renderable := NewBaseLayoutRenderable(baseLayout, LayoutChildrenFunc(
-			func(co layout.Constraint, childrenPositions []ChildLayout) ([]ChildLayout, geometry.Size) {
-				return childrenPositions, geometry.Size{}
+			func(co layout.Constraint, childrenPositions *ChildrenLayout) geometry.Size {
+				return geometry.Size{}
 			}),
 		)
 		baseLayout.BaseLayout = NewBaseLayout(NewPanicWidget(baseLayout), renderable)
@@ -33,8 +32,8 @@ func TestBaseLayout(t *testing.T) {
 	t.Run("Style/FromPanicWidget", func(t *testing.T) {
 		baseLayout := &testLayout{}
 		renderable := NewBaseLayoutRenderable(baseLayout, LayoutChildrenFunc(
-			func(co layout.Constraint, childrenPositions []ChildLayout) ([]ChildLayout, geometry.Size) {
-				return childrenPositions, geometry.Size{}
+			func(co layout.Constraint, childrenPositions *ChildrenLayout) geometry.Size {
+				return geometry.Size{}
 			}),
 		)
 		baseLayout.BaseLayout = NewBaseLayout(NewPanicWidget(baseLayout), renderable)
@@ -43,19 +42,19 @@ func TestBaseLayout(t *testing.T) {
 	})
 	t.Run("Style/StyledLayoutRenderable", func(t *testing.T) {
 		baseLayout := &testLayout{}
-		renderable := NewStyledLayoutRenderable(Style{}.Border(border.RoundedBorder), NewBaseLayoutRenderable(baseLayout, LayoutChildrenFunc(
-			func(co layout.Constraint, childrenPositions []ChildLayout) ([]ChildLayout, geometry.Size) {
-				return childrenPositions, geometry.Size{}
+		renderable := NewStyledLayoutRenderable(Style{}.Padding(1), NewBaseLayoutRenderable(baseLayout, LayoutChildrenFunc(
+			func(co layout.Constraint, childrenPositions *ChildrenLayout) geometry.Size {
+				return geometry.Size{}
 			}),
 		))
 		baseLayout.BaseLayout = NewBaseLayout(NewPanicWidget(baseLayout), renderable)
 
-		require.Equal(t, Style{}.Border(border.RoundedBorder), baseLayout.Style())
+		require.Equal(t, Style{}.Padding(1), baseLayout.Style())
 	})
 }
 
 func TestBaseLayoutPropagateMouseEvents(t *testing.T) {
-	surfaceSize := geometry.NewSize(100, 100)
+	surfaceSize := geometry.Size{Width: 100, Height: 100}
 
 	// Number of mouse press events propagated to child.
 	childWidgetMousePress := 0
@@ -70,26 +69,25 @@ func TestBaseLayoutPropagateMouseEvents(t *testing.T) {
 		NewBaseLayoutRenderable(
 			parent,
 			LayoutChildrenFunc(
-				func(co layout.Constraint, childrenPositions []ChildLayout) ([]ChildLayout, geometry.Size) {
-					origin := geometry.NewVec2D(0, 0)
+				func(co layout.Constraint, childrenLayout *ChildrenLayout) geometry.Size {
+					origin := geometry.Vec2D{X: 0, Y: 0}
 
 					for child := parent.Node().FirstChild(); child != nil; child = child.Next() {
 						childSize := child.Unwrap().(render.RenderableAccessor).Renderable().Layout(co)
-						childrenPositions = append(childrenPositions,
+						childrenLayout.layouts = append(childrenLayout.layouts,
 							ChildLayout{
 								Node: child,
-								Bounds: geometry.Rect(
-									origin.X(),
-									origin.Y(),
-									origin.X()+childSize.Width(),
-									origin.Y()+childSize.Height()),
+								Bounds: geometry.Rectangle{
+									Origin:   origin,
+									RectSize: childSize,
+								},
 							},
 						)
 
-						origin = origin.Add(geometry.NewVec2D(childSize.Width(), childSize.Height()))
+						origin = origin.Add(geometry.Vec2D{X: childSize.Width, Y: childSize.Height})
 					}
 
-					return childrenPositions, co.MaxSize
+					return co.MaxSize
 				},
 			),
 		),
@@ -103,7 +101,7 @@ func TestBaseLayoutPropagateMouseEvents(t *testing.T) {
 	childWidget.RenderableAccessor = render.NewComposedRenderable(
 		childWidget,
 		layout.LayoutFunc(func(co layout.Constraint) geometry.Size {
-			return geometry.NewSize(10, 10)
+			return geometry.Size{Width: 10, Height: 10}
 		}),
 		draw.DrawerFunc(func(surface draw.Surface) {}),
 	)
@@ -119,26 +117,25 @@ func TestBaseLayoutPropagateMouseEvents(t *testing.T) {
 		NewBaseLayoutRenderable(
 			childLayout,
 			LayoutChildrenFunc(
-				func(co layout.Constraint, childrenPositions []ChildLayout) ([]ChildLayout, geometry.Size) {
-					origin := geometry.NewVec2D(0, 0)
+				func(co layout.Constraint, childrenLayout *ChildrenLayout) geometry.Size {
+					origin := geometry.Vec2D{X: 0, Y: 0}
 
 					for child := childLayout.Node().FirstChild(); child != nil; child = child.Next() {
 						childSize := child.Unwrap().(render.RenderableAccessor).Renderable().Layout(co)
-						childrenPositions = append(childrenPositions,
+						childrenLayout.layouts = append(childrenLayout.layouts,
 							ChildLayout{
 								Node: child,
-								Bounds: geometry.Rect(
-									origin.X(),
-									origin.Y(),
-									origin.X()+childSize.Width(),
-									origin.Y()+childSize.Height()),
+								Bounds: geometry.Rectangle{
+									Origin:   origin,
+									RectSize: childSize,
+								},
 							},
 						)
 
-						origin = origin.Add(geometry.NewVec2D(childSize.Width(), childSize.Height()))
+						origin = origin.Add(geometry.Vec2D{X: childSize.Width, Y: childSize.Height})
 					}
 
-					return childrenPositions, geometry.NewSize(origin.X(), origin.Y())
+					return geometry.Size{Width: origin.X, Height: origin.Y}
 				},
 			),
 		),
@@ -155,7 +152,7 @@ func TestBaseLayoutPropagateMouseEvents(t *testing.T) {
 	greatChildWidget.RenderableAccessor = render.NewComposedRenderable(
 		greatChildWidget,
 		layout.LayoutFunc(func(co layout.Constraint) geometry.Size {
-			return geometry.NewSize(10, 10)
+			return geometry.Size{Width: 10, Height: 10}
 		}),
 		draw.DrawerFunc(func(surface draw.Surface) {}),
 	)
@@ -170,7 +167,7 @@ func TestBaseLayoutPropagateMouseEvents(t *testing.T) {
 	greatChildWidget2.RenderableAccessor = render.NewComposedRenderable(
 		greatChildWidget2,
 		layout.LayoutFunc(func(co layout.Constraint) geometry.Size {
-			return geometry.NewSize(10, 10)
+			return geometry.Size{Width: 10, Height: 10}
 		}),
 		draw.DrawerFunc(func(surface draw.Surface) {}),
 	)
@@ -204,7 +201,7 @@ func TestBaseLayoutPropagateMouseEvents(t *testing.T) {
 
 	// Dispatch a mouse event that is out of child widget bounds.
 	t.Run("OutOfChildBounds", func(t *testing.T) {
-		parent.DispatchEvent(mouse.NewPress(geometry.NewVec2D(50, 50), mouse.Button1, keypress.ModNone))
+		parent.DispatchEvent(mouse.NewPress(geometry.Vec2D{X: 50, Y: 50}, mouse.Button1, keypress.ModNone))
 		require.Equal(t, 0, childWidgetMousePress, "event propagated to child widget")
 		require.Equal(t, 0, childLayoutMousePress, "event propagated to child layout")
 		require.Equal(t, 0, greatChildWidgetMousePress, "event propagated to great child widget")
@@ -213,7 +210,7 @@ func TestBaseLayoutPropagateMouseEvents(t *testing.T) {
 
 	// Dispatch a mouse event that is out of child widget X bounds.
 	t.Run("InChildYBounds", func(t *testing.T) {
-		parent.DispatchEvent(mouse.NewPress(geometry.NewVec2D(50, 5), mouse.Button1, keypress.ModNone))
+		parent.DispatchEvent(mouse.NewPress(geometry.Vec2D{X: 50, Y: 5}, mouse.Button1, keypress.ModNone))
 		require.Equal(t, 0, childWidgetMousePress, "event propagated to child widget")
 		require.Equal(t, 0, childLayoutMousePress, "event propagated to child layout")
 		require.Equal(t, 0, greatChildWidgetMousePress, "event propagated to great child widget")
@@ -222,7 +219,7 @@ func TestBaseLayoutPropagateMouseEvents(t *testing.T) {
 
 	// Dispatch a mouse event that is out of child widget Y bounds.
 	t.Run("InChildXBounds", func(t *testing.T) {
-		parent.DispatchEvent(mouse.NewPress(geometry.NewVec2D(5, 50), mouse.Button1, keypress.ModNone))
+		parent.DispatchEvent(mouse.NewPress(geometry.Vec2D{X: 5, Y: 50}, mouse.Button1, keypress.ModNone))
 		require.Equal(t, 0, childWidgetMousePress, "event propagated to child widget")
 		require.Equal(t, 0, childLayoutMousePress, "event propagated to child layout")
 		require.Equal(t, 0, greatChildWidgetMousePress, "event propagated to great child widget")
@@ -231,7 +228,7 @@ func TestBaseLayoutPropagateMouseEvents(t *testing.T) {
 
 	// Dispatch a mouse event that is within child widget bounds.
 	t.Run("InChildBounds", func(t *testing.T) {
-		parent.DispatchEvent(mouse.NewPress(geometry.NewVec2D(5, 5), mouse.Button1, keypress.ModNone))
+		parent.DispatchEvent(mouse.NewPress(geometry.Vec2D{X: 5, Y: 5}, mouse.Button1, keypress.ModNone))
 		require.Equal(t, 1, childWidgetMousePress, "event not propagated to child widget")
 		require.Equal(t, 0, childLayoutMousePress, "event propagated to child layout")
 		require.Equal(t, 0, greatChildWidgetMousePress, "event propagated to great child widget")
@@ -240,7 +237,7 @@ func TestBaseLayoutPropagateMouseEvents(t *testing.T) {
 
 	// Dispatch a mouse event that is within second great child widget bounds.
 	t.Run("InSecondChildBounds", func(t *testing.T) {
-		parent.DispatchEvent(mouse.NewPress(geometry.NewVec2D(15, 15), mouse.Button1, keypress.ModNone))
+		parent.DispatchEvent(mouse.NewPress(geometry.Vec2D{X: 15, Y: 15}, mouse.Button1, keypress.ModNone))
 		require.Equal(t, 1, childWidgetMousePress, "event not propagated to child widget")
 		require.Equal(t, 1, childLayoutMousePress, "event not propagated to child widget")
 		require.Equal(t, 1, greatChildWidgetMousePress, "event propagated to great child widget")
@@ -249,7 +246,7 @@ func TestBaseLayoutPropagateMouseEvents(t *testing.T) {
 
 	// Dispatch a mouse event that is within second great child widget bounds.
 	t.Run("InSecondChildBounds", func(t *testing.T) {
-		parent.DispatchEvent(mouse.NewPress(geometry.NewVec2D(25, 25), mouse.Button1, keypress.ModNone))
+		parent.DispatchEvent(mouse.NewPress(geometry.Vec2D{X: 25, Y: 25}, mouse.Button1, keypress.ModNone))
 		require.Equal(t, 1, childWidgetMousePress, "event not propagated to child widget")
 		require.Equal(t, 2, childLayoutMousePress, "event not propagated to child widget")
 		require.Equal(t, 1, greatChildWidgetMousePress, "event propagated to great child widget")
@@ -272,7 +269,7 @@ func TestBaseLayoutPropagateMouseEvents(t *testing.T) {
 
 	// Dispatch a mouse event that is within child widget bounds.
 	t.Run("UnmountedChildDoNotReceiveEvents", func(t *testing.T) {
-		parent.DispatchEvent(mouse.NewPress(geometry.NewVec2D(5, 5), mouse.Button1, keypress.ModNone))
+		parent.DispatchEvent(mouse.NewPress(geometry.Vec2D{X: 5, Y: 5}, mouse.Button1, keypress.ModNone))
 		require.Equal(t, 1, childWidgetMousePress, "event propagated to unmounted child widget")
 		require.Equal(t, 2, childLayoutMousePress, "event propagated to unmounted child layout")
 		require.Equal(t, 1, greatChildWidgetMousePress, "event propagated to unmounted great child widget")

@@ -40,10 +40,10 @@ func TestCache(t *testing.T) {
 				cache := NewCache(r)
 
 				r.EXPECT().IsDirty().Return(true)
-				r.EXPECT().Layout(layout.Constraint{}).Return(geometry.NewSize(10, 10))
+				r.EXPECT().Layout(layout.Constraint{}).Return(geometry.Size{Width: 10, Height: 0})
 				size := cache.Layout(layout.Constraint{})
 
-				require.Equal(t, geometry.NewSize(10, 10), size)
+				require.Equal(t, geometry.Size{Width: 10, Height: 0}, size)
 			})
 
 			t.Run("DifferentConstraint/LayoutCallForwarded", func(t *testing.T) {
@@ -57,16 +57,16 @@ func TestCache(t *testing.T) {
 
 				co := layout.Constraint{
 					MinSize:    geometry.Size{},
-					MaxSize:    geometry.NewSize(100, 100),
+					MaxSize:    geometry.Size{Width: 100, Height: 0},
 					ParentSize: geometry.Size{},
 					RootSize:   geometry.Size{},
 				}
 
 				r.EXPECT().IsDirty().Return(true)
-				r.EXPECT().Layout(co).Return(geometry.NewSize(10, 10))
+				r.EXPECT().Layout(co).Return(geometry.Size{Width: 10, Height: 0})
 				size := cache.Layout(co)
 
-				require.Equal(t, geometry.NewSize(10, 10), size)
+				require.Equal(t, geometry.Size{Width: 10, Height: 0}, size)
 			})
 		})
 
@@ -96,16 +96,16 @@ func TestCache(t *testing.T) {
 
 				co := layout.Constraint{
 					MinSize:    geometry.Size{},
-					MaxSize:    geometry.NewSize(100, 100),
+					MaxSize:    geometry.Size{Width: 100, Height: 0},
 					ParentSize: geometry.Size{},
 					RootSize:   geometry.Size{},
 				}
 
 				r.EXPECT().IsDirty().Return(false)
-				r.EXPECT().Layout(co).Return(geometry.NewSize(10, 10))
+				r.EXPECT().Layout(co).Return(geometry.Size{Width: 10, Height: 0})
 				size := cache.Layout(co)
 
-				require.Equal(t, geometry.NewSize(10, 10), size)
+				require.Equal(t, geometry.Size{Width: 10, Height: 0}, size)
 			})
 		})
 	})

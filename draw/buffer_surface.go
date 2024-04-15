@@ -62,13 +62,16 @@ func (bs BufferSurface) set(v2 geometry.Vec2D, cell Cell) {
 }
 
 // Dump the layer to the given io writer
-func (bs BufferSurface) Dump(w io.Writer) {
+func (bs BufferSurface) Dump(w io.Writer) error {
 	var buf bytes.Buffer
 
 	for i, cell := range bs.cells {
 		if i != 0 && i%bs.bounds.Size().Width == 0 {
 			buf.WriteRune('\n')
-			w.Write(buf.Bytes())
+			_, err := w.Write(buf.Bytes())
+			if err != nil {
+				return err
+			}
 			buf.Reset()
 		}
 
@@ -80,5 +83,6 @@ func (bs BufferSurface) Dump(w io.Writer) {
 	}
 
 	buf.WriteRune('\n')
-	w.Write(buf.Bytes())
+	_, err := w.Write(buf.Bytes())
+	return err
 }

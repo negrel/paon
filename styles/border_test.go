@@ -13,14 +13,14 @@ func TestBorderDrawer(t *testing.T) {
 		t.Run("DefaultStyle", func(t *testing.T) {
 			drawer := BorderDrawers[BorderHidden]
 			style := BordersStyle{}
-			surface := draw.NewBufferSurface(geometry.NewSize(10, 10))
+			surface := draw.NewBufferSurface(geometry.Size{Width: 10, Height: 0})
 
 			t.Run("Left", func(t *testing.T) {
 				drawer.Left(style, surface)
 
-				for x := 0; x < surface.Size().Width(); x++ {
-					for y := 0; y < surface.Size().Height(); y++ {
-						require.Equal(t, draw.Cell{}, surface.Get(geometry.NewVec2D(x, y)))
+				for x := 0; x < surface.Size().Width; x++ {
+					for y := 0; y < surface.Size().Height; y++ {
+						require.Equal(t, draw.Cell{}, surface.Get(geometry.Vec2D{X: x, Y: y}))
 					}
 				}
 			})
@@ -28,9 +28,9 @@ func TestBorderDrawer(t *testing.T) {
 			t.Run("Top", func(t *testing.T) {
 				drawer.Top(style, surface)
 
-				for x := 0; x < surface.Size().Width(); x++ {
-					for y := 0; y < surface.Size().Height(); y++ {
-						require.Equal(t, draw.Cell{}, surface.Get(geometry.NewVec2D(x, y)))
+				for x := 0; x < surface.Size().Width; x++ {
+					for y := 0; y < surface.Size().Height; y++ {
+						require.Equal(t, draw.Cell{}, surface.Get(geometry.Vec2D{X: x, Y: y}))
 					}
 				}
 			})
@@ -38,9 +38,9 @@ func TestBorderDrawer(t *testing.T) {
 			t.Run("Right", func(t *testing.T) {
 				drawer.Right(style, surface)
 
-				for x := 0; x < surface.Size().Width(); x++ {
-					for y := 0; y < surface.Size().Height(); y++ {
-						require.Equal(t, draw.Cell{}, surface.Get(geometry.NewVec2D(x, y)))
+				for x := 0; x < surface.Size().Width; x++ {
+					for y := 0; y < surface.Size().Height; y++ {
+						require.Equal(t, draw.Cell{}, surface.Get(geometry.Vec2D{X: x, Y: y}))
 					}
 				}
 			})
@@ -48,9 +48,9 @@ func TestBorderDrawer(t *testing.T) {
 			t.Run("Bottom", func(t *testing.T) {
 				drawer.Bottom(style, surface)
 
-				for x := 0; x < surface.Size().Width(); x++ {
-					for y := 0; y < surface.Size().Height(); y++ {
-						require.Equal(t, draw.Cell{}, surface.Get(geometry.NewVec2D(x, y)))
+				for x := 0; x < surface.Size().Width; x++ {
+					for y := 0; y < surface.Size().Height; y++ {
+						require.Equal(t, draw.Cell{}, surface.Get(geometry.Vec2D{X: x, Y: y}))
 					}
 				}
 			})
@@ -68,14 +68,14 @@ func TestBorderDrawer(t *testing.T) {
 				Left:   BorderSide{},
 				Right:  BorderSide{},
 			}
-			surface := draw.NewBufferSurface(geometry.NewSize(10, 10))
+			surface := draw.NewBufferSurface(geometry.Size{Width: 10, Height: 0})
 
 			t.Run("Left", func(t *testing.T) {
 				drawer.Left(style, surface)
 
-				for x := 0; x < surface.Size().Width(); x++ {
-					for y := 0; y < surface.Size().Height(); y++ {
-						require.Equal(t, draw.Cell{}, surface.Get(geometry.NewVec2D(x, y)))
+				for x := 0; x < surface.Size().Width; x++ {
+					for y := 0; y < surface.Size().Height; y++ {
+						require.Equal(t, draw.Cell{}, surface.Get(geometry.Vec2D{X: x, Y: y}))
 					}
 				}
 			})
@@ -83,9 +83,9 @@ func TestBorderDrawer(t *testing.T) {
 			t.Run("Top", func(t *testing.T) {
 				drawer.Top(style, surface)
 
-				for x := 0; x < surface.Size().Width(); x++ {
-					for y := 0; y < surface.Size().Height(); y++ {
-						require.Equal(t, draw.Cell{}, surface.Get(geometry.NewVec2D(x, y)))
+				for x := 0; x < surface.Size().Width; x++ {
+					for y := 0; y < surface.Size().Height; y++ {
+						require.Equal(t, draw.Cell{}, surface.Get(geometry.Vec2D{X: x, Y: y}))
 					}
 				}
 			})
@@ -93,9 +93,9 @@ func TestBorderDrawer(t *testing.T) {
 			t.Run("Right", func(t *testing.T) {
 				drawer.Right(style, surface)
 
-				for x := 0; x < surface.Size().Width(); x++ {
-					for y := 0; y < surface.Size().Height(); y++ {
-						require.Equal(t, draw.Cell{}, surface.Get(geometry.NewVec2D(x, y)))
+				for x := 0; x < surface.Size().Width; x++ {
+					for y := 0; y < surface.Size().Height; y++ {
+						require.Equal(t, draw.Cell{}, surface.Get(geometry.Vec2D{X: x, Y: y}))
 					}
 				}
 			})
@@ -103,9 +103,9 @@ func TestBorderDrawer(t *testing.T) {
 			t.Run("Bottom", func(t *testing.T) {
 				drawer.Bottom(style, surface)
 
-				for x := 0; x < surface.Size().Width(); x++ {
-					for y := 0; y < surface.Size().Height(); y++ {
-						require.Equal(t, draw.Cell{}, surface.Get(geometry.NewVec2D(x, y)))
+				for x := 0; x < surface.Size().Width; x++ {
+					for y := 0; y < surface.Size().Height; y++ {
+						require.Equal(t, draw.Cell{}, surface.Get(geometry.Vec2D{X: x, Y: y}))
 					}
 				}
 			})

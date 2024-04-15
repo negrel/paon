@@ -1,6 +1,6 @@
 package draw
 
-// Drawer define an object that can draw on a Canvas.
+// Drawer define an object that can draw on a Surface.
 type Drawer interface {
 	Draw(Surface)
 }
