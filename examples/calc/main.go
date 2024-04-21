@@ -29,13 +29,23 @@ func main() {
 	counter := 0
 
 	// Counter span and a function to sync value and span.
-	counterSpan := span.New("0")
+	counterSpan := span.New("0", span.WithStyle(widgets.Style{}.Border(styles.BorderSide{
+		Size:      10,
+		Style:     0,
+		CellStyle: draw.CellStyle{},
+	})))
 	updateCounterSpan := func() {
 		counterSpan.SetText(fmt.Sprintf("%v", counter))
 	}
 
 	// Button style.
-	btnStyle := widgets.Style{}.Padding(1)
+	btnStyle := widgets.Style{}.Padding(0, 1).Border(styles.BorderSide{
+		Size:  1,
+		Style: styles.BorderHidden,
+		CellStyle: draw.CellStyle{
+			Background: colors.ColorGreen,
+		},
+	}).Margin(1)
 
 	// Start application.
 	err = app.Start(ctx, widgets.NewRoot(
@@ -55,10 +65,13 @@ func main() {
 					),
 					hbox.WithStyle(
 						widgets.Style{}.
-							Padding(1).
-							Borders(styles.BorderSide{Size: 3, Style: styles.BorderHidden, CellStyle: draw.CellStyle{
-								Foreground: colors.ColorRed,
-							}}).
+							Border(styles.BorderSide{
+								Size:  3,
+								Style: styles.BorderHidden,
+								CellStyle: draw.CellStyle{
+									Background: colors.ColorRed,
+								},
+							}).
 							Background(colors.ColorRebeccaPurple).
 							Foreground(colors.ColorBlack),
 					)),

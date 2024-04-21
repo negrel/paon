@@ -2,9 +2,9 @@ package render
 
 import (
 	"github.com/negrel/paon/draw"
+	"github.com/negrel/paon/events"
 	"github.com/negrel/paon/geometry"
 	"github.com/negrel/paon/layout"
-	"github.com/negrel/paon/tree"
 )
 
 // Renderable define any object that can be rendered.
@@ -29,26 +29,20 @@ type RenderableAccessor interface {
 // efficiently dirty state management and is ideal for embedding into more complex
 // renderable.
 type VoidRenderable struct {
-	nodeAccessor tree.NodeAccessor
-	dirty        bool
+	target events.Target
+	dirty  bool
 }
 
 // NewVoidRenderable returns a new VoidRenderable.
-func NewVoidRenderable(nodeAccessor tree.NodeAccessor) VoidRenderable {
+func NewVoidRenderable(target events.Target) VoidRenderable {
 	return VoidRenderable{
-		nodeAccessor: nodeAccessor,
-		dirty:        true,
+		dirty: true,
 	}
 }
 
 // Renderable implements RenderableAccessor.
 func (vr *VoidRenderable) Renderable() Renderable {
 	return vr
-}
-
-// Node implements tree.NodeAccessor.
-func (vr *VoidRenderable) Node() *tree.Node {
-	return vr.nodeAccessor.Node()
 }
 
 // Draw implements Renderable.
@@ -72,11 +66,7 @@ func (vr *VoidRenderable) IsDirty() bool {
 // MarkDirty implements Renderable.
 func (vr *VoidRenderable) MarkDirty() {
 	if !vr.dirty {
-		parent := vr.nodeAccessor.Node().Parent()
 		vr.dirty = true
-		if parent != nil {
-			parent.Unwrap().(RenderableAccessor).Renderable().MarkDirty()
-		}
 	}
 }
 
@@ -90,9 +80,9 @@ type ComposedRenderable struct {
 	draw.Drawer
 }
 
-func NewComposedRenderable(nodeAccessor tree.NodeAccessor, layout layout.Layout, drawer draw.Drawer) *ComposedRenderable {
+func NewComposedRenderable(layout layout.Layout, drawer draw.Drawer) *ComposedRenderable {
 	return &ComposedRenderable{
-		VoidRenderable: NewVoidRenderable(nodeAccessor),
+		VoidRenderable: NewVoidRenderable(),
 		LayoutLayout:   layout,
 		Drawer:         drawer,
 	}

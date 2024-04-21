@@ -17,6 +17,7 @@ func HandlerFunc(handler func(event Event)) Handler {
 	return handlerFunc{id.New(), handler}
 }
 
+// HandleEvent implements Handler.
 func (hf handlerFunc) HandleEvent(event Event) {
 	hf.handler(event)
 }

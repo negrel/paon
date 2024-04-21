@@ -49,8 +49,8 @@ func New(modifiers ModMask, key Key, r rune) Event {
 }
 
 // String implements the fmt.Stringer interface.
-func (kp Event) String() string {
-	return fmt.Sprintf("%v{Modifiers: %v, Key: %v, Rune: %v}", kp.Type(), kp.Modifiers, kp.Key, string(kp.Rune))
+func (e Event) String() string {
+	return fmt.Sprintf("%v{Modifiers: %v, Key: %v, Rune: %v}", e.Type(), e.Modifiers, e.Key, string(e.Rune))
 }
 
 // String implements the fmt.Stringer interface.

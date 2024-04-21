@@ -24,15 +24,19 @@ func main() {
 	// Start application.
 	err = app.Start(ctx, vbox.New(
 		hbox.New(
-			span.New("English    "),
-			span.New(" | "),
-			span.New("French"),
+			hbox.WithChildren(
+				span.New("English    "),
+				span.New(" | "),
+				span.New("French"),
+			),
 		),
 		span.New("-----------------------------------"),
 		hbox.New(
-			span.New("Hello world"),
-			span.New(" | "),
-			span.New("Bonjour tout le monde"),
+			hbox.WithChildren(
+				span.New("Hello world"),
+				span.New(" | "),
+				span.New("Bonjour tout le monde"),
+			),
 		),
 		button.New("Click to exit", button.OnClick(func(event mouse.ClickEvent) {
 			cancel()

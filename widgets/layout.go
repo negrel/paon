@@ -69,6 +69,7 @@ func NewBaseLayout(
 	}
 
 	// Dispatch mouse event to child.
+	bl.Widget.AddEventListener(mouse.EventListener(dispatchMouseEvent))
 	bl.Widget.AddEventListener(mouse.PressListener(dispatchMouseEvent))
 	bl.Widget.AddEventListener(mouse.UpListener(dispatchMouseEvent))
 	bl.Widget.AddEventListener(mouse.ClickListener(dispatchClickEvent))

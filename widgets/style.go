@@ -132,7 +132,7 @@ func (s Style) InheritBorders() Style {
 	return s
 }
 
-func (s Style) Borders(borders ...styles.BorderSide) Style {
+func (s Style) Border(borders ...styles.BorderSide) Style {
 	if s.bordersStyle == nil {
 		s.bordersStyle = &bordersStyle{}
 	}

@@ -1,4 +1,4 @@
-package span
+package input
 
 import (
 	"github.com/negrel/paon/draw"
@@ -12,7 +12,7 @@ import (
 
 type Option func(*Widget)
 
-// WithStyle define span internal styles.Style.
+// WithStyle define input internal styles.Style.
 func WithStyle(style widgets.Style) Option {
 	return func(w *Widget) {
 		w.Cache.Unwrap().Renderable.style.InnerStyle = style

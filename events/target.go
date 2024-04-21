@@ -21,6 +21,7 @@ func NewTarget() Target {
 	}
 }
 
+// AddEventListener implements Target.
 func (t target) AddEventListener(tpe Type, listener Handler) {
 	if t.listeners[tpe] == nil {
 		t.listeners[tpe] = make([]Handler, 0, 8)
@@ -29,7 +30,7 @@ func (t target) AddEventListener(tpe Type, listener Handler) {
 	t.listeners[tpe] = append(t.listeners[tpe], listener)
 }
 
-// RemoveEventListener removes an event listener of a specific event type from the target.
+// RemoveEventListener implements Target.
 func (t target) RemoveEventListener(tpe Type, listener Handler) {
 	if t.listeners[tpe] == nil {
 		return
@@ -43,12 +44,14 @@ func (t target) RemoveEventListener(tpe Type, listener Handler) {
 	}
 }
 
-// DispatchEvent dispatch the given event to listeners.
+// DispatchEvent implements Target.
 func (t target) DispatchEvent(event Event) {
 	i := uint32(event.Type())
 	if t.listeners[i] == nil {
 		return
 	}
+
+	event = event.WithTarget(t)
 
 	for _, listener := range t.listeners[i] {
 		listener.HandleEvent(event)
@@ -63,13 +66,14 @@ func NewNoOpTarget() Target {
 	return noOpTarget{}
 }
 
+// AddEventListener implements Target.
 func (not noOpTarget) AddEventListener(tpe Type, listener Handler) {
 }
 
-// RemoveEventListener removes an event listener of a specific event type from the target.
+// RemoveEventListener implements Target.
 func (not noOpTarget) RemoveEventListener(tpe Type, listener Handler) {
 }
 
-// DispatchEvent dispatch the given event to listeners.
+// DispatchEvent implements Target.
 func (not noOpTarget) DispatchEvent(event Event) {
 }

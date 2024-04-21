@@ -16,7 +16,7 @@ func EventListener(handler func(Event)) (events.Type, events.Handler) {
 	})
 }
 
-// Event is a generic mouse event. A mouse event can be an event of type:
+// Event is a generic mouse event. A mouse event can be of events.Type:
 //
 // * MousePress
 //

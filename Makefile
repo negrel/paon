@@ -1,7 +1,7 @@
 all: test bench
 
-.PHONY: test
-test:
+.PHONY: tests
+tests:
 	go generate ./...
 	go test -v -timeout 30s ./...
 

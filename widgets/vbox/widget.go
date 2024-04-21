@@ -3,7 +3,8 @@ package vbox
 import (
 	"github.com/negrel/paon/geometry"
 	"github.com/negrel/paon/layout"
-	"github.com/negrel/paon/math"
+	"github.com/negrel/paon/minmax"
+	"github.com/negrel/paon/render"
 	"github.com/negrel/paon/widgets"
 )
 
@@ -13,7 +14,10 @@ type Option func(*Widget)
 func WithChildren(children ...widgets.Widget) Option {
 	return func(w *Widget) {
 		for _, child := range children {
-			w.Node().AppendChild(child.Node())
+			err := w.Node().AppendChild(child.Node())
+			if err != nil {
+				panic(err)
+			}
 		}
 	}
 }
@@ -21,68 +25,77 @@ func WithChildren(children ...widgets.Widget) Option {
 // WithStyle return an option that sets button widget style.
 func WithStyle(style widgets.Style) Option {
 	return func(w *Widget) {
-		w.StyledLayout.SetStyle(widgets.InheritStyle{
-			Widget:     w,
-			InnerStyle: style,
-		})
+		w.style.InnerStyle = style
 	}
 }
 
 type Widget struct {
-	widgets.StyledLayout
+	*widgets.BaseLayout
+	style widgets.InheritStyle
 }
 
 func New(options ...Option) *Widget {
 	w := &Widget{}
+	w.style = widgets.InheritStyle{
+		NodeAccessor: w,
+		InnerStyle:   widgets.Style{},
+	}
 
-	w.StyledLayout = widgets.NewStyledLayout(
-		widgets.NewBaseWidget(w),
-		nil,
-		func(co layout.Constraint, childrenRects []geometry.Rectangle) ([]geometry.Rectangle, geometry.Size) {
-			size := geometry.NewSize(0, 0)
-			freeSpace := co.MaxSize
+	w.BaseLayout = widgets.NewBaseLayout(
+		widgets.NewPanicWidget(w),
+		widgets.NewStyledLayoutRenderable(
+			&w.style,
+			widgets.NewBaseLayoutRenderable(
+				w,
+				widgets.LayoutChildrenFunc(
+					func(co layout.Constraint, childrenLayout *widgets.ChildrenLayout) geometry.Size {
+						size := geometry.Size{}
+						freeSpace := co.MaxSize
 
-			for child := w.Node().FirstChild(); child != nil; child = child.Next() {
-				// Previous child fulfilled the surface, no need to render next siblings.
-				if freeSpace.Width() <= 0 {
-					break
-				}
+						for child := w.Node().FirstChild(); child != nil; child = child.Next() {
+							// Previous child fulfilled the surface, no need to render next siblings.
+							if freeSpace.Width <= 0 {
+								break
+							}
 
-				// Compute child size.
-				childLayout := child.Unwrap().(layout.Layout)
-				childSize := childLayout.Layout(layout.Constraint{
-					MinSize:    geometry.NewSize(0, 0),
-					MaxSize:    freeSpace,
-					ParentSize: co.ParentSize,
-					RootSize:   co.RootSize,
-				})
+							// Compute child size.
+							childLayout := child.Unwrap().(render.RenderableAccessor).Renderable()
 
-				// Store child rectangle.
-				childrenRects = append(childrenRects, geometry.Rect(0, size.Height(), childSize.Width(), size.Height()+childSize.Height()))
+							childSize := childLayout.Layout(layout.Constraint{
+								MinSize:    geometry.Size{},
+								MaxSize:    freeSpace,
+								ParentSize: co.ParentSize,
+								RootSize:   co.RootSize,
+							})
 
-				// Update freespace.
-				freeSpace = geometry.NewSize(freeSpace.Width(), freeSpace.Height()-childSize.Height())
+							// Store child rectangle.
+							childrenLayout.Append(widgets.ChildLayout{
+								Node: child,
+								Bounds: geometry.Rectangle{
+									Origin:   geometry.Vec2D{Y: size.Height},
+									RectSize: childSize,
+								},
+							})
 
-				// Update VBox size.
-				size = geometry.NewSize(
-					math.Max(size.Width(), childSize.Width()),
-					size.Height()+childSize.Height(),
-				)
-			}
+							// Update freespace.
+							freeSpace.Height -= childSize.Height
 
-			return childrenRects, size
-		},
+							// Update VBox size.
+							size = geometry.Size{
+								Width:  minmax.Max(size.Width, childSize.Width),
+								Height: size.Height + childSize.Height,
+							}
+						}
+
+						return size
+					},
+				),
+			),
+		),
 	)
 
 	for _, applyOption := range options {
 		applyOption(w)
-	}
-
-	if w.StyledLayout.Style() == nil {
-		w.StyledLayout.SetStyle(widgets.InheritStyle{
-			Widget:     w,
-			InnerStyle: widgets.Style{},
-		})
 	}
 
 	return w

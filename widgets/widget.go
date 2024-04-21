@@ -14,17 +14,17 @@ import (
 type Widget interface {
 	events.Target
 	styles.Styled
-	tree.NodeAccessor
+	tree.NodeAccessor[Widget]
 	render.RenderableAccessor
 
-	setNode(*tree.Node)
+	setNode(*tree.Node[Widget])
 
 	// Swap swaps this widget node with node of the given one.
 	Swap(Widget)
 }
 
 // IsMounted return whether a Node is mounted on an active Widget tree.
-func IsMounted(n *tree.Node) bool {
+func IsMounted(n *tree.Node[Widget]) bool {
 	root := n.Root()
 	if root == nil {
 		return false
@@ -34,18 +34,14 @@ func IsMounted(n *tree.Node) bool {
 	return isRoot
 }
 
-// Private events.Target for private embedding.
-type eventTarget = events.Target
-
 var _ Widget = &PanicWidget{}
 
 // PanicWidget define a minimal (and incomplete) Widget type.
 // PanicWidget implements panic methods for styles.Styled and render.RenderableAccessor
 // interfaces.
 type PanicWidget struct {
-	eventTarget
-
-	node *tree.Node
+	target events.Target
+	node   *tree.Node[Widget]
 }
 
 // NewPanicWidget returns a new PanicWidget object configured with
@@ -58,8 +54,8 @@ func NewPanicWidget(nodeData Widget) *PanicWidget {
 
 func newBaseWidget(nodeData Widget) *PanicWidget {
 	widget := &PanicWidget{
-		eventTarget: events.NewTarget(),
-		node:        tree.NewNode(nodeData),
+		target: events.NewTarget(),
+		node:   tree.NewNode(nodeData),
 	}
 
 	return widget
@@ -78,11 +74,11 @@ func (bw *PanicWidget) Swap(other Widget) {
 }
 
 // Node implements the Widget interface.
-func (bw *PanicWidget) Node() *tree.Node {
+func (bw *PanicWidget) Node() *tree.Node[Widget] {
 	return bw.node
 }
 
-func (bw *PanicWidget) setNode(node *tree.Node) {
+func (bw *PanicWidget) setNode(node *tree.Node[Widget]) {
 	bw.node = node
 }
 
