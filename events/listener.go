@@ -1,38 +1,22 @@
 package events
 
-import "github.com/negrel/paon/id"
-
-// Handler define an event handler.
-type Handler interface {
-	id.Identifiable
+// Listener define an objectc listening for events.
+type Listener interface {
 	HandleEvent(event Event)
 }
 
-type handlerFunc struct {
-	id      id.ID
-	handler func(event Event)
+// ListenerFunc is wrapper around handler function that implements Listener.
+type ListenerFunc struct {
+	listenerPtr *func(event Event)
 }
 
-func HandlerFunc(handler func(event Event)) Handler {
-	return handlerFunc{id.New(), handler}
+// NewListenerFunc returns a new
+func NewListenerFunc(fn func(event Event)) ListenerFunc {
+	return ListenerFunc{listenerPtr: &fn}
 }
 
-func (hf handlerFunc) HandleEvent(event Event) {
-	hf.handler(event)
+// HandleEvent implements Listener.
+func (lf ListenerFunc) HandleEvent(event Event) {
+	(*lf.listenerPtr)(event)
 }
 
-// ID implements the id.Identifiable interface.
-func (hf handlerFunc) ID() id.ID {
-	return hf.id
-}
-
-// IsSame implements the id.Identifiable interface.
-func (hf handlerFunc) IsSame(other id.Identifiable) bool {
-	return hf.id == other.ID()
-}
-
-// Listener define a pair event type and handler.
-type Listener struct {
-	EventType Type
-	Handler   Handler
-}

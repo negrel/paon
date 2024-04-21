@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestTarget(t *testing.T) {
@@ -12,19 +13,44 @@ func TestTarget(t *testing.T) {
 	target := NewTarget()
 
 	counter := 0
-	handler1 := HandlerFunc(func(event Event) { counter++ })
-	handler2 := HandlerFunc(func(event Event) { counter += 2 })
+	listener1 := NewListenerFunc(func(event Event) { counter++ })
+	listener2 := NewListenerFunc(func(event Event) { counter += 2 })
 
-	target.AddEventListener(testEventType, handler1)
-	target.AddEventListener(testEventType, handler2)
+	target.AddEventListener(testEventType, listener1)
+	target.AddEventListener(testEventType, listener2)
 
-	target.DispatchEvent(NewEvent(testEventType))
+	target.DispatchEvent(NewEvent(testEventType, nil))
 	assert.Equal(t, 3, counter)
 
 	counter = 0
-	target.RemoveEventListener(testEventType, handler2)
-	target.DispatchEvent(NewEvent(testEventType))
+	target.RemoveEventListener(testEventType, listener2)
+	target.DispatchEvent(NewEvent(testEventType, nil))
 	assert.Equal(t, 1, counter)
+}
+
+func TestTargetModifyAndForwardEvent(t *testing.T) {
+	testEventType := NewType("TestType")
+	target := NewTarget()
+	// target2 := NewTarget()
+	otherTarget := NewTarget()
+
+	listenerCall := 0
+	listener1 := NewListenerFunc(func(event Event) {
+		require.Equal(t, 0, listenerCall)
+		require.Equal(t, target, event.Target())
+		event.WithTarget(otherTarget) // Try to overwrite.
+		listenerCall++
+	})
+	listener2 := NewListenerFunc(func(event Event) {
+		require.Equal(t, target, event.Target())
+		listenerCall++
+	})
+
+	target.AddEventListener(testEventType, listener1)
+	target.AddEventListener(testEventType, listener2)
+
+	ev := NewEvent(testEventType, nil).WithTarget(target)
+	target.DispatchEvent(ev)
 }
 
 func BenchmarkTargetDispatchEvent(b *testing.B) {
@@ -36,12 +62,12 @@ func BenchmarkTargetDispatchEvent(b *testing.B) {
 				target := NewTarget()
 
 				for i := 0; i < nbListener; i++ {
-					target.AddEventListener(benchEventType, HandlerFunc(func(event Event) {}))
+					target.AddEventListener(benchEventType, NewListenerFunc(func(event Event) {}))
 				}
 
 				events := make([]Event, nbEvent+1)
 				for i := 0; i < nbEvent; i++ {
-					events[i] = NewEvent(benchEventType)
+					events[i] = NewEvent(benchEventType, i)
 				}
 
 				b.ResetTimer()

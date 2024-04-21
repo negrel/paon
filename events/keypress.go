@@ -1,25 +1,17 @@
-package keypress
+package events
 
-import (
-	"fmt"
+var KeypressEventType = NewType("KeyPress")
 
-	"github.com/negrel/paon/events"
-)
-
-var EventType = events.NewType("KeyPress")
-
-// Listener returns an events.Listener that will call the given handler
-// on key press events.
-func Listener(handler func(Event)) (events.Type, events.Handler) {
-	return EventType, events.HandlerFunc(func(event events.Event) {
-		handler(event.(Event))
+// KeypressListener returns a listener that will call the given
+// handler on key press events.
+func KeypressListener(handler func(Event, KeypressEventData)) (Type, Listener) {
+	return KeypressEventType, NewListenerFunc(func(event Event) {
+		handler(event, event.Unwrap().(KeypressEventData))
 	})
 }
 
-// Event define a key press event.
-type Event struct {
-	events.Event
-
+// KeypressEventData define data contained in a key press event.
+type KeypressEventData struct {
 	// Modifiers is the modifiers that were present with the key press. Note
 	// that not all platforms and terminals support this equally well, and some
 	// cases we will not not know for sure. Hence, applications should avoid
@@ -39,18 +31,14 @@ type Event struct {
 }
 
 // New returns a new key press event.
-func New(modifiers ModMask, key Key, r rune) Event {
-	return Event{
-		Event:     events.NewEvent(EventType),
+func NewKeypress(modifiers ModMask, key Key, r rune) Event {
+	data := KeypressEventData{
 		Modifiers: modifiers,
 		Key:       key,
 		Rune:      r,
 	}
-}
 
-// String implements the fmt.Stringer interface.
-func (kp Event) String() string {
-	return fmt.Sprintf("%v{Modifiers: %v, Key: %v, Rune: %v}", kp.Type(), kp.Modifiers, kp.Key, string(kp.Rune))
+	return NewEvent(KeypressEventType, data)
 }
 
 // String implements the fmt.Stringer interface.

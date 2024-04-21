@@ -1,4 +1,8 @@
-package mouse
+package events
+
+import (
+	"github.com/negrel/paon/geometry"
+)
 
 // Copied from tcell
 
@@ -29,3 +33,42 @@ const (
 	ButtonSecondary = Button2
 	ButtonMiddle    = Button3
 )
+
+// Not copied from tcell
+
+var MouseEventType = NewType("Mouse")
+
+// MouseEventListener returns a listener that will call the given handler
+// on mouse
+func MouseEventListener(handler func(Event, MouseEventData)) (Type, Listener) {
+	return MouseEventType, NewListenerFunc(func(event Event) {
+		handler(event, event.Unwrap().(MouseEventData))
+	})
+}
+
+// MouseEventData define data contained in all mouse event.
+type MouseEventData struct {
+	// Mouse absolute position.
+	AbsPosition geometry.Vec2D
+	// Position relative to element position.
+	RelPosition geometry.Vec2D
+	// List of buttons that were pressed.
+	Buttons ButtonMask
+	// Modifiers is the modifiers that were present with the key press. Note
+	// that not all platforms and terminals support this equally well, and some
+	// cases we will not not know for sure. Hence, applications should avoid
+	// using this in most circumstances.
+	Modifiers ModMask
+}
+
+// NewMouseEvent returns a new mouse event.
+func NewMouseEvent(pos geometry.Vec2D, buttons ButtonMask, mods ModMask) Event {
+	data := MouseEventData{
+		AbsPosition: pos,
+		RelPosition: pos,
+		Buttons:     buttons,
+		Modifiers:   mods,
+	}
+
+	return NewEvent(MouseEventType, data)
+}

@@ -4,36 +4,51 @@ import (
 	"time"
 )
 
-// Event is a generic interface for all events
-type Event interface {
-	When() int64
-	Type() Type
-}
-
-type event struct {
-	eType     Type
-	timeStamp int64
+type Event struct {
+	eType  Type
+	time   time.Time
+	target Target
+	data   any
 }
 
 // NewEvent returns a new Event object of the given type. This function
 // should be used as a base for real Event objects.
-func NewEvent(eventType Type) Event {
-	return newEvent(eventType)
+func NewEvent(eventType Type, data any) Event {
+	return newEvent(eventType, data)
 }
 
-func newEvent(eventType Type) event {
-	return event{
-		eType:     eventType,
-		timeStamp: time.Now().UnixNano(),
+func newEvent(eventType Type, data any) Event {
+	return Event{
+		eType:  eventType,
+		time:   time.Now(),
+		target: nil,
+		data:   data,
 	}
 }
 
-// Type returns the type of the event.
-func (e event) Type() Type {
+// EventType returns the type of the event.
+func (e Event) EventType() Type {
 	return e.eType
 }
 
 // When returns the timestamp of the event.
-func (e event) When() int64 {
-	return e.timeStamp
+func (e Event) When() time.Time {
+	return e.time
+}
+
+// Target returns target set previously using WithTarget.
+func (e Event) Target() Target {
+	return e.target
+}
+
+// WithTarget creates a copy of this event with a different target and returns
+// it.
+func (e Event) WithTarget(t Target) Event {
+	e.target = t
+	return e
+}
+
+// Unwrap returns inner data contained within event.
+func (e Event) Unwrap() any {
+	return e.data
 }
