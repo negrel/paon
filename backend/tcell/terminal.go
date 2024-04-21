@@ -7,9 +7,6 @@ import (
 	"github.com/negrel/paon/backend"
 	"github.com/negrel/paon/draw"
 	"github.com/negrel/paon/events"
-	"github.com/negrel/paon/events/keypress"
-	"github.com/negrel/paon/events/mouse"
-	"github.com/negrel/paon/events/resize"
 	"github.com/negrel/paon/geometry"
 )
 
@@ -94,12 +91,11 @@ func (c *Terminal) Stop() {
 
 func eventLoop(pollFunc func() tcell.Event, evch chan<- events.Event) {
 	oldSize := geometry.Size{}
-	mousePress := mouse.Event{}
+	mousePress := events.MouseEventData{}
 
 	for {
 		event := pollFunc()
 		if event == nil {
-			evch <- nil
 			return
 		}
 
@@ -110,7 +106,7 @@ func eventLoop(pollFunc func() tcell.Event, evch chan<- events.Event) {
 		case *tcell.EventResize:
 			newWidth, newHeight := ev.Size()
 			newSize := geometry.Size{Width: newWidth, Height: newHeight}
-			resize := resize.New(oldSize, newSize)
+			resize := events.NewResizeEvent(oldSize, newSize)
 			oldSize = newSize
 
 			evch <- resize
@@ -119,70 +115,71 @@ func eventLoop(pollFunc func() tcell.Event, evch chan<- events.Event) {
 			newX, newY := ev.Position()
 			pos := geometry.Vec2D{X: newX, Y: newY}
 
-			evch <- mouse.NewEvent(
+			evch <- events.NewMouseEvent(
 				pos,
-				mouse.ButtonMask(ev.Buttons()),
-				keypress.ModMask(ev.Modifiers()),
+				events.ButtonMask(ev.Buttons()),
+				events.ModMask(ev.Modifiers()),
 			)
 
 			// A button was pressed in previous event.
-			if mousePress.Event != nil && ev.Buttons() == tcell.ButtonNone {
+			if (mousePress != events.MouseEventData{}) && ev.Buttons() == tcell.ButtonNone {
 				// Mouse up.
-				evch <- mouse.NewUp(
+				evch <- events.NewMouseUp(
 					pos,
-					mouse.ButtonMask(ev.Buttons()),
-					keypress.ModMask(ev.Modifiers()),
+					events.ButtonMask(ev.Buttons()),
+					events.ModMask(ev.Modifiers()),
 				)
 
-				if mousePress.Buttons&mouse.ButtonPrimary != 0 {
-					evch <- mouse.NewClick(
+				if mousePress.Buttons&events.ButtonPrimary != 0 {
+					evch <- events.NewClick(
 						pos,
-						mouse.ButtonMask(ev.Buttons()),
-						keypress.ModMask(ev.Modifiers()),
+						events.ButtonMask(ev.Buttons()),
+						events.ModMask(ev.Modifiers()),
 						mousePress,
 					)
 				}
 
-				mousePress = mouse.Event{}
+				mousePress = events.MouseEventData{}
 				continue
 			}
 
-			if mousePress.Event == nil && ev.Buttons() >= tcell.Button1 && ev.Buttons() <= tcell.Button8 {
+			if (mousePress == events.MouseEventData{}) && ev.Buttons() >= tcell.Button1 && ev.Buttons() <= tcell.Button8 {
 				// Store mouse press until button is released.
-				mousePress = mouse.NewPress(
+				mousePressEvent := events.NewMousePress(
 					pos,
-					mouse.ButtonMask(ev.Buttons()),
-					keypress.ModMask(ev.Modifiers()),
+					events.ButtonMask(ev.Buttons()),
+					events.ModMask(ev.Modifiers()),
 				)
-				evch <- mousePress
+				mousePress = mousePressEvent.Unwrap().(events.MouseEventData)
+				evch <- mousePressEvent
 			}
 
 			if ev.Buttons() >= tcell.WheelUp && ev.Buttons() <= tcell.WheelRight {
-				scrollDir := mouse.ScrollUp
+				scrollDir := events.ScrollUp
 				switch ev.Buttons() {
 				case tcell.WheelUp:
 				// Default.
 				case tcell.WheelDown:
-					scrollDir = mouse.ScrollDown
+					scrollDir = events.ScrollDown
 				case tcell.WheelLeft:
-					scrollDir = mouse.ScrollLeft
+					scrollDir = events.ScrollLeft
 				case tcell.WheelRight:
-					scrollDir = mouse.ScrollRight
+					scrollDir = events.ScrollRight
 				}
 
 				// Store scroll event until scroll ends is triggered.
-				scrollEvent := mouse.NewScroll(
+				scrollEvent := events.NewScroll(
 					pos,
-					keypress.ModMask(ev.Modifiers()),
+					events.ModMask(ev.Modifiers()),
 					scrollDir,
 				)
 				evch <- scrollEvent
 			}
 
 		case *tcell.EventKey:
-			evch <- keypress.New(
-				keypress.ModMask(ev.Modifiers()),
-				keypress.Key(ev.Key()),
+			evch <- events.NewKeypress(
+				events.ModMask(ev.Modifiers()),
+				events.Key(ev.Key()),
 				ev.Rune(),
 			)
 
