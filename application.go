@@ -25,7 +25,7 @@ type Application struct {
 	// do channel that don't trigger a render.
 	privateDo chan func()
 	// Root of widgets tree.
-	root widgets.Root
+	root *widgets.Root
 	// event channel written by terminal backend and read by event loop.
 	evch chan events.Event
 }
@@ -73,7 +73,7 @@ func (app *Application) DoChannel() chan<- func() {
 }
 
 // Start starts the application console, event loop.
-func (app *Application) Start(ctx context.Context, root widgets.Root) error {
+func (app *Application) Start(ctx context.Context, root *widgets.Root) error {
 	defer app.recover()
 
 	err := app.terminal.Start(app.evch)
@@ -82,7 +82,7 @@ func (app *Application) Start(ctx context.Context, root widgets.Root) error {
 	}
 
 	app.root = root
-	app.root.AddEventListener(widgets.NeedRenderEventListener(func(_ widgets.NeedRenderEvent) {
+	app.root.AddEventListener(widgets.NeedRenderEventListener(func(_ events.Event) {
 		app.throttledRender()
 	}))
 
@@ -114,14 +114,13 @@ func (app *Application) eventLoop(ctx context.Context) {
 
 func (app *Application) render() {
 	app.terminal.Clear()
-	renderable := app.root.Renderable()
-	rootSize := renderable.Layout(layout.Constraint{
+	rootSize := app.root.Layout(layout.Constraint{
 		MinSize:    geometry.Size{},
 		MaxSize:    app.terminal.Size(),
 		ParentSize: app.terminal.Size(),
 		RootSize:   app.terminal.Size(),
 	})
-	renderable.Draw(draw.NewSubSurface(
+	app.root.Draw(draw.NewSubSurface(
 		app.terminal,
 		geometry.Rectangle{
 			Origin:   geometry.Vec2D{},

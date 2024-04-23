@@ -3,95 +3,83 @@ package widgets
 import (
 	"github.com/negrel/paon/events"
 	"github.com/negrel/paon/render"
-	"github.com/negrel/paon/styles"
 	"github.com/negrel/paon/tree"
 )
 
-// Widget is a generic interface that define any component part of the widget/element tree.
-// Any types that implement the Widget interface can be added to the widget tree.
-// You must embed *BaseWidget or *BoxWidget to implement this interface as it
-// contains private methods.
+// Widget define any object that can be rendered.
 type Widget interface {
 	events.Target
-	styles.Styled
-	tree.NodeAccessor
-	render.RenderableAccessor
+	render.Renderable
+	Node() *tree.Node[Widget]
 
-	setNode(*tree.Node)
-
-	// Swap swaps this widget node with node of the given one.
-	Swap(Widget)
+	Root() *Root
+	Parent() Widget
+	NextSibling() Widget
+	PreviousSibling() Widget
 }
 
-// IsMounted return whether a Node is mounted on an active Widget tree.
-func IsMounted(n *tree.Node) bool {
-	root := n.Root()
-	if root == nil {
-		return false
+type (
+	eventsTarget   = events.Target
+	treeNodeWidget = tree.Node[Widget]
+)
+
+// BaseWidget define a minimal/incomplete widget implementation that should be
+// embedded into more complex implementation.
+type BaseWidget struct {
+	events.Target
+	node    tree.Node[Widget]
+	IsDirty bool
+}
+
+// NewBaseWidget returns a new base widget.
+func NewBaseWidget(embedder Widget) BaseWidget {
+	bw := BaseWidget{
+		Target: events.NewTarget(),
+	}
+	bw.node = tree.NewNode(embedder)
+
+	return bw
+}
+
+// Node returns internal node.
+func (bw *BaseWidget) Node() *tree.Node[Widget] {
+	return &bw.node
+}
+
+// Parent returns parent widget.
+func (bw *BaseWidget) Parent() Widget {
+	return widgetOrNil(bw.node.Parent())
+}
+
+// Root returns root of widget tree. Nil is returned if widget is not mounted.
+func (bw *BaseWidget) Root() *Root {
+	w := widgetOrNil(bw.node.Root())
+	if root, isRoot := w.(*Root); isRoot {
+		return root
 	}
 
-	_, isRoot := root.Unwrap().(Root)
-	return isRoot
+	return nil
 }
 
-// Private events.Target for private embedding.
-type eventTarget = events.Target
-
-var _ Widget = &PanicWidget{}
-
-// PanicWidget define a minimal (and incomplete) Widget type.
-// PanicWidget implements panic methods for styles.Styled and render.RenderableAccessor
-// interfaces.
-type PanicWidget struct {
-	eventTarget
-
-	node *tree.Node
+// NextSibling returns next sibling widget if any.
+func (bw *BaseWidget) NextSibling() Widget {
+	return widgetOrNil(bw.node.Next())
 }
 
-// NewPanicWidget returns a new PanicWidget object configured with
-// the given options.
-func NewPanicWidget(nodeData Widget) *PanicWidget {
-	widget := newBaseWidget(nodeData)
-
-	return widget
+// PreviousSibling returns previous sibling widget if any.
+func (bw *BaseWidget) PreviousSibling() Widget {
+	return widgetOrNil(bw.node.Previous())
 }
 
-func newBaseWidget(nodeData Widget) *PanicWidget {
-	widget := &PanicWidget{
-		eventTarget: events.NewTarget(),
-		node:        tree.NewNode(nodeData),
+// DispatchEvent implements events.Target.
+func (bw *BaseWidget) DispatchEvent(ev events.Event) {
+	bw.Target.DispatchEvent(ev.WithTarget(bw.node.Unwrap()))
+}
+
+// NeedRender notify runtime that this widget need to be rendered again.
+func (bw *BaseWidget) NeedRender() {
+	root := bw.Root()
+	if root != nil {
+		root.DispatchEvent(events.NewEvent(NeedRenderEventType, nil))
 	}
-
-	return widget
-}
-
-// Swap implements Widget.
-func (bw *PanicWidget) Swap(other Widget) {
-	// Swap node reference.
-	old := bw.node
-	bw.node = other.Node()
-	other.setNode(old)
-
-	// Swap data contained in tree.Node.
-	this := old.Swap(other.Node().Unwrap())
-	bw.node.Swap(this)
-}
-
-// Node implements the Widget interface.
-func (bw *PanicWidget) Node() *tree.Node {
-	return bw.node
-}
-
-func (bw *PanicWidget) setNode(node *tree.Node) {
-	bw.node = node
-}
-
-// Renderable implements Widget.
-func (*PanicWidget) Renderable() render.Renderable {
-	panic("unimplemented")
-}
-
-// Style implements styles.Styled.
-func (*PanicWidget) Style() styles.Style {
-	panic("unimplemented")
 }

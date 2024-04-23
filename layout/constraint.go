@@ -40,3 +40,10 @@ func (c Constraint) ApplyOnHeight(height int) int {
 	height = minmax.Max(height, c.MinSize.Height)
 	return minmax.Min(height, c.MaxSize.Height)
 }
+
+// ForceSize sets min and max size to the given one.
+func (c Constraint) ForceSize(size geometry.Size) Constraint {
+	c.MinSize = size
+	c.MaxSize = size
+	return c
+}

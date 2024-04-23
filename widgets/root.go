@@ -1,70 +1,71 @@
 package widgets
 
 import (
+	"github.com/negrel/paon/draw"
 	"github.com/negrel/paon/events"
-	"github.com/negrel/paon/events/resize"
-	"github.com/negrel/paon/render"
+	"github.com/negrel/paon/geometry"
+	"github.com/negrel/paon/layout"
 )
 
 var (
 	NeedRenderEventType = events.NewType("NeedRender")
+	ScheduleEventType   = events.NewType("Schedule")
 )
-
-// NeedRenderEvent is emitted by Root widget when widgets tree needs to be rendered.
-type NeedRenderEvent struct {
-	events.Event
-}
 
 // NeedRenderEventListener returns an events.Listener that will call the given handler
 // on resize events.
-func NeedRenderEventListener(handler func(NeedRenderEvent)) (events.Type, events.Handler) {
-	return NeedRenderEventType, events.HandlerFunc(func(ev events.Event) {
-		handler(ev.(NeedRenderEvent))
-	})
+func NeedRenderEventListener(handler func(events.Event)) (events.Type, events.Listener) {
+	return NeedRenderEventType, events.NewListenerFunc(handler)
 }
+
+var _ Widget = &Root{}
 
 // Root define root of widgets tree.
 type Root struct {
-	Widget
-	rootRenderable
+	BaseLayout
 }
 
 // NewRoot returns a new Root widget that wraps the given Widget and its
 // render.Renderable.
-func NewRoot(w Widget) Root {
-	root := Root{
-		Widget: w,
-		rootRenderable: rootRenderable{
-			target:     w,
-			Renderable: w.Node().Unwrap().(render.RenderableAccessor).Renderable(),
-		},
-	}
+func NewRoot(w Widget) *Root {
+	root := &Root{}
+	root.BaseLayout = NewBaseLayout(root)
 
-	// Place root inside node.
-	root.Node().Swap(root)
-
-	root.AddEventListener(resize.Listener(func(resize.Event) {
-		root.rootRenderable.MarkDirty()
+	root.AddEventListener(events.ResizeListener(func(_ events.Event, _ events.ResizeEventData) {
+		root.DispatchEvent(events.NewEvent(NeedRenderEventType, nil))
 	}))
+
+	root.node.AppendChild(nodeOrNil(w))
 
 	return root
 }
 
-// Renderable implements render.RenderableAccessor.
-func (r Root) Renderable() render.Renderable {
-	return r.rootRenderable
-}
+// Layout implements layout.Layout.
+func (r *Root) Layout(co layout.Constraint) geometry.Size {
+	r.ChildrenLayout.Reset()
 
-type rootRenderable struct {
-	target events.Target
-	render.Renderable
-}
+	child := widgetOrNil(r.node.FirstChild())
+	if child != nil {
+		childSize := child.Layout(co)
 
-func (rr rootRenderable) MarkDirty() {
-	if !rr.Renderable.IsDirty() {
-		rr.target.DispatchEvent(NeedRenderEvent{
-			Event: events.NewEvent(NeedRenderEventType),
+		r.ChildrenLayout.Append(ChildLayout{
+			Widget: child,
+			Bounds: geometry.Rectangle{
+				Origin:   geometry.Vec2D{},
+				RectSize: childSize,
+			},
 		})
+
+		return childSize
 	}
-	rr.Renderable.MarkDirty()
+
+	return geometry.Size{}
+}
+
+// Draw implements draw.Drawer.
+func (r *Root) Draw(srf draw.Surface) {
+	child := widgetOrNil(r.node.FirstChild())
+	if child != nil {
+		child.Draw(srf)
+	}
 }

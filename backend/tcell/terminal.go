@@ -150,7 +150,7 @@ func eventLoop(pollFunc func() tcell.Event, evch chan<- events.Event) {
 					events.ButtonMask(ev.Buttons()),
 					events.ModMask(ev.Modifiers()),
 				)
-				mousePress = mousePressEvent.Unwrap().(events.MouseEventData)
+				mousePress = mousePressEvent.Data.(events.MouseEventData)
 				evch <- mousePressEvent
 			}
 

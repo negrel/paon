@@ -1,19 +1,18 @@
 package widgets
 
 import (
+	"github.com/negrel/paon/draw"
 	"github.com/negrel/paon/geometry"
-	"github.com/negrel/paon/tree"
 )
 
-// ChildLayout define position and size of a child Node.
+// ChildLayout define position and size of a child widget.
 type ChildLayout struct {
-	// Node associated to rectangle.
-	Node *tree.Node
+	Widget Widget
 	// Bounds relative to layout origin.
 	Bounds geometry.Rectangle
 }
 
-// ChildrenLayout contains position and size of children Node.
+// ChildrenLayout contains position and size of children.
 type ChildrenLayout struct {
 	origin  geometry.Vec2D
 	layouts []ChildLayout
@@ -37,7 +36,16 @@ func (cl *ChildrenLayout) Append(child ChildLayout) {
 	cl.layouts = append(cl.layouts, child)
 }
 
-func (cl *ChildrenLayout) reset() {
+// Reset resets stored child layouts.
+func (cl *ChildrenLayout) Reset() {
 	cl.origin = geometry.Vec2D{}
 	cl.layouts = cl.layouts[:0]
+}
+
+// Draw draws all children on the given surface.
+func (cl *ChildrenLayout) Draw(srf draw.Surface) {
+	for i := 0; i < cl.Size(); i++ {
+		childLayout := cl.Get(i)
+		childLayout.Widget.Draw(draw.NewSubSurface(srf, childLayout.Bounds))
+	}
 }

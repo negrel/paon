@@ -13,3 +13,13 @@ type Size struct {
 func (s Size) Size() Size {
 	return s
 }
+
+func (s Size) WithHeight(h int) Size {
+	s.Height = h
+	return s
+}
+
+func (s Size) WithWidth(w int) Size {
+	s.Width = w
+	return s
+}
