@@ -10,7 +10,7 @@ var MouseUpEventType = NewType("MouseUp")
 // on mouse up
 func MouseUpListener(handler func(Event, MouseEventData)) (Type, Listener) {
 	return MouseUpEventType, NewListenerFunc(func(event Event) {
-		handler(event, event.Unwrap().(MouseEventData))
+		handler(event, event.Data.(MouseEventData))
 	})
 }
 

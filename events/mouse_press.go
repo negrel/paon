@@ -10,7 +10,7 @@ var MousePressEventType = NewType("MousePress")
 // on mouse press
 func MousePressListener(handler func(Event, MouseEventData)) (Type, Listener) {
 	return MousePressEventType, NewListenerFunc(func(event Event) {
-		handler(event, event.Unwrap().(MouseEventData))
+		handler(event, event.Data.(MouseEventData))
 	})
 }
 

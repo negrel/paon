@@ -15,7 +15,7 @@ var ResizeEventType = NewType("Resize")
 // on resize events.
 func ResizeListener(handler func(Event, ResizeEventData)) (Type, Listener) {
 	return ResizeEventType, NewListenerFunc(func(event Event) {
-		handler(event, event.Unwrap().(ResizeEventData))
+		handler(event, event.Data.(ResizeEventData))
 	})
 }
 

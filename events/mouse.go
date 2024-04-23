@@ -42,7 +42,7 @@ var MouseEventType = NewType("Mouse")
 // on mouse
 func MouseEventListener(handler func(Event, MouseEventData)) (Type, Listener) {
 	return MouseEventType, NewListenerFunc(func(event Event) {
-		handler(event, event.Unwrap().(MouseEventData))
+		handler(event, event.Data.(MouseEventData))
 	})
 }
 
@@ -71,4 +71,15 @@ func NewMouseEvent(pos geometry.Vec2D, buttons ButtonMask, mods ModMask) Event {
 	}
 
 	return NewEvent(MouseEventType, data)
+}
+
+// RelativePosition implements PointerEventData.
+func (med MouseEventData) RelativePosition() geometry.Vec2D {
+	return med.RelPosition
+}
+
+// WithPositionRelativeToOrigin implements PointerEventData.
+func (med MouseEventData) WithPositionRelativeToOrigin(origin geometry.Vec2D) PointerEventData {
+	med.RelPosition = med.RelPosition.Sub(origin)
+	return med
 }

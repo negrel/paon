@@ -10,7 +10,7 @@ var ClickEventType = NewType("Click")
 // on click events.
 func ClickListener(handler func(Event, ClickEventData)) (Type, Listener) {
 	return ClickEventType, NewListenerFunc(func(event Event) {
-		handler(event, event.Unwrap().(ClickEventData))
+		handler(event, event.Data.(ClickEventData))
 	})
 }
 
@@ -35,4 +35,16 @@ func NewClick(pos geometry.Vec2D, buttons ButtonMask, mods ModMask, mousePress M
 	}
 
 	return NewEvent(ClickEventType, data)
+}
+
+// RelativePosition implements PointerEventData.
+func (ced ClickEventData) RelativePosition() geometry.Vec2D {
+	return ced.RelPosition
+}
+
+// WithPositionRelativeToOrigin implements PointerEventData.
+func (ced ClickEventData) WithPositionRelativeToOrigin(origin geometry.Vec2D) PointerEventData {
+	ced.RelPosition = ced.RelPosition.Sub(origin)
+	ced.MousePress.RelPosition = ced.RelPosition
+	return ced
 }

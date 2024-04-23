@@ -8,7 +8,7 @@ var ScrollEventType = NewType("Scroll")
 
 func ScrollListener(handler func(Event, ScrollEventData)) (Type, Listener) {
 	return ScrollEventType, NewListenerFunc(func(ev Event) {
-		handler(ev, ev.Unwrap().(ScrollEventData))
+		handler(ev, ev.Data.(ScrollEventData))
 	})
 }
 

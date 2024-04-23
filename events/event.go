@@ -8,7 +8,7 @@ type Event struct {
 	eType  Type
 	time   time.Time
 	target Target
-	data   any
+	Data   any
 }
 
 // NewEvent returns a new Event object of the given type. This function
@@ -22,7 +22,7 @@ func newEvent(eventType Type, data any) Event {
 		eType:  eventType,
 		time:   time.Now(),
 		target: nil,
-		data:   data,
+		Data:   data,
 	}
 }
 
@@ -46,9 +46,4 @@ func (e Event) Target() Target {
 func (e Event) WithTarget(t Target) Event {
 	e.target = t
 	return e
-}
-
-// Unwrap returns inner data contained within event.
-func (e Event) Unwrap() any {
-	return e.data
 }

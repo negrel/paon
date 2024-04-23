@@ -6,7 +6,7 @@ var KeypressEventType = NewType("KeyPress")
 // handler on key press events.
 func KeypressListener(handler func(Event, KeypressEventData)) (Type, Listener) {
 	return KeypressEventType, NewListenerFunc(func(event Event) {
-		handler(event, event.Unwrap().(KeypressEventData))
+		handler(event, event.Data.(KeypressEventData))
 	})
 }
 
