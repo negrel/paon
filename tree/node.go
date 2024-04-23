@@ -5,29 +5,24 @@ import (
 	"fmt"
 )
 
-// NodeAccessor define objects tied to a Node.
-type NodeAccessor interface {
-	Node() *Node
-}
-
 // Node define a single Node in a tree.
-type Node struct {
-	value any
+type Node[T any] struct {
+	value T
 
-	parent *Node
+	parent *Node[T]
 
 	// Siblings
-	next     *Node
-	previous *Node
+	next     *Node[T]
+	previous *Node[T]
 
 	// Children
-	firstChild *Node
-	lastChild  *Node
+	firstChild *Node[T]
+	lastChild  *Node[T]
 }
 
 // NewNode returns a new Node containing the given data.
-func NewNode(data any) *Node {
-	return &Node{
+func NewNode[T any](data T) Node[T] {
+	return Node[T]{
 		value:      data,
 		parent:     nil,
 		next:       nil,
@@ -37,40 +32,28 @@ func NewNode(data any) *Node {
 	}
 }
 
-// Node implements NodeAccessor.
-func (n *Node) Node() *Node {
-	return n
-}
-
 // Unwrap returns the underlying data contained in the node.
-func (n *Node) Unwrap() any {
+func (n *Node[T]) Unwrap() T {
 	return n.value
 }
 
-// Swap swaps underlying data contained in the node and returns old one.
-func (n *Node) Swap(v any) any {
-	old := n.value
-	n.value = v
-	return old
-}
-
 // NextSibling returns the next sibling of this node.
-func (n *Node) Next() *Node {
+func (n *Node[T]) Next() *Node[T] {
 	return n.next
 }
 
 // Previous implements Node.
-func (n *Node) Previous() *Node {
+func (n *Node[T]) Previous() *Node[T] {
 	return n.previous
 }
 
 // Parent returns parent node.
-func (n *Node) Parent() *Node {
+func (n *Node[T]) Parent() *Node[T] {
 	return n.parent
 }
 
 // Root returns root node of the tree.
-func (n *Node) Root() *Node {
+func (n *Node[T]) Root() *Node[T] {
 	if n.parent != nil {
 		return n.parent.Root()
 	}
@@ -79,19 +62,19 @@ func (n *Node) Root() *Node {
 }
 
 // FirstChild returns first direct child of this node.
-func (n *Node) FirstChild() *Node {
+func (n *Node[T]) FirstChild() *Node[T] {
 	return n.firstChild
 }
 
 // LastChild returns last direct child of this node.
-func (n *Node) LastChild() *Node {
+func (n *Node[T]) LastChild() *Node[T] {
 	return n.lastChild
 }
 
 // Appends the given child to the list of child node. An error is returned
 // if the given child is an ancestor of this node.
 // When an error is returned, the child is left unchanged
-func (n *Node) AppendChild(newChild *Node) (err error) {
+func (n *Node[T]) AppendChild(newChild *Node[T]) (err error) {
 	if err = n.ensurePreInsertionValidity(newChild); err != nil {
 		return fmt.Errorf("can't append child, %v", err)
 	}
@@ -100,7 +83,7 @@ func (n *Node) AppendChild(newChild *Node) (err error) {
 	return nil
 }
 
-func (n *Node) appendChild(newChild *Node) {
+func (n *Node[T]) appendChild(newChild *Node[T]) {
 	n.prepareChildForInsertion(newChild)
 	newChild.parent = n
 
@@ -114,7 +97,7 @@ func (n *Node) appendChild(newChild *Node) {
 	n.lastChild = newChild
 }
 
-func (n *Node) ensurePreInsertionValidity(child *Node) error {
+func (n *Node[T]) ensurePreInsertionValidity(child *Node[T]) error {
 	if child == nil {
 		return errors.New("child is nil")
 	}
@@ -127,7 +110,7 @@ func (n *Node) ensurePreInsertionValidity(child *Node) error {
 	return nil
 }
 
-func (n *Node) prepareChildForInsertion(newChild *Node) {
+func (n *Node[T]) prepareChildForInsertion(newChild *Node[T]) {
 	if parent := newChild.Parent(); parent != nil {
 		_ = parent.RemoveChild(newChild)
 	}
@@ -138,7 +121,7 @@ func (n *Node) prepareChildForInsertion(newChild *Node) {
 // if the given child is an ancestor of this node or if the reference
 // is not a direct child of this.
 // When an error is returned, the child is left unchanged
-func (n *Node) InsertBefore(newChild, reference *Node) error {
+func (n *Node[T]) InsertBefore(newChild, reference *Node[T]) error {
 	// InsertBeforeNode(node, nil) is equal to AppendChildNode(node)
 	if reference == nil {
 		return n.AppendChild(newChild)
@@ -155,7 +138,7 @@ func (n *Node) InsertBefore(newChild, reference *Node) error {
 	return nil
 }
 
-func (n *Node) insertBefore(reference, newChild *Node) {
+func (n *Node[T]) insertBefore(reference, newChild *Node[T]) {
 	n.prepareChildForInsertion(newChild)
 	newChild.parent = n
 
@@ -171,7 +154,7 @@ func (n *Node) insertBefore(reference, newChild *Node) {
 
 // Removes the given direct child node of this. Returns an error otherwise.
 // When an error is returned, the child is left unchanged
-func (n *Node) RemoveChild(child *Node) error {
+func (n *Node[T]) RemoveChild(child *Node[T]) error {
 	// if not a child
 	if n != child.Parent() {
 		return errors.New("can't remove child, the node is not a child of this node")
@@ -182,8 +165,8 @@ func (n *Node) RemoveChild(child *Node) error {
 	return nil
 }
 
-func (n *Node) removeChild(child *Node) {
-	// Removing parentNode & root link
+func (n *Node[T]) removeChild(child *Node[T]) {
+	// Removing parentNode[T] & root link
 	child.parent = nil
 
 	// Removing siblings link
@@ -205,7 +188,7 @@ func (n *Node) removeChild(child *Node) {
 }
 
 // IsAncestorOf returns true if the given node is a child of this one.
-func (n *Node) IsAncestorOf(other *Node) bool {
+func (n *Node[T]) IsAncestorOf(other *Node[T]) bool {
 	if other == nil {
 		return false
 	}
@@ -214,12 +197,12 @@ func (n *Node) IsAncestorOf(other *Node) bool {
 }
 
 // IsDescendantOf returns true if this node is a descendant of the given one.
-func (n *Node) IsDescendantOf(parent *Node) bool {
+func (n *Node[T]) IsDescendantOf(parent *Node[T]) bool {
 	if parent == nil {
 		return false
 	}
 
-	var node *Node = n
+	node := n
 	for node != nil {
 		if node == parent {
 			return true

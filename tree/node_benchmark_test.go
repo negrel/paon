@@ -8,8 +8,8 @@ import (
 )
 
 type benchIter struct {
-	parent   *Node
-	children []*Node
+	parent   *Node[any]
+	children []*Node[any]
 }
 
 func newBenchIter(nbChild int, appendChild bool) benchIter {
@@ -17,12 +17,12 @@ func newBenchIter(nbChild int, appendChild bool) benchIter {
 
 	// In order to remove child multiple time, we must setup an array of parents.
 	iter := benchIter{
-		parent:   NewNode(nodeData),
-		children: make([]*Node, nbChild),
+		parent:   NewNode[any](nodeData),
+		children: make([]*Node[any], nbChild),
 	}
 
 	for i := 0; i < nbChild; i++ {
-		iter.children[i] = NewNode(nodeData)
+		iter.children[i] = NewNode[any](nodeData)
 
 		if appendChild {
 			err := iter.parent.AppendChild(iter.children[i])
@@ -78,7 +78,7 @@ func benchmarkNodeInsertBefore(b *testing.B, nbChild int) {
 		parent := iter.parent
 		children := iter.children
 
-		var previousNode *Node
+		var previousNode *Node[any]
 
 		for j, child := range children {
 			err := parent.InsertBefore(child, previousNode)
@@ -130,7 +130,7 @@ func benchmarkNodeRoot(b *testing.B, deep int) {
 	rootData := nodeData.Add(time.Minute)
 	root := NewNode(rootData)
 
-	var parent *Node = root
+	parent := root
 	for i := 0; i < deep; i++ {
 		child := NewNode(nodeData)
 		err := parent.AppendChild(child)
