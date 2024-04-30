@@ -73,7 +73,8 @@ func (n *Node[T]) LastChild() *Node[T] {
 
 // Appends the given child to the list of child node. An error is returned
 // if the given child is an ancestor of this node.
-// When an error is returned, the child is left unchanged
+// When an error is returned, the child is left unchanged.
+// If the node is already attached to a parent node, it is first removed.
 func (n *Node[T]) AppendChild(newChild *Node[T]) (err error) {
 	if err = n.ensurePreInsertionValidity(newChild); err != nil {
 		return fmt.Errorf("can't append child, %v", err)
@@ -120,7 +121,8 @@ func (n *Node[T]) prepareChildForInsertion(newChild *Node[T]) {
 // reference is nil, the child is appended. An error is returned
 // if the given child is an ancestor of this node or if the reference
 // is not a direct child of this.
-// When an error is returned, the child is left unchanged
+// When an error is returned, the child is left unchanged.
+// If the node is already attached to a parent node, it is first removed.
 func (n *Node[T]) InsertBefore(newChild, reference *Node[T]) error {
 	// InsertBeforeNode(node, nil) is equal to AppendChildNode(node)
 	if reference == nil {
