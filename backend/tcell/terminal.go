@@ -90,9 +90,6 @@ func (c *Terminal) Stop() {
 }
 
 func eventLoop(pollFunc func() tcell.Event, evch chan<- events.Event) {
-	oldSize := geometry.Size{}
-	mousePress := events.MouseEventData{}
-
 	for {
 		event := pollFunc()
 		if event == nil {
@@ -106,8 +103,7 @@ func eventLoop(pollFunc func() tcell.Event, evch chan<- events.Event) {
 		case *tcell.EventResize:
 			newWidth, newHeight := ev.Size()
 			newSize := geometry.Size{Width: newWidth, Height: newHeight}
-			resize := events.NewResizeEvent(oldSize, newSize)
-			oldSize = newSize
+			resize := events.NewResizeEvent(newSize)
 
 			evch <- resize
 
@@ -120,61 +116,6 @@ func eventLoop(pollFunc func() tcell.Event, evch chan<- events.Event) {
 				events.ButtonMask(ev.Buttons()),
 				events.ModMask(ev.Modifiers()),
 			)
-
-			// A button was pressed in previous event.
-			if (mousePress != events.MouseEventData{}) && ev.Buttons() == tcell.ButtonNone {
-				// Mouse up.
-				evch <- events.NewMouseUp(
-					pos,
-					events.ButtonMask(ev.Buttons()),
-					events.ModMask(ev.Modifiers()),
-				)
-
-				if mousePress.Buttons&events.ButtonPrimary != 0 {
-					evch <- events.NewClick(
-						pos,
-						events.ButtonMask(ev.Buttons()),
-						events.ModMask(ev.Modifiers()),
-						mousePress,
-					)
-				}
-
-				mousePress = events.MouseEventData{}
-				continue
-			}
-
-			if (mousePress == events.MouseEventData{}) && ev.Buttons() >= tcell.Button1 && ev.Buttons() <= tcell.Button8 {
-				// Store mouse press until button is released.
-				mousePressEvent := events.NewMousePress(
-					pos,
-					events.ButtonMask(ev.Buttons()),
-					events.ModMask(ev.Modifiers()),
-				)
-				mousePress = mousePressEvent.Data.(events.MouseEventData)
-				evch <- mousePressEvent
-			}
-
-			if ev.Buttons() >= tcell.WheelUp && ev.Buttons() <= tcell.WheelRight {
-				scrollDir := events.ScrollUp
-				switch ev.Buttons() {
-				case tcell.WheelUp:
-				// Default.
-				case tcell.WheelDown:
-					scrollDir = events.ScrollDown
-				case tcell.WheelLeft:
-					scrollDir = events.ScrollLeft
-				case tcell.WheelRight:
-					scrollDir = events.ScrollRight
-				}
-
-				// Store scroll event until scroll ends is triggered.
-				scrollEvent := events.NewScroll(
-					pos,
-					events.ModMask(ev.Modifiers()),
-					scrollDir,
-				)
-				evch <- scrollEvent
-			}
 
 		case *tcell.EventKey:
 			evch <- events.NewKeypress(

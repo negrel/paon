@@ -27,7 +27,11 @@ const (
 	Button6
 	Button7
 	Button8
-	ButtonNone ButtonMask = 0 // No button.
+	WheelUp                   // Wheel motion up/away from user.
+	WheelDown                 // Wheel motion down/towards user.
+	WheelLeft                 // Wheel motion to left.
+	WheelRight                // Wheel motion to right.
+	ButtonNone ButtonMask = 0 // No button or wheel events.
 
 	ButtonPrimary   = Button1
 	ButtonSecondary = Button2
@@ -48,11 +52,9 @@ func MouseEventListener(handler func(Event, MouseEventData)) (Type, Listener) {
 
 // MouseEventData define data contained in all mouse event.
 type MouseEventData struct {
-	// Mouse absolute position.
-	AbsPosition geometry.Vec2D
-	// Position relative to element position.
-	RelPosition geometry.Vec2D
-	// List of buttons that were pressed.
+	// Mouse position.
+	Position geometry.Vec2D
+	// Pressed buttons.
 	Buttons ButtonMask
 	// Modifiers is the modifiers that were present with the key press. Note
 	// that not all platforms and terminals support this equally well, and some
@@ -64,22 +66,10 @@ type MouseEventData struct {
 // NewMouseEvent returns a new mouse event.
 func NewMouseEvent(pos geometry.Vec2D, buttons ButtonMask, mods ModMask) Event {
 	data := MouseEventData{
-		AbsPosition: pos,
-		RelPosition: pos,
-		Buttons:     buttons,
-		Modifiers:   mods,
+		Position:  pos,
+		Buttons:   buttons,
+		Modifiers: mods,
 	}
 
 	return NewEvent(MouseEventType, data)
-}
-
-// RelativePosition implements PointerEventData.
-func (med MouseEventData) RelativePosition() geometry.Vec2D {
-	return med.RelPosition
-}
-
-// WithPositionRelativeToOrigin implements PointerEventData.
-func (med MouseEventData) WithPositionRelativeToOrigin(origin geometry.Vec2D) PointerEventData {
-	med.RelPosition = med.RelPosition.Sub(origin)
-	return med
 }

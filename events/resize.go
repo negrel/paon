@@ -6,7 +6,7 @@ import (
 
 // ResizeEventData define data contained in events of type resize.
 type ResizeEventData struct {
-	Old, New geometry.Size
+	NewSize geometry.Size
 }
 
 var ResizeEventType = NewType("Resize")
@@ -20,17 +20,7 @@ func ResizeListener(handler func(Event, ResizeEventData)) (Type, Listener) {
 }
 
 // NewResizeEvent returns a new resize event.
-func NewResizeEvent(old, new geometry.Size) Event {
-	data := ResizeEventData{old, new}
+func NewResizeEvent(newSize geometry.Size) Event {
+	data := ResizeEventData{newSize}
 	return NewEvent(ResizeEventType, data)
-}
-
-// IsWider returns true if the new terminal size is wider.
-func (red ResizeEventData) IsWider() bool {
-	return red.Old.Size().Width < red.New.Size().Width
-}
-
-// IsGreater returns true if the new terminal size is greater.
-func (red ResizeEventData) IsGreater() bool {
-	return red.Old.Size().Height < red.New.Size().Height
 }

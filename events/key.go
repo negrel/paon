@@ -1,17 +1,17 @@
 package events
 
-var KeypressEventType = NewType("KeyPress")
+var KeyEventType = NewType("KeyPress")
 
-// KeypressListener returns a listener that will call the given
-// handler on key press events.
-func KeypressListener(handler func(Event, KeypressEventData)) (Type, Listener) {
-	return KeypressEventType, NewListenerFunc(func(event Event) {
-		handler(event, event.Data.(KeypressEventData))
+// KeyListener returns a listener that will call the given
+// handler on key events.
+func KeyListener(handler func(Event, KeyEventData)) (Type, Listener) {
+	return KeyEventType, NewListenerFunc(func(event Event) {
+		handler(event, event.Data.(KeyEventData))
 	})
 }
 
-// KeypressEventData define data contained in a key press event.
-type KeypressEventData struct {
+// KeyEventData define data contained in a key event.
+type KeyEventData struct {
 	// Modifiers is the modifiers that were present with the key press. Note
 	// that not all platforms and terminals support this equally well, and some
 	// cases we will not not know for sure. Hence, applications should avoid
@@ -32,13 +32,13 @@ type KeypressEventData struct {
 
 // New returns a new key press event.
 func NewKeypress(modifiers ModMask, key Key, r rune) Event {
-	data := KeypressEventData{
+	data := KeyEventData{
 		Modifiers: modifiers,
 		Key:       key,
 		Rune:      r,
 	}
 
-	return NewEvent(KeypressEventType, data)
+	return NewEvent(KeyEventType, data)
 }
 
 // String implements the fmt.Stringer interface.
