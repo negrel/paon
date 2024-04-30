@@ -114,17 +114,19 @@ func (app *Application) eventLoop(ctx context.Context) {
 
 func (app *Application) render() {
 	app.terminal.Clear()
-	rootSize := app.root.Layout(layout.Constraint{
-		MinSize:    geometry.Size{},
-		MaxSize:    app.terminal.Size(),
+	_ = app.root.Layout(layout.Constraint{
+		MinSize: geometry.Size{},
+		MaxSize: app.terminal.Size(),
+	}, widgets.LayoutContext{
 		ParentSize: app.terminal.Size(),
 		RootSize:   app.terminal.Size(),
+		Extras:     nil,
 	})
 	app.root.Draw(draw.NewSubSurface(
 		app.terminal,
 		geometry.Rectangle{
 			Origin:   geometry.Vec2D{},
-			RectSize: rootSize,
+			RectSize: app.terminal.Size(),
 		},
 	))
 	app.terminal.Flush()

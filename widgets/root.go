@@ -9,7 +9,6 @@ import (
 
 var (
 	NeedRenderEventType = events.NewType("NeedRender")
-	ScheduleEventType   = events.NewType("Schedule")
 )
 
 // NeedRenderEventListener returns an events.Listener that will call the given handler
@@ -20,7 +19,7 @@ func NeedRenderEventListener(handler func(events.Event)) (events.Type, events.Li
 
 var _ Widget = &Root{}
 
-// Root define root of widgets tree.
+// Root is a special enhancer type that is always the root of a widget tree.
 type Root struct {
 	BaseLayout
 }

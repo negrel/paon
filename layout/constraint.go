@@ -7,15 +7,8 @@ import (
 
 // Constraint define layout constraint.
 type Constraint struct {
-	MinSize, MaxSize geometry.Size
-	ParentSize       geometry.Size
-	RootSize         geometry.Size
-}
-
-// Equals returns true if the given Constraint is equal to this Constraint.
-func (c Constraint) Equals(other Constraint) bool {
-	return c.MinSize == other.MinSize && c.MaxSize == other.MaxSize &&
-		c.ParentSize == other.ParentSize && c.RootSize == other.RootSize
+	MinSize geometry.Size
+	MaxSize geometry.Size
 }
 
 // ApplyOnSize applies the size constraints on the given size and return
