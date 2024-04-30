@@ -2,14 +2,17 @@ package widgets
 
 import (
 	"github.com/negrel/paon/events"
-	"github.com/negrel/paon/render"
 	"github.com/negrel/paon/tree"
 )
 
-// Widget define any object that can be rendered.
+// Widget define objects part of widget tree and UI.
 type Widget interface {
 	events.Target
-	render.Renderable
+	Renderable
+
+	// Node associated to the widget. This is mostly for internal use,
+	// applications code shouldn't rely on this and use widget base method instead
+	// (NextSibling, PreviousSibling, etc).
 	Node() *tree.Node[Widget]
 
 	Root() *Root
@@ -18,10 +21,10 @@ type Widget interface {
 	PreviousSibling() Widget
 }
 
-type (
-	eventsTarget   = events.Target
-	treeNodeWidget = tree.Node[Widget]
-)
+// IsMounted returns true if widgets root is non nil.
+func IsMounted(w Widget) bool {
+	return w.Root() != nil
+}
 
 // BaseWidget define a minimal/incomplete widget implementation that should be
 // embedded into more complex implementation.

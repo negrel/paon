@@ -12,9 +12,15 @@ type ChildLayout struct {
 	Bounds geometry.Rectangle
 }
 
+// Reset resets child layout.
+func (cl *ChildLayout) Reset() {
+	cl.Widget = nil
+	cl.Bounds = geometry.Rectangle{}
+}
+
 // ChildrenLayout contains position and size of children.
 type ChildrenLayout struct {
-	origin  geometry.Vec2D
+	Origin  geometry.Vec2D
 	layouts []ChildLayout
 }
 
@@ -26,7 +32,7 @@ func (cl *ChildrenLayout) Size() int {
 // Get returns ChildLayout relative to parent origin.
 func (cl *ChildrenLayout) Get(i int) ChildLayout {
 	childLayout := cl.layouts[i]
-	childLayout.Bounds = childLayout.Bounds.MoveBy(cl.origin)
+	childLayout.Bounds = childLayout.Bounds.MoveBy(cl.Origin)
 
 	return childLayout
 }
@@ -38,7 +44,7 @@ func (cl *ChildrenLayout) Append(child ChildLayout) {
 
 // Reset resets stored child layouts.
 func (cl *ChildrenLayout) Reset() {
-	cl.origin = geometry.Vec2D{}
+	cl.Origin = geometry.Vec2D{}
 	cl.layouts = cl.layouts[:0]
 }
 

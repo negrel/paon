@@ -2,9 +2,21 @@ package widgets
 
 import (
 	"github.com/negrel/paon/draw"
-	"github.com/negrel/paon/events"
 	"github.com/negrel/paon/tree"
 )
+
+// Layout define widgets that can have children.
+type Layout interface {
+	Widget
+
+	FirstChild() Widget
+	LastChild() Widget
+	AppendChild(Widget) error
+	InsertBefore(newChild, reference Widget) error
+	RemoveChild(Widget) error
+	IsAncestorOf(Widget) bool
+	IsDescendantOf(Widget) bool
+}
 
 func nodeOrNil(w Widget) *tree.Node[Widget] {
 	if w == nil {
@@ -22,8 +34,8 @@ func widgetOrNil(n *tree.Node[Widget]) Widget {
 	return n.Unwrap()
 }
 
-// BaseLayout define a minimal/incomplete widget implementation that should be
-// embedded into more complex implementation.
+// BaseLayout define a minimal/incomplete and unopiniated layout implementation
+// that should be embedded into more complex implementation.
 type BaseLayout struct {
 	BaseWidget
 	ChildrenLayout ChildrenLayout
@@ -37,28 +49,6 @@ func NewBaseLayout(embedder Widget) BaseLayout {
 	}
 
 	return bl
-}
-
-func (bl *BaseLayout) DispatchEvent(ev events.Event) {
-	// Trigger events listeners.
-	bl.BaseWidget.DispatchEvent(ev)
-
-	// Forward to child widgets.
-	if data, isPointerData := ev.Data.(events.PointerEventData); isPointerData {
-		for i := 0; i < bl.ChildrenLayout.Size(); i++ {
-			childLayout := bl.ChildrenLayout.Get(i)
-			if childLayout.Bounds.Contains(data.RelativePosition()) {
-				ev.Data = data.WithPositionRelativeToOrigin(childLayout.Bounds.Origin)
-				childLayout.Widget.DispatchEvent(ev)
-			}
-		}
-	} else {
-		child := bl.FirstChild()
-		for child != nil {
-			child.DispatchEvent(ev)
-			child = child.NextSibling()
-		}
-	}
 }
 
 // Draw implements draw.Drawer.
@@ -76,6 +66,9 @@ func (bl *BaseLayout) LastChild() Widget {
 	return widgetOrNil(bl.node.LastChild())
 }
 
+// AppendChild appends the given widget to the list of child widget. An error is
+// returned if the given widget is an ancestor of this node. When an error is
+// returned, given widget is left unchanged.
 func (bl *BaseLayout) AppendChild(w Widget) error {
 	return bl.node.AppendChild(nodeOrNil(w))
 }
